@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Bootcamp Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --white: #ffffff;
+    --page: #f4f4f1;
+    --panel: rgba(255, 255, 255, 0.84);
+    --border: rgba(0, 0, 0, 0.1);
+    --muted: rgba(0, 0, 0, 0.56);
+    --subtle: rgba(0, 0, 0, 0.34);
+    --sidebar: #050505;
+    --sidebar-muted: rgba(255, 255, 255, 0.62);
+    --gradient: linear-gradient(135deg, #0acf83 0%, #a259ff 32%, #f24e1e 68%, #1abcfe 100%);
+    --font-sans: 'Noto Sans KR', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'Space Mono', 'SF Mono', Menlo, monospace;
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.08);
+    --radius-xl: 30px;
+    --radius-lg: 24px;
+    --radius-md: 20px;
+    --radius-pill: 999px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(162, 89, 255, 0.12), transparent 28%),
+      radial-gradient(circle at top right, rgba(26, 188, 254, 0.08), transparent 26%),
+      var(--page);
+    color: var(--black);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+    letter-spacing: -0.14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+  button, a { font: inherit; }
+  :focus-visible { outline: 2px dashed var(--black); outline-offset: 4px; }
+
+  .shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 18px;
+    padding: 18px;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 18px;
+    align-self: start;
+    min-height: calc(100vh - 36px);
+    padding: 28px 22px;
+    border-radius: 32px;
+    background: var(--sidebar);
+    color: var(--white);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.12);
+  }
+
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--gradient);
+    margin-bottom: 18px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.56px;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+
+  .sidebar .eyebrow { color: rgba(255, 255, 255, 0.46); }
+
+  .sidebar h1 {
+    margin-top: 10px;
+    font-size: 28px;
+    line-height: 1.08;
+    letter-spacing: -0.9px;
+  }
+
+  .sidebar p {
+    margin-top: 14px;
+    color: var(--sidebar-muted);
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .nav {
+    margin-top: 28px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .nav a {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    padding: 13px 16px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--sidebar-muted);
+    transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+  }
+
+  .nav a:hover,
+  .nav a.active {
+    color: var(--white);
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(2px);
+  }
+
+  .nav span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.48px;
+    text-transform: uppercase;
+    opacity: 0.72;
+  }
+
+  .sidebar-note {
+    margin-top: 28px;
+    padding: 18px;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .sidebar-note h2 {
+    margin-top: 10px;
+    font-size: 20px;
+    line-height: 1.18;
+    letter-spacing: -0.44px;
+  }
+
+  .workspace,
+  .rail {
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .hero,
+  .panel {
+    background: var(--panel);
+    border: 1px solid rgba(255, 255, 255, 0.74);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+  }
+
+  .hero {
+    position: relative;
+    padding: 30px;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 5px;
+    background: var(--gradient);
+  }
+
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .hero h2 {
+    margin-top: 12px;
+    font-size: clamp(34px, 4.2vw, 50px);
+    line-height: 1.04;
+    letter-spacing: -1.3px;
+  }
+
+  .hero p {
+    margin-top: 16px;
+    max-width: 620px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .button:hover { transform: translateY(-1px); }
+  .button.primary {
+    background: var(--black);
+    color: var(--white);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+  }
+  .button.secondary {
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  .status-row {
+    margin-top: 22px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0acf83;
+    box-shadow: 0 0 0 8px rgba(10, 207, 131, 0.13);
+  }
+
+  .status-pill strong {
+    display: block;
+    font-size: 14px;
+  }
+
+  .status-pill span {
+    display: block;
+    font-size: 12px;
+    color: var(--subtle);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: hidden;
+  }
+
+  .metric {
+    padding: 24px 26px;
+    border-right: 1px solid var(--border);
+  }
+
+  .metric:last-child { border-right: none; }
+
+  .metric strong {
+    display: block;
+    margin-top: 12px;
+    font-size: 36px;
+    line-height: 1;
+    letter-spacing: -1.1px;
+  }
+
+  .metric p {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  .metric span {
+    display: block;
+    margin-top: 16px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.54px;
+    text-transform: uppercase;
+    color: #0e9f6e;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 18px;
+  }
+
+  .column,
+  .rail {
+    display: grid;
+    gap: 18px;
+  }
+
+  .panel { padding: 26px; }
+
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 22px;
+  }
+
+  .panel-head h3 {
+    margin-top: 8px;
+    font-size: 28px;
+    line-height: 1.12;
+    letter-spacing: -0.72px;
+  }
+
+  .panel-head p {
+    margin-top: 10px;
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  .panel-meta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.52px;
+    text-transform: uppercase;
+    color: var(--subtle);
+    white-space: nowrap;
+  }
+
+  .ops-list,
+  .task-list,
+  .alert-list,
+  .location-list,
+  .actions-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .ops-item,
+  .task-item,
+  .alert-item,
+  .location-item,
+  .action-item {
+    padding: 18px;
+    border-radius: var(--radius-lg);
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .ops-item {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: start;
+  }
+
+  .week {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.54px;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+
+  .ops-body strong,
+  .task-item strong,
+  .alert-item strong,
+  .location-item strong {
+    display: block;
+    font-size: 16px;
+    line-height: 1.28;
+    letter-spacing: -0.24px;
+    margin-bottom: 6px;
+  }
+
+  .ops-body p,
+  .task-item p,
+  .alert-item p,
+  .location-item p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--muted);
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .tag.ok { background: rgba(10, 207, 131, 0.15); color: #087c56; }
+  .tag.warn { background: rgba(242, 78, 30, 0.13); color: #9a3a1c; }
+
+  .pipeline {
+    display: grid;
+    gap: 14px;
+  }
+
+  .pipeline-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 72px;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .pipeline-row strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 6px;
+  }
+
+  .pipeline-row p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .track {
+    position: relative;
+    height: 10px;
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: inherit;
+    background: var(--gradient);
+  }
+
+  .pipeline-row span {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.54px;
+    text-transform: uppercase;
+    text-align: right;
+  }
+
+  .roster {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .roster-row {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr 0.85fr 0.9fr;
+    gap: 12px;
+    align-items: center;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.74);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .roster-row:last-child { border-bottom: none; }
+  .roster-row.header {
+    background: rgba(0, 0, 0, 0.03);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.54px;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+
+  .roster-name strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 2px;
+  }
+
+  .roster-name span,
+  .roster-cell {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .task-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+  }
+
+  .task-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.06);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--subtle);
+  }
+
+  .task-mark.done {
+    background: rgba(10, 207, 131, 0.15);
+    color: #087c56;
+  }
+
+  .stats-mini {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .mini {
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, rgba(10, 207, 131, 0.12), rgba(162, 89, 255, 0.12));
+    border: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  .mini strong {
+    display: block;
+    margin-top: 10px;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .mini p {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .alert-item.critical { border-color: rgba(242, 78, 30, 0.22); }
+  .alert-item.notice { border-color: rgba(26, 188, 254, 0.18); }
+
+  .location-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+
+  .location-head span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.54px;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+
+  .action-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .action-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+  }
+
+  .action-item span {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.54px;
+    text-transform: uppercase;
+    color: var(--subtle);
+  }
+
+  @media (max-width: 1360px) {
+    .shell { grid-template-columns: 220px minmax(0, 1fr); }
+    .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .metric { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .metric:nth-child(2) { border-right: none; }
+    .metric:nth-child(3),
+    .metric:nth-child(4) { border-bottom: none; }
+    .metric:nth-child(4) { border-right: none; }
+  }
+
+  @media (max-width: 1180px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; min-height: auto; }
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 860px) {
+    .shell { padding: 12px; gap: 12px; }
+    .hero-top,
+    .panel-head,
+    .actions { display: grid; justify-content: stretch; }
+    .metrics,
+    .stats-mini { grid-template-columns: 1fr; }
+    .metric { border-right: none; }
+    .ops-item,
+    .pipeline-row,
+    .task-item { grid-template-columns: 1fr; }
+    .roster-row { grid-template-columns: 1fr; gap: 6px; }
+    .roster-row.header { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand-mark" aria-hidden="true"></div>
+      <div class="eyebrow">Operations cockpit</div>
+      <h1>AI Bootcamp<br>Admin</h1>
+      <p>홍대반과 강남반 운영 상황을 한 화면에서 확인하는 관리자 대시보드입니다. 오늘 할 일, 리스크, 장소 준비를 먼저 보이게 배치했습니다.</p>
+
+      <nav class="nav" aria-label="관리자 섹션">
+        <a class="active" href="#overview">개요 <span>Live</span></a>
+        <a href="#operations">운영 보드 <span>Week</span></a>
+        <a href="#pipeline">지원 흐름 <span>CRM</span></a>
+        <a href="#attendance">출석 현황 <span>Roll</span></a>
+        <a href="#alerts">운영 알림 <span>Ops</span></a>
+      </nav>
+
+      <section class="sidebar-note">
+        <div class="eyebrow">This week</div>
+        <h2>4주차 합동 리뷰 준비중</h2>
+        <p>서울역/공덕 인근 강의실 후보는 정리됐고, 오늘 안에 발표 순서와 녹화 담당만 확정하면 운영 흐름이 잠깁니다.</p>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <section class="hero" id="overview">
+        <div class="hero-top">
+          <div>
+            <div class="eyebrow">Admin dashboard</div>
+            <h2>4월 1기 운영 대시보드</h2>
+            <p>오늘 저녁 세션 운영, 전국민 AI 경진대회 인증, 월말 합동 리뷰 준비도를 한 화면에서 점검할 수 있게 정리했습니다.</p>
+          </div>
+          <div class="actions">
+            <a class="button primary" href="preview.html">수강생 페이지 보기</a>
+            <a class="button secondary" href="#actions">빠른 액션 열기</a>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <div class="status-pill">
+            <div class="status-dot" aria-hidden="true"></div>
+            <div>
+              <strong>운영 안정</strong>
+              <span>마지막 동기화 2026.04.02 14:05 KST</span>
+            </div>
+          </div>
+          <div class="status-pill">
+            <div>
+              <strong>오늘 세션 · 홍대 12명 / 강남 12명</strong>
+              <span>월요일 20:00 - 22:00, 오프라인 2개 반 동시 운영</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel metrics" aria-label="핵심 지표">
+        <article class="metric">
+          <div class="eyebrow">Active learners</div>
+          <strong>24명</strong>
+          <p>등록 완료 기준. 결석 위험자 2명은 별도 체크리스트로 관리 중입니다.</p>
+          <span>+3 vs 지난 기수</span>
+        </article>
+        <article class="metric">
+          <div class="eyebrow">Attendance rate</div>
+          <strong>91%</strong>
+          <p>실출석과 온라인 보강 제출을 함께 반영한 운영 지표입니다.</p>
+          <span>+6pp this week</span>
+        </article>
+        <article class="metric">
+          <div class="eyebrow">Daily verification</div>
+          <strong>82%</strong>
+          <p>전국민 AI 경진대회 인증 완료율입니다. 저녁 전 리마인드가 효과를 내고 있습니다.</p>
+          <span>19건 검수 대기</span>
+        </article>
+        <article class="metric">
+          <div class="eyebrow">Review readiness</div>
+          <strong>76%</strong>
+          <p>월말 합동 리뷰 발표 준비도입니다. 발표 순서와 데모 영상 제출이 남았습니다.</p>
+          <span>발표 슬롯 6개 확정</span>
+        </article>
+      </section>
+
+      <div class="main-grid">
+        <div class="column">
+          <section class="panel" id="operations">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Weekly operations</div>
+                <h3>운영 보드</h3>
+                <p>주차별로 무엇이 끝났고 어디가 막혀 있는지 한 줄씩 읽히도록 구성했습니다.</p>
+              </div>
+              <div class="panel-meta">4-week flow</div>
+            </div>
+
+            <div class="ops-list">
+              <article class="ops-item">
+                <div class="week">Week 1</div>
+                <div class="ops-body">
+                  <strong>OT · 환경 세팅 완료</strong>
+                  <p>Claude Code 설치, 카톡방 입장, 첫 바이브 코딩까지 안정적으로 마쳤습니다.</p>
+                </div>
+                <div class="tag ok">완료</div>
+              </article>
+              <article class="ops-item">
+                <div class="week">Week 2</div>
+                <div class="ops-body">
+                  <strong>아이디어 확정률 88%</strong>
+                  <p>한 명만 주제 전환 상담이 남아 있고, 나머지는 핵심 기능 구현 단계로 진입했습니다.</p>
+                </div>
+                <div class="tag ok">양호</div>
+              </article>
+              <article class="ops-item">
+                <div class="week">Week 3</div>
+                <div class="ops-body">
+                  <strong>코드리뷰와 디버깅 피크</strong>
+                  <p>강남반 2명은 API 키 세팅 이슈가 있어 멘토가 개별 지원 중입니다.</p>
+                </div>
+                <div class="tag warn">주의</div>
+              </article>
+              <article class="ops-item">
+                <div class="week">Week 4</div>
+                <div class="ops-body">
+                  <strong>합동 리뷰 운영 설계</strong>
+                  <p>발표 순서, 녹화 담당, 장소 공지문을 오늘 중으로 잠그면 전체 흐름이 마감됩니다.</p>
+                </div>
+                <div class="tag ok">진행중</div>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel" id="pipeline">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Applicant pipeline</div>
+                <h3>지원자 파이프라인</h3>
+                <p>신청에서 최종 등록까지 어디에서 병목이 생기는지 단계별로 바로 읽히게 만들었습니다.</p>
+              </div>
+              <div class="panel-meta">updated today</div>
+            </div>
+
+            <div class="pipeline">
+              <div class="pipeline-row">
+                <div>
+                  <strong>신청</strong>
+                  <p>구글폼 접수 및 참여 목적 확인</p>
+                  <div class="track"><div class="fill" style="width:100%"></div></div>
+                </div>
+                <span>38 · 100%</span>
+              </div>
+              <div class="pipeline-row">
+                <div>
+                  <strong>대화</strong>
+                  <p>카톡 안내와 오프라인 반 선택 상담</p>
+                  <div class="track"><div class="fill" style="width:82%"></div></div>
+                </div>
+                <span>31 · 82%</span>
+              </div>
+              <div class="pipeline-row">
+                <div>
+                  <strong>확정</strong>
+                  <p>결제 및 반 배정 완료</p>
+                  <div class="track"><div class="fill" style="width:63%"></div></div>
+                </div>
+                <span>24 · 63%</span>
+              </div>
+              <div class="pipeline-row">
+                <div>
+                  <strong>대기</strong>
+                  <p>취소 대비 대기 명단 유지</p>
+                  <div class="track"><div class="fill" style="width:18%"></div></div>
+                </div>
+                <span>7 · 18%</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" id="attendance">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Tonight session</div>
+                <h3>출석 및 진행 체크</h3>
+                <p>오늘 세션 기준으로 실제 참여 상태와 과제 진행도를 함께 확인합니다.</p>
+              </div>
+              <div class="panel-meta">live roster</div>
+            </div>
+
+            <div class="roster">
+              <div class="roster-row header">
+                <div>수강생</div>
+                <div>트랙</div>
+                <div>출석 상태</div>
+                <div>오늘 초점</div>
+              </div>
+              <div class="roster-row">
+                <div class="roster-name"><strong>김하늘</strong><span>홍대반 · 서비스 기획</span></div>
+                <div class="roster-cell">브랜딩/기획</div>
+                <div><span class="tag ok">출석 예정</span></div>
+                <div class="roster-cell">프로젝트 구조 설계</div>
+              </div>
+              <div class="roster-row">
+                <div class="roster-name"><strong>박민준</strong><span>강남반 · 마케터</span></div>
+                <div class="roster-cell">자동화 실습</div>
+                <div><span class="tag warn">10분 지각</span></div>
+                <div class="roster-cell">API 연동 점검</div>
+              </div>
+              <div class="roster-row">
+                <div class="roster-name"><strong>이서윤</strong><span>홍대반 · 개발자 전환</span></div>
+                <div class="roster-cell">디버깅</div>
+                <div><span class="tag ok">출석 완료</span></div>
+                <div class="roster-cell">배포 안정화</div>
+              </div>
+              <div class="roster-row">
+                <div class="roster-name"><strong>최현우</strong><span>강남반 · 디자이너</span></div>
+                <div class="roster-cell">UI 정리</div>
+                <div><span class="tag">보강 제출</span></div>
+                <div class="roster-cell">발표 자료 마무리</div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="rail">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Today checklist</div>
+                <h3>오늘 해야 할 일</h3>
+              </div>
+              <div class="panel-meta">4 items</div>
+            </div>
+
+            <div class="task-list">
+              <article class="task-item">
+                <div class="task-mark done">OK</div>
+                <div>
+                  <strong>홍대반 강의실 예약 확인</strong>
+                  <p>로컬스티치 서교 스터디룸 체크인 담당자 연락 완료</p>
+                </div>
+              </article>
+              <article class="task-item">
+                <div class="task-mark">1</div>
+                <div>
+                  <strong>강남반 지각 예상자 개별 DM</strong>
+                  <p>19시 20분 전 도착 가능 여부 재확인</p>
+                </div>
+              </article>
+              <article class="task-item">
+                <div class="task-mark">2</div>
+                <div>
+                  <strong>합동 리뷰 발표 순서 초안 배포</strong>
+                  <p>발표 6팀 기준 7분 운영안 공유</p>
+                </div>
+              </article>
+              <article class="task-item">
+                <div class="task-mark">3</div>
+                <div>
+                  <strong>일일 인증 미제출자 리마인드</strong>
+                  <p>검수 대기 19건 중 보완 필요 6건</p>
+                </div>
+              </article>
+            </div>
+
+            <div class="stats-mini">
+              <div class="mini">
+                <div class="eyebrow">No-show risk</div>
+                <strong>2명</strong>
+                <p>19시 30분 전 확인 필요</p>
+              </div>
+              <div class="mini">
+                <div class="eyebrow">Mentor load</div>
+                <strong>3명</strong>
+                <p>현장 멘토 투입 예정</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel" id="alerts">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Alerts</div>
+                <h3>운영 알림</h3>
+              </div>
+              <div class="panel-meta">needs attention</div>
+            </div>
+
+            <div class="alert-list">
+              <article class="alert-item critical">
+                <strong>강남반 1명 API 키 이슈</strong>
+                <p>결제는 완료됐지만 OpenAI API 세팅이 막혀 있어 1:1 온보딩이 필요합니다.</p>
+              </article>
+              <article class="alert-item notice">
+                <strong>합동 리뷰 장소 안내 공지 미발송</strong>
+                <p>서울역/공덕 후보가 정리돼 있어 오늘 밤 공지문만 올리면 됩니다.</p>
+              </article>
+              <article class="alert-item notice">
+                <strong>인증률 상위 5명 리더보드 준비</strong>
+                <p>주간 랭킹 공유가 참여율 유지에 효과적이라 세션 종료 후 바로 업데이트 권장</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="panel" id="actions">
+            <div class="panel-head">
+              <div>
+                <div class="eyebrow">Venue & actions</div>
+                <h3>장소 현황과 빠른 액션</h3>
+              </div>
+              <div class="panel-meta">ops tools</div>
+            </div>
+
+            <div class="location-list">
+              <article class="location-item">
+                <div class="location-head">
+                  <strong>홍대</strong>
+                  <span>11 / 12 confirmed</span>
+                </div>
+                <p>로컬스티치 서교 스터디룸. 발표 리허설용 모니터 1대 확보 완료.</p>
+              </article>
+              <article class="location-item">
+                <div class="location-head">
+                  <strong>강남</strong>
+                  <span>10 / 12 confirmed</span>
+                </div>
+                <p>강남 인근 스터디룸. HDMI 젠더와 멀티탭 추가 준비 필요.</p>
+              </article>
+            </div>
+
+            <div class="actions-list">
+              <a class="action-item" href="#alerts"><strong>인증 검수 시작</strong><span>Review</span></a>
+              <a class="action-item" href="#attendance"><strong>출석 메시지 발송</strong><span>Send</span></a>
+              <a class="action-item" href="#operations"><strong>합동 리뷰 공지 수정</strong><span>Edit</span></a>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

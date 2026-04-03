@@ -4,8 +4,10 @@ AI 스터디 부트캠프 — Claude Code를 활용한 4주 완성 AI 서비스 
 
 ## Preview
 
+- [Default Preview](index.html)
 - [Light Mode](preview.html)
 - [Dark Mode](preview-dark.html)
+- [Admin Dashboard](admin.html)
 
 ## Design Characteristics
 
