@@ -38,7 +38,7 @@ export function App() {
   }, []);
 
   const go = (p: Page) => {
-    location.hash = `/${p}`;
+    location.hash = p;
     setPage(p);
     window.scrollTo({ top: 0 });
   };
@@ -89,7 +89,7 @@ export function App() {
         <div className="side-foot">
           {switcher("persona-side")}
           {!inFrame && (
-            <a className="btn ghost sm" href={`${location.pathname}?as=${me.id === "t1" ? "s1" : "t1"}#/${page}`} target="_blank" rel="noopener">
+            <a className="btn ghost sm" href={`${location.pathname}?as=${me.id === "t1" ? "s1" : "t1"}#${page}`} target="_blank" rel="noopener">
               새 탭에서 다른 사람으로 열기
             </a>
           )}
