@@ -1,11 +1,19 @@
 {
-  "name": "교실잇다 — 설치 없는 학교 협업",
-  "short_name": "교실잇다",
+  "name": "널리잇다 — 선생님의 하루를 잇다",
+  "short_name": "널리잇다",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "lang": "ko",
-  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "description": "학교 문서 변환, 수업 슬라이드, 가정통신문, 학생 상담·기록, 결강 처리, 교육실습을 한곳에서. 학생 정보는 기기 밖으로 나가지 않습니다."
 }

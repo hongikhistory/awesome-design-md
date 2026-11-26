@@ -8,9 +8,9 @@ const snap: RecordsSnapshot = {
 
 describe("records backup", () => {
   it("round-trips with the right passphrase and refuses a wrong one", async () => {
-    const file = await sealBackup(snap, "한빛중 2-1 백업 암호", 100_000);
+    const file = await sealBackup(snap, "홍익중 2-1 백업 암호", 100_000);
     expect(file).not.toContain("가나다");
-    expect((await openBackup(file, "한빛중 2-1 백업 암호", )).events).toEqual(snap.events);
+    expect((await openBackup(file, "홍익중 2-1 백업 암호", )).events).toEqual(snap.events);
     await expect(openBackup(file, "틀린 암호입니다만")).rejects.toThrow(/암호/);
   });
   it("rejects tampered files and weak passphrases", async () => {

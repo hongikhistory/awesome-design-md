@@ -22,7 +22,7 @@ describe("record checker", () => {
   it("flags forbidden content", () => {
     expect(rules("TOEIC 900점을 받음.")).toContain("공인어학시험");
     expect(rules("수학 올림피아드에 참가함.")).toContain("교외대회");
-    expect(rules("한빛중학교 축제에서 사회를 봄.")).toContain("학교명");
+    expect(rules("홍익중학교 축제에서 사회를 봄.")).toContain("학교명");
     expect(rules("서울대학교 캠프에 참여함.")).toContain("대학명");
     expect(rules("방학 중 어학연수를 다녀옴.")).toContain("해외 활동");
     expect(rules("아버지가 의사여서 생명과학에 관심을 가짐.")).toContain("부모의 사회·경제적 지위");
@@ -48,9 +48,9 @@ describe("AI draft prompt", () => {
     expect(p).toContain("그대로 입력하는 것은");
   });
   it("draft prompt removes the student, classmates, school and phone numbers", () => {
-    const p = draftPrompt({ item: "subject", subject: "국어", year: 2026, level: "중", studentName: "김서연", classmates: ["박지호"], schoolName: "한빛중학교",
-      observations: [{ date: "2026-11-01", text: "서연이가 박지호와 한빛중 축제 발표를 준비함. 010-1234-5678" }] });
-    expect(p).not.toMatch(/김서연|서연|박지호|지호|한빛중|010-1234/);
+    const p = draftPrompt({ item: "subject", subject: "국어", year: 2026, level: "중", studentName: "김서연", classmates: ["박지호"], schoolName: "홍익중학교",
+      observations: [{ date: "2026-11-01", text: "서연이가 박지호와 홍익중 축제 발표를 준비함. 010-1234-5678" }] });
+    expect(p).not.toMatch(/김서연|서연|박지호|지호|홍익중|010-1234/);
     expect(p).toContain("다른 학생");
   });
 });

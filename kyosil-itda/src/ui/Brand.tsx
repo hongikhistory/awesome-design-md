@@ -1,4 +1,4 @@
-/** 교실잇다 mark: two seats joined by a bridge, with a spark of an idea above. Original artwork. */
+/** 널리잇다 mark: two seats joined by a bridge, with a spark of an idea above. Original artwork. */
 export function Logo({ size = 32 }: { size?: number }) {
   return (
     <svg className="logo" width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">

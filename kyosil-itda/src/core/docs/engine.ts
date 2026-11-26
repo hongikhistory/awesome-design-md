@@ -83,7 +83,7 @@ export function csvToMarkdown(csv: string): string {
 
 /** Wraps Markdown with a short header so an AI assistant knows what it is reading. */
 export function aiReady(markdown: string, meta: { name: string; format: DocFormat }) {
-  return `<!-- 출처: ${meta.name} (${FORMAT_LABEL[meta.format]}), 교실잇다에서 Markdown으로 변환 -->\n\n${markdown}\n`;
+  return `<!-- 출처: ${meta.name} (${FORMAT_LABEL[meta.format]}), 널리잇다에서 Markdown으로 변환 -->\n\n${markdown}\n`;
 }
 
 export function download(name: string, data: BlobPart, type = "application/octet-stream") {

@@ -46,9 +46,9 @@ export async function openBackup(file: string, pass: string): Promise<RecordsSna
   try {
     env = JSON.parse(file);
   } catch {
-    throw Error("교실잇다 백업 파일이 아닙니다.");
+    throw Error("널리잇다 백업 파일이 아닙니다.");
   }
-  if (env?.format !== "kyosil-backup" || env.v !== 1 || typeof env.data !== "string") throw Error("교실잇다 백업 파일이 아닙니다.");
+  if (env?.format !== "kyosil-backup" || env.v !== 1 || typeof env.data !== "string") throw Error("널리잇다 백업 파일이 아닙니다.");
   if (!Number.isInteger(env.iter) || env.iter < 100_000 || env.iter > 5_000_000) throw Error("백업 파일 형식이 올바르지 않습니다.");
   const key = await keyFrom(pass, unb64(env.salt), env.iter);
   let plain: ArrayBuffer;

@@ -1,6 +1,6 @@
 import { HardDrive, ImagePlus, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { imageToDataUrl, saveMe, saveSchool, useMyProfile, useSchool, type MyProfile, type SchoolProfile } from "../core/profile";
+import { imageToDataUrl, resetIntro, saveMe, saveSchool, useMyProfile, useSchool, type MyProfile, type SchoolProfile } from "../core/profile";
 import { useApp } from "../state";
 import { Avatar, Notice, useToast } from "../ui/common";
 
@@ -95,6 +95,7 @@ export function Settings() {
               <input ref={photoIn} type="file" hidden accept="image/*" aria-label="프로필 사진 파일" onChange={(e) => { void pick(e.target.files?.[0], "photo"); e.target.value = ""; }} />
             </div>
             <div className="grid two">
+              <label className="field">표시할 이름 <span className="hint">비우면 시연 인물 이름</span><input id="st-name" type="text" autoComplete="name" value={mine.displayName ?? ""} onChange={(e) => setM("displayName", e.target.value)} placeholder={me.name} /></label>
               <label className="field">담당 부서<input id="st-dept" type="text" value={mine.dept} onChange={(e) => setM("dept", e.target.value)} placeholder="예: 2학년부" /></label>
               <label className="field">연락처 <span className="hint">통신문 문의처</span><input id="st-mphone" type="text" inputMode="tel" value={mine.phone} onChange={(e) => setM("phone", e.target.value)} placeholder="교무실 직통" /></label>
               <label className="field">담임 학급 <span className="hint">없으면 비움</span><input id="st-home" type="text" value={mine.homeroom} onChange={(e) => setM("homeroom", e.target.value)} placeholder="예: 2-1" /></label>
@@ -102,6 +103,14 @@ export function Settings() {
           </div>
         </section>
       </div>
+
+      <section className="panel section" aria-labelledby="ob-h">
+        <div className="panel-head"><h2 id="ob-h">처음 안내</h2></div>
+        <div className="panel-body row between">
+          <p className="small muted">서비스 소개와 ‘시연 / 우리 학교에서 쓰기’ 선택 화면을 다시 봅니다.</p>
+          <button className="btn" onClick={() => { resetIntro(); location.href = `${location.pathname}#today`; }}>처음 안내 다시 보기</button>
+        </div>
+      </section>
 
       <section className="panel section" aria-labelledby="dv-h">
         <div className="panel-head"><h2 id="dv-h">이 기기의 저장 공간</h2><HardDrive className="ico" aria-hidden /></div>

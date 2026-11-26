@@ -36,8 +36,8 @@ export interface Consent {
 }
 
 export const sampleLetter = (): LetterData => ({
-  school: "한빛중학교",
-  docNo: "한빛중 제2026-312호",
+  school: "홍익중학교",
+  docNo: "홍익중 제2026-312호",
   date: new Date().toISOString().slice(0, 10),
   audience: "학부모",
   title: "2학년 현장체험학습 안내",

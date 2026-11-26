@@ -4,6 +4,7 @@ import type { Go, Page } from "../App";
 import type { CoverRequest } from "../core/approval";
 import { ROOM } from "../core/seed";
 import { HeroClassroom } from "../ui/Illustrations";
+import { useDisplayName } from "../core/profile";
 import { DAYS, nameOf, PERIOD_TIMES, PERIODS, TIMETABLE } from "../core/school";
 import { useApp } from "../state";
 import { inFrame, Notice } from "../ui/common";
@@ -189,6 +190,7 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
   const owner = me.role === "student-teacher" ? (me.id === "s2" ? "t2" : "t1") : me.id;
   const consent = requests.filter((r) => r.status === "AWAITING_CONSENT" && r.candidateId === me.id);
   const approve = me.role === "coordinator" ? requests.filter((r) => r.status === "AWAITING_COORDINATOR") : [];
+  const name = useDisplayName(me.id);
   const classesToday = (TIMETABLE[owner]?.[todayIndex()] ?? []).filter(Boolean).length;
   const greet = () => { const h = new Date().getHours(); return h < 11 ? "좋은 아침입니다" : h < 17 ? "안녕하세요" : "오늘도 수고하셨습니다"; };
 
@@ -197,7 +199,7 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
       <section className="hero" aria-labelledby="hero-h">
         <div className="hero-text">
           <div className="crumb">{weekDates()[todayIndex()]} {DAYS[todayIndex()]}요일</div>
-          <h1 id="hero-h">{greet()}, {me.name} {me.role === "student-teacher" ? "교생" : "선생님"}</h1>
+          <h1 id="hero-h">{greet()}, {name} {me.role === "student-teacher" ? "교생" : "선생님"}</h1>
           <p className="lead">
             {me.role === "student-teacher" ? `지도교사 ${nameOf(owner)} 선생님의 시간표입니다.` : "교체·보결이 반영된 칸은 노란색으로 표시됩니다."}
           </p>

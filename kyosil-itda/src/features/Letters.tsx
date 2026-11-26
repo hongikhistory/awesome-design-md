@@ -4,7 +4,7 @@ import { download, formatOf, kordoc } from "../core/docs/engine";
 import { renderPreview } from "../core/docs/markdown";
 import { markdownToDocx } from "../core/docs/writers";
 import { fmtDate, letterMarkdown, plainHints, TEMPLATES, type Audience, type ConsentItem, type LetterData } from "../core/letters";
-import { useMyProfile, useSchool } from "../core/profile";
+import { useDisplayName, useMyProfile, useSchool } from "../core/profile";
 import { ROOM } from "../core/seed";
 import { useApp } from "../state";
 import { Empty, inFrame, Notice, useToast } from "../ui/common";
@@ -43,7 +43,8 @@ function Builtin() {
   const { handoff, setHandoff, me, view, send } = useApp();
   const school = useSchool();
   const mine = useMyProfile(me.id);
-  const base = () => ({ school: school.school, date: new Date().toISOString().slice(0, 10), dept: mine.dept || "교무부", teacher: me.name, phone: mine.phone || school.phone });
+  const myName = useDisplayName(me.id);
+  const base = () => ({ school: school.school, date: new Date().toISOString().slice(0, 10), dept: mine.dept || "교무부", teacher: myName, phone: mine.phone || school.phone });
   const [tpl, setTpl] = useState("trip");
   const [l, setL] = useState<LetterData>(() => TEMPLATES[0].make(base()));
   const canReview = !!view(ROOM.grade2);

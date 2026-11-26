@@ -8,7 +8,9 @@ import { Practicum } from "./features/Practicum";
 import { Rooms } from "./features/Rooms";
 import { Today } from "./features/Today";
 import { Trust } from "./features/Trust";
-import { useSchool } from "./core/profile";
+import { BRAND } from "./brand";
+import { getMe, introDone, useSchool, type IntroMode } from "./core/profile";
+import { Onboarding } from "./features/Onboarding";
 import { useApp } from "./state";
 
 // The four document tools pull in JSZip, markdown-it and the kordoc loader; load them on first visit.
@@ -93,6 +95,7 @@ function Skeleton() {
 export function App() {
   const { ready, error, me, setMe, requests, resetDemo } = useApp();
   const school = useSchool();
+  const [intro, setIntro] = useState<IntroMode | null>(introDone);
   const [page, setPage] = useState<Page>(pageFromHash);
   const [armReset, setArmReset] = useState(false);
   const [contrast, setContrast] = useState<Contrast>(initialContrast);
@@ -126,7 +129,7 @@ export function App() {
         <select id={id} value={me.id} onChange={(e) => setMe(e.target.value)} aria-label={compact ? "접속한 사람 (시연용)" : undefined}>
           {PEOPLE.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.name} · {p.role === "teacher" ? `${p.subject} 교사` : p.role === "coordinator" ? `${p.subject}·시간표` : "교생"}
+              {getMe(p.id).displayName || p.name} · {p.role === "teacher" ? `${p.subject} 교사` : p.role === "coordinator" ? `${p.subject}·시간표` : "교생"}
             </option>
           ))}
         </select>
@@ -149,13 +152,15 @@ export function App() {
       </div>
     ));
 
+  if (!intro) return <Onboarding onDone={(m) => { setIntro(m); go("today"); }} />;
+
   return (
     <div className="shell">
       <aside className="side" aria-label="주 메뉴">
         <div className="brand">
           <Logo />
           <div>
-            <b>교실잇다</b>
+            <b>{BRAND.name}</b>
             <small>{school.school} · {school.year}학년도</small>
           </div>
         </div>
@@ -186,7 +191,7 @@ export function App() {
       <header className="topbar">
         <div className="brand" style={{ padding: 0 }}>
           <Logo />
-          <b>교실잇다</b>
+          <b>{BRAND.name}</b>
         </div>
         <div style={{ maxWidth: 230, minWidth: 0 }}>{switcher("persona-top", true)}</div>
       </header>

@@ -1,4 +1,4 @@
-# Design System: 교실잇다
+# Design System: 널리잇다
 
 ## 0. Basis
 - **Foundation:** KRDS, the Korean government UI/UX design system (`krds-uiux@1.1.0`, published by NIA, `resources/css/token/krds_tokens.css`). Colour primitives, semantic roles, type scale, radius scale and the high-contrast theme are taken from that file.

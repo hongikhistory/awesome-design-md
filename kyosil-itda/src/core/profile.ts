@@ -1,6 +1,7 @@
 // School and personal settings kept on this device only (no student data here).
 // Tools read these as defaults so a teacher fills in the school once, not on every document.
 import { useSyncExternalStore } from "react";
+import { person } from "./school";
 
 export type SchoolLevel = "중" | "고";
 
@@ -20,13 +21,15 @@ export interface MyProfile {
   /** homeroom, e.g. "2-1"; empty when not a 담임 */
   homeroom: string;
   photo?: string;
+  /** the teacher's own name when the app is used for real (the demo keeps the persona name) */
+  displayName?: string;
 }
 
 const SCHOOL_KEY = "kyosil:school";
 const ME_KEY = (id: string) => `kyosil:profile:${id}`;
 const EVT = "kyosil:profile";
 
-export const defaultSchool = (): SchoolProfile => ({ school: "한빛중학교", level: "중", year: 2026, phone: "02-123-4567" });
+export const defaultSchool = (): SchoolProfile => ({ school: "홍익중학교", level: "중", year: 2026, phone: "02-123-4567" });
 export const defaultMe = (): MyProfile => ({ dept: "2학년부", phone: "", homeroom: "2-1" });
 
 function read<T>(key: string, fallback: () => T): T {
@@ -108,3 +111,42 @@ export async function imageToDataUrl(file: File, size = 256, square = true): Pro
     URL.revokeObjectURL(url);
   }
 }
+
+// ---------------------------------------------------------------- onboarding
+
+const INTRO_KEY = "kyosil:intro";
+export type IntroMode = "demo" | "real";
+
+export function introDone(): IntroMode | null {
+  try {
+    const q = new URLSearchParams(location.search);
+    // shared demo links (?as=…) and tests skip the welcome screens
+    if (q.has("as") || q.get("intro") === "0") return "demo";
+    const v = localStorage.getItem(INTRO_KEY);
+    return v === "demo" || v === "real" ? v : null;
+  } catch {
+    return "demo";
+  }
+}
+
+export function finishIntro(mode: IntroMode) {
+  try {
+    localStorage.setItem(INTRO_KEY, mode);
+  } catch {
+    /* private mode: show the intro again next time */
+  }
+}
+
+export function resetIntro() {
+  try {
+    localStorage.removeItem(INTRO_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** The name to show: the teacher's own name when set, else the demo persona's. */
+export const useDisplayName = (id: string) => {
+  const p = useMyProfile(id);
+  return p.displayName?.trim() || person(id)?.name || "";
+};

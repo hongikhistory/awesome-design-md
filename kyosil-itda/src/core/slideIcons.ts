@@ -1,4 +1,4 @@
-// Original line icons for slides (24×24, 2px stroke). Drawn for 교실잇다; not taken from an icon set.
+// Original line icons for slides (24×24, 2px stroke). Drawn for 널리잇다; not taken from an icon set.
 export type IconName = "target" | "clock" | "bulb" | "pencil" | "check" | "star";
 
 const P: Record<IconName, string> = {

@@ -426,7 +426,7 @@ export async function exportPptx(slides: SlideSpec[], theme: SlideTheme, phases:
   const pptx = new PptxGenJS();
   pptx.layout = "LAYOUT_WIDE";
   pptx.title = slides[0]?.title ?? "수업";
-  pptx.author = "교실잇다";
+  pptx.author = "널리잇다";
   const face = (w?: Weight) => (w === 800 ? FONT_HEAD : w === 600 ? FONT_SEMI : FONT_BODY);
   const icons = new Map<string, string | null>();
   for (const [i, s] of slides.entries())
