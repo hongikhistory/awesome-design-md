@@ -1,10 +1,11 @@
-import { ChevronRight, FileStack, GraduationCap, ListChecks, Presentation, ScrollText, UsersRound } from "lucide-react";
+import { ChevronRight, FileStack, GraduationCap, Landmark, ListChecks, PartyPopper, Presentation, ScrollText, UsersRound } from "lucide-react";
 import { useState } from "react";
 import type { Go, Page } from "../App";
 import type { CoverRequest } from "../core/approval";
 import { ROOM } from "../core/seed";
 import { HeroClassroom } from "../ui/Illustrations";
-import { useDisplayName } from "../core/profile";
+import { useDisplayName, useStudioId } from "../core/profile";
+import { STUDIOS } from "../core/studio";
 import { DAYS, nameOf, PERIOD_TIMES, PERIODS, TIMETABLE } from "../core/school";
 import { useApp } from "../state";
 import { inFrame, Notice } from "../ui/common";
@@ -118,6 +119,8 @@ const TOUR: { as: string; page: Page; title: string; what: string }[] = [
   { as: "t1", page: "slides", title: "수업 슬라이드", what: "지도안에서 슬라이드를 만들고 템플릿을 골라 HTML 발표 파일로 받습니다." },
   { as: "t1", page: "activities", title: "학생 활동 만들기", what: "확인 문제를 만들고 학생 화면(휴대폰)으로 미리 풀어 봅니다. 근거 판단 활동도 열어 봅니다." },
   { as: "t1", page: "groups", title: "모둠·자리", what: "떨어뜨릴 짝을 정하고 모둠을 섞은 뒤 교실 화면에 크게 띄웁니다." },
+  { as: "t1", page: "assets", title: "수업 에셋", what: "역사 스튜디오 추천 자료실에서 ‘사발통문’을 찾고, 에셋 보드를 교실 화면에 띄웁니다." },
+  { as: "t1", page: "classtools", title: "학급 도구함", what: "룰렛을 돌리고, 사다리타기와 진진가로 학기 초 분위기를 엽니다." },
   { as: "t1", page: "letters", title: "가정통신문", what: "내용만 넣어 통신문을 만들고, 학교 HWPX 양식 칸을 채웁니다." },
   { as: "t1", page: "students", title: "학생 상담·기록", what: "누가기록으로 세특을 쓰고, 금지 표현과 NEIS 바이트를 점검합니다." },
   { as: "t1", page: "trust", title: "보안 확인", what: "서버에 저장된 암호문을 보고, 위조 메시지가 걸러지는지 실험합니다." },
@@ -127,6 +130,8 @@ const TOUR: { as: string; page: Page; title: string; what: string }[] = [
 const TOOLS: { page: Page; title: string; what: string; Icon: typeof FileStack }[] = [
   { page: "slides", title: "수업 슬라이드", what: "지도안을 넣으면 발표 자료로", Icon: Presentation },
   { page: "activities", title: "학생 활동 만들기", what: "확인 문제·근거 판단·출구 카드", Icon: ListChecks },
+  { page: "assets", title: "수업 에셋", what: "유물·지도·시뮬레이션을 바로 띄우기", Icon: Landmark },
+  { page: "classtools", title: "학급 도구함", what: "1인 1역·추첨·룰렛·사다리·진진가", Icon: PartyPopper },
   { page: "groups", title: "모둠·자리", what: "역할까지 정하는 모둠 편성", Icon: UsersRound },
   { page: "docs", title: "문서 변환", what: "HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown", Icon: FileStack },
   { page: "letters", title: "가정통신문", what: "내용만 쓰면 학교 양식대로", Icon: ScrollText },
@@ -195,6 +200,7 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
   const consent = requests.filter((r) => r.status === "AWAITING_CONSENT" && r.candidateId === me.id);
   const approve = me.role === "coordinator" ? requests.filter((r) => r.status === "AWAITING_COORDINATOR") : [];
   const name = useDisplayName(me.id);
+  const studio = STUDIOS[useStudioId(me.id)];
   const classesToday = (TIMETABLE[owner]?.[todayIndex()] ?? []).filter(Boolean).length;
   const greet = () => { const h = new Date().getHours(); return h < 11 ? "좋은 아침입니다" : h < 17 ? "안녕하세요" : "오늘도 수고하셨습니다"; };
 
@@ -202,7 +208,7 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
     <>
       <section className="hero" aria-labelledby="hero-h">
         <div className="hero-text">
-          <div className="crumb">{weekDates()[todayIndex()]} {DAYS[todayIndex()]}요일</div>
+          <div className="row"><span className="studio-badge">{studio.name}</span><span className="crumb" style={{ margin: 0 }}>{weekDates()[todayIndex()]} {DAYS[todayIndex()]}요일 · {studio.tagline}</span></div>
           <h1 id="hero-h">{greet()}, {name} {me.role === "student-teacher" ? "교생" : "선생님"}</h1>
           <p className="lead">
             {me.role === "student-teacher" ? `지도교사 ${nameOf(owner)} 선생님의 시간표입니다.` : "교체·보결이 반영된 칸은 노란색으로 표시됩니다."}
@@ -213,7 +219,7 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
             <li><b>{openMine}</b><span>진행 중 요청</span></li>
           </ul>
         </div>
-        <HeroClassroom />
+        <HeroClassroom studio={studio.id} />
       </section>
 
       {me.role !== "student-teacher" && <Tools go={go} />}

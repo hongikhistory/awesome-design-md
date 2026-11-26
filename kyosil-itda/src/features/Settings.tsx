@@ -1,6 +1,7 @@
 import { HardDrive, ImagePlus, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { imageToDataUrl, resetIntro, saveMe, saveSchool, useMyProfile, useSchool, type MyProfile, type SchoolProfile } from "../core/profile";
+import { STUDIOS, type StudioId } from "../core/studio";
+import { imageToDataUrl, resetIntro, useStudioId, saveMe, saveSchool, useMyProfile, useSchool, type MyProfile, type SchoolProfile } from "../core/profile";
 import { useApp } from "../state";
 import { Avatar, Notice, useToast } from "../ui/common";
 
@@ -8,6 +9,7 @@ export function Settings() {
   const { me } = useApp();
   const school = useSchool();
   const mine = useMyProfile(me.id);
+  const studio = useStudioId(me.id);
   const toast = useToast();
   const logoIn = useRef<HTMLInputElement>(null), photoIn = useRef<HTMLInputElement>(null);
   const [storage, setStorage] = useState<{ used: number; quota: number; persisted: boolean } | null>(null);
@@ -95,6 +97,9 @@ export function Settings() {
               <input ref={photoIn} type="file" hidden accept="image/*" aria-label="프로필 사진 파일" onChange={(e) => { void pick(e.target.files?.[0], "photo"); e.target.value = ""; }} />
             </div>
             <div className="grid two">
+              <label className="field">과목 스튜디오 <span className="hint">색·무늬·추천 자료·슬라이드 틀이 바뀝니다</span>
+                <select id="st-studio" value={studio} onChange={(e) => setM("studio", e.target.value as StudioId)}>{(Object.keys(STUDIOS) as StudioId[]).map((k) => <option key={k} value={k}>{STUDIOS[k].name}</option>)}</select>
+              </label>
               <label className="field">표시할 이름 <span className="hint">비우면 시연 인물 이름</span><input id="st-name" type="text" autoComplete="name" value={mine.displayName ?? ""} onChange={(e) => setM("displayName", e.target.value)} placeholder={me.name} /></label>
               <label className="field">담당 부서<input id="st-dept" type="text" value={mine.dept} onChange={(e) => setM("dept", e.target.value)} placeholder="예: 2학년부" /></label>
               <label className="field">연락처 <span className="hint">통신문 문의처</span><input id="st-mphone" type="text" inputMode="tel" value={mine.phone} onChange={(e) => setM("phone", e.target.value)} placeholder="교무실 직통" /></label>

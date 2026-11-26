@@ -6,6 +6,8 @@ import p800 from "../assets/fonts/paperlogy/Paperlogy-8ExtraBold.subset.woff2?ur
 import { download, toMarkdown } from "../core/docs/engine";
 import { buildSlides, exportPptx, parseLessonPlan, THEMES, type LessonPlan, type SlideTheme, type Step } from "../core/lesson";
 import { deckHtml, paperlogyFontCss, slideInnerHtml, SLIDE_CSS } from "../core/slidesHtml";
+import { useStudioId } from "../core/profile";
+import { STUDIOS } from "../core/studio";
 import { useApp } from "../state";
 import { inFrame, Notice, useToast } from "../ui/common";
 
@@ -36,7 +38,9 @@ export function Slides() {
   const [source, setSource] = useState("예시 지도안");
   const [paste, setPaste] = useState("");
   const [showPaste, setShowPaste] = useState(false);
-  const [theme, setTheme] = useState<SlideTheme>(THEMES[0]);
+  const { me } = useApp();
+  const studioTheme = STUDIOS[useStudioId(me.id)].slideTheme;
+  const [theme, setTheme] = useState<SlideTheme>(() => THEMES.find((t) => t.id === studioTheme) ?? THEMES[0]);
   const [roles, setRoles] = useState(true);
   const [cur, setCur] = useState(0);
   const [busy, setBusy] = useState("");

@@ -216,6 +216,7 @@ export const THEMES: SlideTheme[] = [
   { id: "marker", name: "형광펜", desc: "흰 종이에 굵은 검정 글씨와 노란 형광펜", bg: "FFFFFF", fg: "111111", muted: "5C5C5C", accent: "111111", accent2: "D6246E", onAccent: "FFFFFF", card: "F5F5F2", line: "E3E3DE", highlight: "FFE45C", shadow: false, decor: "grid" },
   { id: "chalk", name: "칠판", desc: "짙은 초록 칠판과 분필 노랑, 판서 느낌", bg: "223D36", fg: "F3F0E6", muted: "A9BDB5", accent: "F7D154", accent2: "8FD3C1", onAccent: "223D36", card: "2C4C44", line: "3B5D55", shadow: false, decor: "chalk" },
   { id: "blue", name: "블루 미니멀", desc: "흰 바탕과 파란 숫자, 어느 교과에나 깔끔하게", bg: "FFFFFF", fg: "1A1F36", muted: "5B6478", accent: "256EF4", accent2: "0B50D0", onAccent: "FFFFFF", card: "F1F5FE", line: "DCE3F1", shadow: false, decor: "none" },
+  { id: "hanji", name: "한지·사료", desc: "한지 바탕에 먹색 글씨와 주홍 낙관, 역사 수업용", bg: "F4ECDD", fg: "2B2118", muted: "5E4E3B", accent: "9A3412", accent2: "2F5D50", onAccent: "FFFFFF", card: "FFFBF2", line: "E2D3B8", shadow: true, decor: "dots" },
   { id: "lavender", name: "라벤더", desc: "연보라 바탕과 큰 원 장식, 부드러운 분위기", bg: "EFEBFF", fg: "2A2350", muted: "5F5888", accent: "6C5CE7", accent2: "C93D73", onAccent: "FFFFFF", card: "FFFFFF", line: "DAD3FA", shadow: true, decor: "circles" },
 ];
 

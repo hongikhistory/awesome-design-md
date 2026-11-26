@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ClipboardPen, Contrast, FileStack, GraduationCap, House, KeyRound, ListChecks, Settings2, UsersRound, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
+import { ArrowLeftRight, ClipboardPen, Contrast, FileStack, GraduationCap, House, KeyRound, Landmark, ListChecks, PartyPopper, Settings2, UsersRound, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
 import { Component, lazy, Suspense, useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { isOpen } from "./core/approval";
 import { PEOPLE } from "./core/school";
@@ -9,7 +9,9 @@ import { Rooms } from "./features/Rooms";
 import { Today } from "./features/Today";
 import { Trust } from "./features/Trust";
 import { BRAND } from "./brand";
-import { getMe, introDone, useSchool, type IntroMode } from "./core/profile";
+import { getMe, introDone, saveMe, useMyProfile, useSchool, useStudioId, type IntroMode } from "./core/profile";
+import { STUDIOS, type StudioId } from "./core/studio";
+import { installStudioCss } from "./ui/studioTheme";
 import { Onboarding } from "./features/Onboarding";
 import { useApp } from "./state";
 
@@ -20,29 +22,33 @@ const Letters = lazy(() => import("./features/Letters").then((m) => ({ default: 
 const Settings = lazy(() => import("./features/Settings").then((m) => ({ default: m.Settings })));
 const Activities = lazy(() => import("./features/Activities").then((m) => ({ default: m.Activities })));
 const Groups = lazy(() => import("./features/Groups").then((m) => ({ default: m.Groups })));
+const Assets = lazy(() => import("./features/Assets").then((m) => ({ default: m.Assets })));
+const ClassTools = lazy(() => import("./features/ClassTools").then((m) => ({ default: m.ClassTools })));
 const Students = lazy(() => import("./features/Students").then((m) => ({ default: m.Students })));
 import { Logo } from "./ui/Brand";
 import { Avatar, inFrame, Notice } from "./ui/common";
 
-export type Page = "today" | "docs" | "slides" | "activities" | "groups" | "letters" | "students" | "rooms" | "cover" | "practicum" | "trust" | "settings" | "about";
+export type Page = "today" | "docs" | "slides" | "activities" | "assets" | "classtools" | "groups" | "letters" | "students" | "rooms" | "cover" | "practicum" | "trust" | "settings" | "about";
 export type Go = (p: Page, as?: string) => void;
 
 const NAV: { id: Page; label: string; short: string; Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>; group: string }[] = [
   { id: "today", label: "오늘", short: "오늘", Icon: House, group: "" },
-  { id: "docs", label: "문서 변환", short: "문서", Icon: FileStack, group: "수업·문서" },
-  { id: "slides", label: "수업 슬라이드", short: "슬라이드", Icon: Presentation, group: "수업·문서" },
-  { id: "activities", label: "학생 활동 만들기", short: "활동", Icon: ListChecks, group: "수업·문서" },
-  { id: "groups", label: "모둠·자리", short: "모둠", Icon: UsersRound, group: "수업·문서" },
-  { id: "letters", label: "가정통신문", short: "통신문", Icon: ScrollText, group: "수업·문서" },
-  { id: "students", label: "학생 상담·기록", short: "학생", Icon: GraduationCap, group: "학생" },
-  { id: "rooms", label: "대화방", short: "대화", Icon: MessagesSquare, group: "협업" },
-  { id: "cover", label: "결강 처리 (교체·보결)", short: "결강", Icon: ArrowLeftRight, group: "협업" },
-  { id: "practicum", label: "교육실습", short: "실습", Icon: ClipboardPen, group: "협업" },
+  { id: "slides", label: "수업 슬라이드", short: "슬라이드", Icon: Presentation, group: "수업" },
+  { id: "activities", label: "학생 활동 만들기", short: "활동", Icon: ListChecks, group: "수업" },
+  { id: "assets", label: "수업 에셋", short: "에셋", Icon: Landmark, group: "수업" },
+  { id: "docs", label: "문서 변환", short: "문서", Icon: FileStack, group: "수업" },
+  { id: "classtools", label: "학급 도구함", short: "도구함", Icon: PartyPopper, group: "학급" },
+  { id: "groups", label: "모둠·자리", short: "모둠", Icon: UsersRound, group: "학급" },
+  { id: "students", label: "학생 상담·기록", short: "학생", Icon: GraduationCap, group: "학급" },
+  { id: "letters", label: "가정통신문", short: "통신문", Icon: ScrollText, group: "학교 업무" },
+  { id: "rooms", label: "대화방", short: "대화", Icon: MessagesSquare, group: "학교 업무" },
+  { id: "cover", label: "결강 처리 (교체·보결)", short: "결강", Icon: ArrowLeftRight, group: "학교 업무" },
+  { id: "practicum", label: "교육실습", short: "실습", Icon: ClipboardPen, group: "학교 업무" },
   { id: "settings", label: "학교·내 정보", short: "설정", Icon: Settings2, group: "정보" },
   { id: "trust", label: "보안 확인", short: "보안", Icon: ShieldCheck, group: "정보" },
   { id: "about", label: "작품 설명", short: "설명", Icon: Info, group: "정보" },
 ];
-const TAB: Page[] = ["today", "slides", "activities", "students"];
+const TAB: Page[] = ["today", "slides", "activities", "classtools"];
 
 const pageFromHash = (): Page => {
   const h = location.hash.replace(/^#\/?/, "").split("?")[0] as Page;
@@ -99,6 +105,10 @@ function Skeleton() {
 export function App() {
   const { ready, error, me, setMe, requests, resetDemo } = useApp();
   const school = useSchool();
+  const studio = useStudioId(me.id);
+  const mine = useMyProfile(me.id);
+  useEffect(() => { installStudioCss(); }, []);
+  useEffect(() => { document.documentElement.dataset.studio = studio; }, [studio]);
   const [intro, setIntro] = useState<IntroMode | null>(introDone);
   const [page, setPage] = useState<Page>(pageFromHash);
   const [armReset, setArmReset] = useState(false);
@@ -168,6 +178,13 @@ export function App() {
             <small>{school.school} · {school.year}학년도</small>
           </div>
         </div>
+        <label className="studio-chip">
+          <span className="sr">과목 스튜디오</span>
+          <span className="studio-dot" aria-hidden="true" />
+          <select value={studio} onChange={(e) => saveMe(me.id, { ...mine, studio: e.target.value as StudioId })} aria-label="과목 스튜디오">
+            {(Object.keys(STUDIOS) as StudioId[]).map((k) => <option key={k} value={k}>{STUDIOS[k].name}</option>)}
+          </select>
+        </label>
         <nav aria-label="화면">{nav()}</nav>
         <div className="side-foot">
           {switcher("persona-side")}
@@ -221,6 +238,10 @@ export function App() {
           <Slides />
         ) : page === "activities" ? (
           <Activities />
+        ) : page === "assets" ? (
+          <Assets />
+        ) : page === "classtools" ? (
+          <ClassTools />
         ) : page === "groups" ? (
           <Groups />
         ) : page === "letters" ? (

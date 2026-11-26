@@ -2,6 +2,7 @@
 // Tools read these as defaults so a teacher fills in the school once, not on every document.
 import { useSyncExternalStore } from "react";
 import { person } from "./school";
+import { studioForSubject, type StudioId } from "./studio";
 
 export type SchoolLevel = "중" | "고";
 
@@ -23,6 +24,8 @@ export interface MyProfile {
   photo?: string;
   /** the teacher's own name when the app is used for real (the demo keeps the persona name) */
   displayName?: string;
+  /** subject studio; defaults to the persona's subject */
+  studio?: StudioId;
 }
 
 const SCHOOL_KEY = "kyosil:school";
@@ -149,4 +152,10 @@ export function resetIntro() {
 export const useDisplayName = (id: string) => {
   const p = useMyProfile(id);
   return p.displayName?.trim() || person(id)?.name || "";
+};
+
+/** The studio this teacher works in: chosen in settings, else from their subject. */
+export const useStudioId = (id: string): StudioId => {
+  const p = useMyProfile(id);
+  return p.studio ?? studioForSubject(person(id)?.subject ?? "");
 };
