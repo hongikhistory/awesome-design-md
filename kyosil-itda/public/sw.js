@@ -3,7 +3,7 @@
 // - Hashed build files (assets/*): cache first. All of them are precached on install from precache.json,
 //   so 문서 변환·슬라이드·통신문·학생 기록 keep working on an unstable school network.
 // No user data passes through here; encrypted data lives in IndexedDB/localStorage.
-const CACHE = "kyosil-itda-v3";
+const CACHE = "kyosil-itda-v4";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
 
 self.addEventListener("install", (e) => {
@@ -26,8 +26,10 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET" || url.origin !== self.location.origin) return;
   const put = (res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; };
   if (req.mode === "navigate" || url.pathname.endsWith(".html") || url.pathname.endsWith("/")) {
-    e.respondWith(fetch(req).then(put).catch(async () => (await caches.match(req)) || caches.match("./index.html")));
+    e.respondWith(fetch(req).then(put).catch(async () => (await caches.match(req, { ignoreVary: true })) || caches.match("./index.html", { ignoreVary: true })));
     return;
   }
-  e.respondWith(caches.match(req).then((hit) => hit || fetch(req).then(put)));
+  // ignoreVary: some hosts send "Vary: Origin", and module scripts carry an Origin header the precache fetch did not,
+  // so a strict match misses and the lazy screens fail offline. Build files are content-hashed, so this is safe.
+  e.respondWith(caches.match(req, { ignoreVary: true }).then((hit) => hit || fetch(req).then(put)));
 });
