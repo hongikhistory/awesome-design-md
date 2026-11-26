@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { person } from "../core/school";
 
+/** Embedded viewers (iframes) block window.open, print and dialogs. */
+export const inFrame = (() => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+})();
+
 export function Avatar({ id, size }: { id: string; size?: "lg" }) {
   const p = person(id);
   return (

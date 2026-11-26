@@ -106,16 +106,16 @@ function Chat({ roomId }: { roomId: string }) {
     await send(roomId, { type: "msg", text: t });
   };
 
-  const newWidget = async (kind: "checklist" | "poll") => {
-    const title = prompt(kind === "checklist" ? "체크리스트 제목" : "투표 질문");
-    if (!title?.trim()) return;
+  const [draft, setDraft] = useState<{ kind: "checklist" | "poll"; title: string; options: string } | null>(null);
+  const createWidget = async () => {
+    if (!draft || !draft.title.trim()) return;
     const widgetId = `w_${uid()}`;
-    if (kind === "poll") {
-      const raw = prompt("선택지를 쉼표로 구분해 입력하세요", "찬성, 반대");
-      const options = (raw ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-      if (options.length < 2) return toast.show("선택지는 2개 이상 필요합니다.");
-      await send(roomId, { type: "widget.create", widgetId, kind, title: title.trim(), options });
-    } else await send(roomId, { type: "widget.create", widgetId, kind, title: title.trim() });
+    if (draft.kind === "poll") {
+      const options = draft.options.split(",").map((s) => s.trim()).filter(Boolean);
+      if (options.length < 2) return toast.show("선택지는 쉼표로 구분해 2개 이상 적어 주세요.");
+      await send(roomId, { type: "widget.create", widgetId, kind: "poll", title: draft.title.trim(), options });
+    } else await send(roomId, { type: "widget.create", widgetId, kind: "checklist", title: draft.title.trim() });
+    setDraft(null);
   };
 
   return (
@@ -157,9 +157,25 @@ function Chat({ roomId }: { roomId: string }) {
       </div>
       <div className="chat-foot">
         <div className="row">
-          <button className="btn sm" onClick={() => newWidget("checklist")}>☑ 공동 체크리스트</button>
-          <button className="btn sm" onClick={() => newWidget("poll")}>▤ 투표</button>
+          <button className="btn sm" aria-pressed={draft?.kind === "checklist"} onClick={() => setDraft(draft?.kind === "checklist" ? null : { kind: "checklist", title: "", options: "" })}>☑ 공동 체크리스트</button>
+          <button className="btn sm" aria-pressed={draft?.kind === "poll"} onClick={() => setDraft(draft?.kind === "poll" ? null : { kind: "poll", title: "", options: "" })}>▤ 투표</button>
         </div>
+        {draft && (
+          <form className="note-box stack" onSubmit={(e) => { e.preventDefault(); void createWidget(); }}>
+            <label className="field">{draft.kind === "checklist" ? "체크리스트 제목" : "투표 질문"}
+              <input id="widget-title" type="text" autoFocus value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} placeholder={draft.kind === "checklist" ? "예: 학부모 상담 주간 준비" : "예: 협의회 시간"} />
+            </label>
+            {draft.kind === "poll" && (
+              <label className="field">선택지 (쉼표로 구분)
+                <input id="widget-options" type="text" value={draft.options} onChange={(e) => setDraft({ ...draft, options: e.target.value })} placeholder="화요일 5교시, 수요일 3교시" />
+              </label>
+            )}
+            <div className="row">
+              <button className="btn primary sm" type="submit" disabled={!draft.title.trim()}>방에 올리기</button>
+              <button className="btn ghost sm" type="button" onClick={() => setDraft(null)}>취소</button>
+            </div>
+          </form>
+        )}
         <form className="row" style={{ flexWrap: "nowrap" }} onSubmit={(e) => { e.preventDefault(); void submit(); }}>
           <label className="sr" htmlFor="composer">메시지</label>
           <input id="composer" type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="메시지 입력 · 이 기기에서 암호화됩니다" autoComplete="off" />

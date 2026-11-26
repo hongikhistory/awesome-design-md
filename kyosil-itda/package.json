@@ -6,7 +6,7 @@
   "description": "교실잇다 — 설치 없이 여는 학교 협업 PWA (E2EE 대화 · 설명 가능한 대강 추천 · 교생실습 참관 피드백)",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/single-file.mjs",
     "preview": "vite preview",
     "test": "vitest run"
   },

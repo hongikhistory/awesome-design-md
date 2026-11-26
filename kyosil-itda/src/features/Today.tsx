@@ -3,6 +3,7 @@ import { isOpen, STATUS_LABEL } from "../core/approval";
 import { DAYS, nameOf, PERIODS, TIMETABLE } from "../core/school";
 import { ROOM } from "../core/seed";
 import { useApp } from "../state";
+import { inFrame } from "../ui/common";
 
 export const todayIndex = () => {
   const d = new Date().getDay(); // 0 Sun .. 6 Sat
@@ -110,7 +111,7 @@ export function Today({ go }: { go: (p: Page) => void }) {
           </section>
 
           <section className="note-box accent small">
-            <b>시연 팁</b> · 왼쪽 아래 “새 탭에서 다른 사람으로 열기”를 누르면 같은 화면을 다른 사람 입장에서 볼 수 있습니다. 한쪽에서 위젯을 체크하거나 대강을 승인하면 다른 탭에 바로 반영됩니다.
+            <b>시연 팁</b> · {inFrame ? "사람 선택 상자에서 강지호 → 김하늘 → 박민지 순으로 바꿔 가며 대강 요청·동의·승인을 이어서 해 보세요. 각 사람은 자기 기기 키로만 내용을 엽니다." : "왼쪽 아래 “새 탭에서 다른 사람으로 열기”를 누르면 같은 화면을 다른 사람 입장에서 볼 수 있습니다. 한쪽에서 위젯을 체크하거나 대강을 승인하면 다른 탭에 바로 반영됩니다."}
           </section>
         </div>
       </div>

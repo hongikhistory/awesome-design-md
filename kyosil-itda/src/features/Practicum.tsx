@@ -3,7 +3,7 @@ import type { Decrypted, PracticumEvent } from "../core/engine";
 import { fmtClock, gapAnalysis, RUBRIC, TAGS, tagSummary, type Note, type Scores, type Session, type TagKey } from "../core/practicum";
 import { CLASSES, nameOf } from "../core/school";
 import { timeLabel, useApp } from "../state";
-import { Empty, useToast } from "../ui/common";
+import { Empty, inFrame, useToast } from "../ui/common";
 
 type Tab = "observe" | "rubric" | "feedback" | "report";
 
@@ -383,7 +383,7 @@ function Report({ d, roomName, days }: { d: SessionData; roomName: string; days:
     <section className="card" aria-labelledby="rp-h">
       <div className="row between">
         <h2 id="rp-h">교육실습 수업 참관 보고서</h2>
-        <button className="btn primary no-print" onClick={() => window.print()}>인쇄 · PDF 저장</button>
+        {inFrame ? <span className="tiny muted no-print">인쇄·PDF 저장은 앱을 브라우저에서 직접 열었을 때 사용할 수 있습니다.</span> : <button className="btn primary no-print" onClick={() => window.print()}>인쇄 · PDF 저장</button>}
       </div>
       <p className="small muted" style={{ marginTop: 6 }}>
         {roomName.replace("교생실습 · ", "")} · {d.session.title} · {d.session.date} · {d.session.classId} · 지도교사 {nameOf(d.session.createdBy)}

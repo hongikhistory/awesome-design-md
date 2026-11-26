@@ -8,7 +8,7 @@ import { Rooms } from "./features/Rooms";
 import { Today } from "./features/Today";
 import { Trust } from "./features/Trust";
 import { useApp } from "./state";
-import { Avatar } from "./ui/common";
+import { Avatar, inFrame } from "./ui/common";
 
 export type Page = "today" | "rooms" | "cover" | "practicum" | "trust" | "about";
 
@@ -29,6 +29,7 @@ const pageFromHash = (): Page => {
 export function App() {
   const { ready, error, me, setMe, requests, resetDemo } = useApp();
   const [page, setPage] = useState<Page>(pageFromHash);
+  const [armReset, setArmReset] = useState(false);
 
   useEffect(() => {
     const on = () => setPage(pageFromHash());
@@ -48,12 +49,12 @@ export function App() {
       (me.role === "coordinator" && isOpen(r.status)),
   ).length;
 
-  const switcher = (
+  const switcher = (id: string) => (
     <div className="persona" title="데모: 탭마다 다른 사람으로 접속해 실시간 동기화를 확인할 수 있습니다">
       <Avatar id={me.id} />
       <div className="who">
-        <label className="sr" htmlFor="persona">접속한 사람</label>
-        <select id="persona" value={me.id} onChange={(e) => setMe(e.target.value)}>
+        <label className="sr" htmlFor={id}>접속한 사람</label>
+        <select id={id} value={me.id} onChange={(e) => setMe(e.target.value)}>
           {PEOPLE.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name} · {p.role === "student-teacher" ? "교생" : p.subject}
@@ -86,13 +87,20 @@ export function App() {
         </div>
         {nav()}
         <div className="side-foot">
-          {switcher}
-          <button className="btn ghost sm" onClick={() => window.open(`${location.pathname}?as=${me.id === "t1" ? "s1" : "t1"}#/${page}`, "_blank")}>
-            새 탭에서 다른 사람으로 열기
-          </button>
-          <button className="btn ghost sm" onClick={() => confirm("모든 데모 데이터와 이 브라우저의 기기 키를 지우고 처음 상태로 돌립니다.") && void resetDemo()}>
-            데모 초기화
-          </button>
+          {switcher("persona-side")}
+          {!inFrame && (
+            <a className="btn ghost sm" href={`${location.pathname}?as=${me.id === "t1" ? "s1" : "t1"}#/${page}`} target="_blank" rel="noopener">
+              새 탭에서 다른 사람으로 열기
+            </a>
+          )}
+          {armReset ? (
+            <div className="row" style={{ flexWrap: "nowrap" }}>
+              <button className="btn danger sm" style={{ flex: 1 }} onClick={() => { setArmReset(false); void resetDemo(); }}>데이터·키 모두 지우기</button>
+              <button className="btn ghost sm" onClick={() => setArmReset(false)}>취소</button>
+            </div>
+          ) : (
+            <button className="btn ghost sm" onClick={() => setArmReset(true)}>데모 초기화</button>
+          )}
         </div>
       </aside>
 
@@ -101,7 +109,7 @@ export function App() {
           <img src="./icon.svg" alt="" />
           교실잇다
         </div>
-        <div style={{ maxWidth: 220 }}>{switcher}</div>
+        <div style={{ maxWidth: 220 }}>{switcher("persona-top")}</div>
       </header>
 
       <main className="main" id="main">

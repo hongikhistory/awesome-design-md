@@ -22,7 +22,7 @@
 npm install
 npm run dev        # 개발 서버
 npm test           # 단위 테스트 18개 (암호화, 추천, 승인, CRDT, 루브릭)
-npm run build      # dist/ 정적 파일 → 어떤 정적 호스팅에도 배포 가능
+npm run build      # dist/ 정적 파일 + dist/kyosil-itda.html (JS·CSS를 모두 담은 단일 파일, 제출·오프라인 시연용)
 npm run preview
 ```
 
