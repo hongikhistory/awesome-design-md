@@ -1,4 +1,5 @@
 // Renders the shared slide layout to HTML: the in-app preview and a standalone HTML deck.
+import { iconSvg } from "./slideIcons";
 import { layoutSlide, SLIDE_H, SLIDE_W, type Shape, type SlideSpec, type SlideTheme } from "./lesson";
 
 const PX = 96; // 1 inch = 96 CSS px → 1280 × 720 canvas
@@ -21,6 +22,7 @@ function shapeHtml(sh: Shape, th: SlideTheme): string {
     const b = `${sh.width * PT}px ${sh.dash ? "dashed" : "solid"} #${sh.color}`;
     return `<div class="s" style="${box({ ...sh, w: vertical ? 0 : sh.w, h: vertical ? sh.h : 0 })};${vertical ? `border-left:${b}` : `border-top:${b}`}"></div>`;
   }
+  if (sh.t === "icon") return `<div class="s" style="${box(sh)}">${iconSvg(sh.name, sh.color, sh.bg).replace('width="48" height="48"', 'width="100%" height="100%"')}</div>`;
   const lines: string[][] = [[]];
   for (const r of sh.runs) {
     const color = `#${r.color ?? th.fg}`;

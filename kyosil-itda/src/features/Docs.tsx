@@ -102,10 +102,17 @@ export function Docs({ go }: { go: Go }) {
 
   const copyAi = async () => {
     if (!cur) return;
-    const text = aiReady(shown, { name: cur.name, format: cur.format });
+    // Personal information is masked by default before anything goes to an outside AI service.
+    let body = shown, hits = 0;
+    if (masked[cur.id] === undefined) {
+      const r = (await kordoc()).redactText(cur.markdown);
+      body = r.text;
+      hits = r.hits.length;
+    }
+    const text = aiReady(body, { name: cur.name, format: cur.format });
     try {
       await navigator.clipboard.writeText(text);
-      toast.show("AI에 붙여 넣기 좋은 형태로 복사했습니다.");
+      toast.show(hits ? `개인정보로 보이는 ${hits}곳을 가린 뒤 복사했습니다. 학생 이름은 직접 확인하세요.` : "AI에 붙여 넣기 좋은 형태로 복사했습니다. 학생 이름이 남아 있지 않은지 확인하세요.");
     } catch {
       toast.show("복사하지 못했습니다. Markdown 탭에서 직접 선택해 복사해 주세요.");
     }
@@ -150,7 +157,7 @@ export function Docs({ go }: { go: Go }) {
             <input ref={input} type="file" multiple accept={ACCEPT} hidden onChange={(e) => { void add([...(e.target.files ?? [])]); e.target.value = ""; }} aria-label="변환할 파일" />
           </div>
           {items.length === 0 ? (
-            <Empty>아직 변환한 파일이 없습니다.</Empty>
+            <Empty art="docs">아직 변환한 파일이 없습니다.</Empty>
           ) : (
             <ul className="file-list" aria-label="변환한 파일">
               {items.map((it) => (
@@ -178,7 +185,7 @@ export function Docs({ go }: { go: Go }) {
 
         <section className="panel docs-work" aria-label="변환 결과">
           {!cur ? (
-            <div className="panel-body"><Empty>왼쪽에서 파일을 올리면 결과가 여기에 나옵니다.</Empty></div>
+            <div className="panel-body"><Empty art="docs">왼쪽에서 파일을 올리면 결과가 여기에 나옵니다.</Empty></div>
           ) : (
             <>
               <div className="panel-head">
@@ -195,7 +202,7 @@ export function Docs({ go }: { go: Go }) {
                 <button className="btn sm" onClick={() => void toggleMask()} aria-pressed={masked[cur.id] !== undefined}>
                   {masked[cur.id] !== undefined ? <EyeOff className="ico sm" aria-hidden /> : <Eye className="ico sm" aria-hidden />} 개인정보 가리기
                 </button>
-                <button className="btn sm primary" onClick={() => void copyAi()}><Sparkles className="ico sm" aria-hidden /> AI용으로 복사</button>
+                <button className="btn sm primary" onClick={() => void copyAi()}><Sparkles className="ico sm" aria-hidden /> AI용으로 복사(개인정보 가림)</button>
                 <span className="toolbar-sep" aria-hidden />
                 <span className="meta">저장</span>
                 {(["hwpx", "docx", "xlsx", "md"] as const).map((k) => (

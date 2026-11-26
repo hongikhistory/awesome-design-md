@@ -31,9 +31,11 @@ export type RecordArea = "subject" | "individual" | "behavior" | "autonomy" | "c
 export type RecordEvent =
   | { type: "rec.roster"; classId: string; students: { no: number; name: string }[] }
   | { type: "rec.obs"; id: string; no: number; date: string; area: RecordArea; subject?: string; text: string }
-  | { type: "rec.counsel"; id: string; no: number; date: string; with: "학생" | "학부모" | "교사"; method: "대면" | "전화" | "온라인"; topics: string[]; content: string; followUp: string; next?: string }
+  | { type: "rec.counsel"; id: string; no: number; date: string; with: "학생" | "학부모" | "교사"; method: "대면" | "전화" | "온라인"; topics: string[]; content: string; followUp: string; next?: string; kind?: "정기" | "수시" | "위기" | "추수"; referral?: boolean }
   | { type: "rec.draft"; no: number; item: RecordArea; subject?: string; year: 2025 | 2026; text: string }
-  | { type: "rec.delete"; id: string };
+  | { type: "rec.delete"; id: string }
+  /** everything before this event is ignored (fresh start or restore) */
+  | { type: "rec.reset"; reason: "fresh" | "restore" };
 
 export type AppEvent = { type: "msg"; text: string } | { type: "system"; text: string } | WidgetOp | WorkflowEvent | PracticumEvent | RecordEvent;
 

@@ -1,21 +1,26 @@
-import { ArrowLeftRight, ClipboardPen, Contrast, FileStack, GraduationCap, House, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
-import { useEffect, useState, type ComponentType } from "react";
+import { ArrowLeftRight, ClipboardPen, Contrast, FileStack, GraduationCap, House, KeyRound, Settings2, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
+import { Component, lazy, Suspense, useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { isOpen } from "./core/approval";
 import { PEOPLE } from "./core/school";
 import { About } from "./features/About";
 import { Cover } from "./features/Cover";
-import { Docs } from "./features/Docs";
-import { Letters } from "./features/Letters";
-import { Slides } from "./features/Slides";
-import { Students } from "./features/Students";
 import { Practicum } from "./features/Practicum";
 import { Rooms } from "./features/Rooms";
 import { Today } from "./features/Today";
 import { Trust } from "./features/Trust";
+import { useSchool } from "./core/profile";
 import { useApp } from "./state";
+
+// The four document tools pull in JSZip, markdown-it and the kordoc loader; load them on first visit.
+const Docs = lazy(() => import("./features/Docs").then((m) => ({ default: m.Docs })));
+const Slides = lazy(() => import("./features/Slides").then((m) => ({ default: m.Slides })));
+const Letters = lazy(() => import("./features/Letters").then((m) => ({ default: m.Letters })));
+const Settings = lazy(() => import("./features/Settings").then((m) => ({ default: m.Settings })));
+const Students = lazy(() => import("./features/Students").then((m) => ({ default: m.Students })));
+import { Logo } from "./ui/Brand";
 import { Avatar, inFrame, Notice } from "./ui/common";
 
-export type Page = "today" | "docs" | "slides" | "letters" | "students" | "rooms" | "cover" | "practicum" | "trust" | "about";
+export type Page = "today" | "docs" | "slides" | "letters" | "students" | "rooms" | "cover" | "practicum" | "trust" | "settings" | "about";
 export type Go = (p: Page, as?: string) => void;
 
 const NAV: { id: Page; label: string; short: string; Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>; group: string }[] = [
@@ -27,6 +32,7 @@ const NAV: { id: Page; label: string; short: string; Icon: ComponentType<{ class
   { id: "rooms", label: "대화방", short: "대화", Icon: MessagesSquare, group: "협업" },
   { id: "cover", label: "결강 처리 (교체·보결)", short: "결강", Icon: ArrowLeftRight, group: "협업" },
   { id: "practicum", label: "교육실습", short: "실습", Icon: ClipboardPen, group: "협업" },
+  { id: "settings", label: "학교·내 정보", short: "설정", Icon: Settings2, group: "정보" },
   { id: "trust", label: "보안 확인", short: "보안", Icon: ShieldCheck, group: "정보" },
   { id: "about", label: "작품 설명", short: "설명", Icon: Info, group: "정보" },
 ];
@@ -58,8 +64,35 @@ function initialContrast(): Contrast {
   return "system";
 }
 
+/** A tool page that cannot load (offline before first use, or the single-file build) must not blank the app. */
+class LoadGuard extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <Notice kind="warn" role="alert">
+        <b>이 화면을 불러오지 못했습니다.</b> 인터넷에 연결된 상태에서 한 번 열면 그다음부터는 오프라인에서도 열립니다. 단일 HTML 파일판에는 문서 도구가 들어 있지 않습니다.{" "}
+        <button className="btn sm" onClick={() => location.reload()}>다시 시도</button>
+      </Notice>
+    );
+  }
+}
+
+function Skeleton() {
+  return (
+    <div className="skeleton" role="status" aria-label="화면을 불러오는 중">
+      <span className="sk sk-crumb" /><span className="sk sk-title" /><span className="sk sk-line" />
+      <div className="sk-grid"><span className="sk sk-card" /><span className="sk sk-card" /></div>
+    </div>
+  );
+}
+
 export function App() {
   const { ready, error, me, setMe, requests, resetDemo } = useApp();
+  const school = useSchool();
   const [page, setPage] = useState<Page>(pageFromHash);
   const [armReset, setArmReset] = useState(false);
   const [contrast, setContrast] = useState<Contrast>(initialContrast);
@@ -120,10 +153,10 @@ export function App() {
     <div className="shell">
       <aside className="side" aria-label="주 메뉴">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">잇</span>
+          <Logo />
           <div>
             <b>교실잇다</b>
-            <small>가상 · 한빛중학교 교무실</small>
+            <small>{school.school} · {school.year}학년도</small>
           </div>
         </div>
         <nav aria-label="화면">{nav()}</nav>
@@ -152,7 +185,7 @@ export function App() {
 
       <header className="topbar">
         <div className="brand" style={{ padding: 0 }}>
-          <span className="brand-mark" aria-hidden="true">잇</span>
+          <Logo />
           <b>교실잇다</b>
         </div>
         <div style={{ maxWidth: 230, minWidth: 0 }}>{switcher("persona-top", true)}</div>
@@ -160,10 +193,16 @@ export function App() {
 
       <main className="main" id="main">
         {error && <Notice kind="warn" role="alert">오류가 발생했습니다: {error}</Notice>}
+        <LoadGuard key={page}>
+        <Suspense fallback={<Skeleton />}>
+        <div className="page-enter">
         {!ready ? (
-          <div className="panel"><div className="panel-body">
-            <h2>이 기기의 암호 키를 준비하고 있습니다</h2>
-            <p className="muted" style={{ marginTop: 8 }}>브라우저에서 개인 키를 만들고, 밖으로 꺼낼 수 없는 형태로 보관합니다.</p>
+          <div className="panel boot"><div className="panel-body row nowrap" style={{ gap: 16 }}>
+            <span className="boot-key" aria-hidden="true"><KeyRound className="ico" /></span>
+            <div>
+              <h2>이 기기의 암호 키를 준비하고 있습니다</h2>
+              <p className="muted" style={{ marginTop: 4 }}>브라우저에서 개인 키를 만들고, 밖으로 꺼낼 수 없는 형태로 보관합니다.</p>
+            </div>
           </div></div>
         ) : page === "today" ? (
           <Today go={go} openMine={openMine} />
@@ -181,11 +220,16 @@ export function App() {
           <Cover />
         ) : page === "practicum" ? (
           <Practicum />
+        ) : page === "settings" ? (
+          <Settings />
         ) : page === "trust" ? (
           <Trust />
         ) : (
           <About go={go} />
         )}
+        </div>
+        </Suspense>
+        </LoadGuard>
       </main>
 
       <nav className="tabbar" aria-label="하단 메뉴">

@@ -39,17 +39,31 @@ export const LIMITS: Record<SchoolYear, Record<RecordItem, Limit>> = {
   2026: {
     subject: { chars: 500, confidence: "official", note: "과목별 최대 500자(공통과목1·2 합산 500자)" },
     individual: { chars: 500, confidence: "verify", note: "2차 자료 기준, 원문 대조 필요" },
-    behavior: { chars: 300, confidence: "official", note: "2026학년도부터 전 학년 300자" },
+    behavior: { chars: 300, confidence: "official", note: "2026학년도 고등학교 300자(포털 답변: 전 학년 적용, 일부 발췌는 고3은 2027.3.1. 적용으로 읽힘)" },
     autonomy: { chars: 500, confidence: "verify", note: "축소 대상 발표에 없음, 원문 대조 필요" },
     club: { chars: 500, confidence: "verify", note: "축소 대상 발표에 없음, 원문 대조 필요" },
-    career: { chars: 500, confidence: "official", note: "2026학년도부터 전 학년 500자" },
+    career: { chars: 500, confidence: "official", note: "2026학년도 고등학교 500자(포털 답변: 전 학년 적용, 일부 발췌는 고3은 2027.3.1. 적용으로 읽힘)" },
   },
 };
+
+export type SchoolLevel = "중" | "고";
+
+/**
+ * 중학교: the 2026 cut (행특 300자, 진로 500자) was announced for 고등학교. Whether the 중학교
+ * 기재요령 applies the same numbers is not confirmed from the original, so 중학교 values are
+ * shown with "verify" and the teacher can switch the 기준 학년도.
+ */
+export function limitFor(level: SchoolLevel, year: SchoolYear, item: RecordItem): Limit {
+  const l = LIMITS[year][item];
+  if (level === "고") return l;
+  return { ...l, confidence: l.confidence === "custom" ? "custom" : "verify", note: `고등학교 기준 수치입니다. 중학교 기재요령 부록에서 확인하세요. (${l.note})` };
+}
 
 const isHangul = (cp: number) => (cp >= 0xac00 && cp <= 0xd7a3) || (cp >= 0x1100 && cp <= 0x11ff) || (cp >= 0x3130 && cp <= 0x318f);
 
 /**
- * NEIS byte count: 한글 1자 3Byte, 영문·숫자 1Byte, 엔터 1Byte (기재요령 부록, official).
+ * NEIS byte count: 한글 1자 3Byte, 영문·숫자 1Byte. Sources disagree on 엔터 (1Byte in one
+ * 기재요령 excerpt, 2Byte in another), so a line break is counted as 2 bytes to stay on the safe side.
  * Spaces and ASCII punctuation are counted as 1 byte (secondary sources); other symbols as 3 bytes
  * (UTF-8 width) so the counter never under-counts.
  */
@@ -57,7 +71,7 @@ export function neisBytes(text: string): number {
   let bytes = 0;
   for (const ch of text.replace(/\r\n/g, "\n")) {
     const cp = ch.codePointAt(0)!;
-    if (ch === "\n") bytes += 1;
+    if (ch === "\n") bytes += 2;
     else if (cp < 0x80) bytes += 1;
     else if (isHangul(cp)) bytes += 3;
     else bytes += 3;
@@ -167,9 +181,16 @@ export interface Observation {
  * The student's name is replaced, and the prompt reminds that the teacher must rewrite and verify:
  * the 2026 기재요령 forbids entering generative-AI output as-is.
  */
-export function draftPrompt(o: { item: RecordItem; subject?: string; year: SchoolYear; observations: Observation[]; studentName?: string; grade?: string }) {
-  const limit = LIMITS[o.year][o.item];
-  const scrub = (s: string) => (o.studentName ? s.split(o.studentName).join("학생") : s);
+export function draftPrompt(o: { item: RecordItem; subject?: string; year: SchoolYear; level?: SchoolLevel; observations: Observation[]; studentName?: string; grade?: string; schoolName?: string; classmates?: string[] }) {
+  const limit = limitFor(o.level ?? "고", o.year, o.item);
+  // 가명 처리: the student, classmates (whole names and given names) and the school never leave the device.
+  const swaps: [string, string][] = [];
+  if (o.studentName) swaps.push([o.studentName, "학생"]);
+  for (const n of o.classmates ?? []) if (n && n !== o.studentName && n.length >= 2) swaps.push([n, "다른 학생"]);
+  if (o.schoolName) swaps.push([o.schoolName, "본교"], [o.schoolName.replace(/학교$/, ""), "본교"]);
+  for (const n of [o.studentName, ...(o.classmates ?? [])]) if (n && n.length === 3) swaps.push([n.slice(1), n === o.studentName ? "학생" : "다른 학생"]);
+  swaps.sort((a, b) => b[0].length - a[0].length);
+  const scrub = (s: string) => swaps.reduce((t, [a, b]) => (a ? t.split(a).join(b) : t), s).replace(/01[016789]-?\d{3,4}-?\d{4}/g, "(전화번호)");
   const obs = o.observations.map((x) => `- ${x.date}: ${scrub(x.text)}`).join("\n") || "- (관찰 기록 없음)";
   return `# 학교생활기록부 초안 작성 요청
 

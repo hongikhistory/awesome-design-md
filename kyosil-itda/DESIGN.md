@@ -50,6 +50,12 @@ KRDS ships a high-contrast theme instead of a dark theme. It applies to the OS d
 - **Records:** NEIS byte meter (primary → warning at 90% → danger over 100%), findings as tinted rows with a level badge (금지/주의/문체) and a confidence chip (기재요령 확인 / 원문 대조 필요 / 관례).
 - **Format chips** in the converter use each format's familiar colour (HWP blue, Word blue, Excel green, PowerPoint orange, PDF red) with white 11px bold text.
 
+- **Brand mark:** two seats joined by an arc (the bridge between classroom and staff room) with a spark above, on a primary-blue gradient tile with a 17/64 radius. The arc draws itself once on load; the spark twinkles on hover. `public/icon.svg` is the same mark.
+- **People:** original flat avatars generated from the person id (4 hair styles, 5 skin tones, shirt in the person's colour). An uploaded photo replaces the illustration (centre-cropped, 160px, kept on the device).
+- **Illustrations:** original SVGs only. A classroom hero (board, desk, laptop, plant) on Today, and small empty-state pictures (document→MD, notebook, two people). Fixed pastels on their own tinted backdrop so they read in both themes.
+- **Motion:** 320ms page enter (fade + 8px rise), 50ms stagger on cards, 2px lift on hover for card-buttons, toast slide-in, bottom sheet slide-up, a seal "thunk" when a stamp lands, shimmer skeletons while a tool loads, and slow ambient loops in the hero (sun float, plant sway, chalk lines drawing). Easing `cubic-bezier(.2,.8,.2,1)`. `prefers-reduced-motion: reduce` turns every animation and transition off.
+- **Seal on letters:** never drawn. A dashed circle marks where the school stamps after printing, or the letter omits it.
+
 ## 5. Accessibility
-- WCAG 2.2 AA verified with axe-core on 13 views × 2 themes: 0 violations (slide thumbnails included).
+- WCAG 2.2 AA verified with axe-core on every view × 2 themes: 0 violations (slide thumbnails, settings, consent form included).
 - Every radio-like control uses `role="radio"` + `aria-checked`. Visible focus ring is 2px `--primary`. `prefers-reduced-motion` disables transitions.

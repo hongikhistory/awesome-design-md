@@ -26,7 +26,27 @@ const FLOW_PLAN = `# 일차함수의 그래프
 발문: 계단이 가파르다는 것은 무엇으로 알 수 있을까?
 `;
 
+const SCHOOL_PLAN = `| 단계 | 학습 요소 | 교사 활동 | 학생 활동 | 시간 | 자료 및 유의점 |
+| --- | --- | --- | --- | --- | --- |
+| 도입 | 동기 유발 | 계단 사진을 보여 주고 질문한다 | 사진을 보고 가파른 정도를 말한다 | 5' | PPT |
+| 전개 | 기울기 | 기울기의 뜻을 설명한다 | 모둠별로 기울기를 구한다 | 20' | 활동지, 모눈종이 |
+|  |  | 순회하며 피드백한다 | 구한 값을 발표한다 | 10' | ※ 부진 학생을 먼저 살핀다 |
+| 정리 | 정리 | 핵심을 정리한다 | 출구 카드를 쓴다 | 10' | 출구 카드 |
+`;
+
 describe("lesson plan reader", () => {
+  it("puts student activities on slides and teacher text in notes", () => {
+    const p = parseLessonPlan(SCHOOL_PLAN);
+    expect(p.steps.map((s) => s.phase)).toEqual(["도입", "전개", "정리"]);
+    expect(p.steps[1].activities).toEqual(["모둠별로 기울기를 구한다", "구한 값을 발표한다"]);
+    expect(p.steps[1].minutes).toBe(30);
+    expect(p.steps[1].notes).toContain("기울기의 뜻을 설명한다");
+    expect(p.steps[1].notes).toContain("부진 학생을 먼저 살핀다");
+    expect(p.materials).toEqual(expect.arrayContaining(["PPT", "활동지", "모눈종이", "출구 카드"]));
+    const text = buildSlides(p).flatMap((s) => [s.title, ...s.bullets]).join(" ");
+    expect(text).not.toMatch(/설명한다|부진 학생|순회/);
+  });
+
   it("reads table-style 지도안 including merged 단계 rows", () => {
     const p = parseLessonPlan(TABLE_PLAN);
     expect(p.title).toBe("2학년 국어");
@@ -58,5 +78,15 @@ describe("slides", () => {
       expect(sh.x).toBeGreaterThanOrEqual(0); expect(sh.y).toBeGreaterThanOrEqual(0);
       expect(sh.x + sh.w).toBeLessThanOrEqual(SLIDE_W + 0.001); expect(sh.y + sh.h).toBeLessThanOrEqual(SLIDE_H + 0.001);
     }
+  });
+  it("reads 성취기준 codes and the ▣ 자료 / ※ 유의점 symbols", () => {
+    const p = parseLessonPlan(`# 비유 표현\n학습 목표: [9국05-02] 비유의 효과를 설명할 수 있다\n## 전개 (30분)\n- 모둠별로 비유 찾기\n▣ 활동지, 모둠 보드\n※ 소외되는 학생이 없게 역할을 나눈다`);
+    expect(p.standards).toEqual(["[9국05-02]"]);
+    expect(p.objectives).toEqual(["비유의 효과를 설명할 수 있다"]);
+    expect(p.materials).toEqual(["활동지", "모둠 보드"]);
+    expect(p.steps[0].notes).toEqual(["소외되는 학생이 없게 역할을 나눈다"]);
+    const s = buildSlides(p);
+    expect(s.find((x) => x.kind === "objectives")?.kicker).toBe("[9국05-02]");
+    expect(s.flatMap((x) => [x.title, ...x.bullets]).join(" ")).not.toContain("소외");
   });
 });

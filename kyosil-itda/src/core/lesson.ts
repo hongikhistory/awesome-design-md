@@ -1,10 +1,13 @@
 // 수업 지도안(Markdown) → lesson outline → slide specs → PPTX.
 import { blocksText, parseBlocks, type Block } from "./docs/markdown";
+import { iconPng, type IconName } from "./slideIcons";
 
 export interface Step {
   phase: string; // 도입 / 전개 / 정리 / 활동명
   minutes?: number;
   activities: string[];
+  /** teacher-only text (교사 활동, 유의점): goes to presenter notes, never onto the slide */
+  notes?: string[];
 }
 
 export interface LessonPlan {
@@ -17,9 +20,14 @@ export interface LessonPlan {
   questions: string[]; // 핵심 발문
   assessment: string[];
   materials: string[];
+  /** 2022 개정 교육과정 성취기준 코드, e.g. [9국05-02] */
+  standards: string[];
 }
 
-export const emptyPlan = (): LessonPlan => ({ title: "", unit: "", target: "", teacher: "", objectives: [], steps: [], questions: [], assessment: [], materials: [] });
+export const emptyPlan = (): LessonPlan => ({ title: "", unit: "", target: "", teacher: "", objectives: [], steps: [], questions: [], assessment: [], materials: [], standards: [] });
+
+/** 성취기준 코드: [9국05-02], [10공국1-01-02], [12화작01-03] and the like. */
+const STANDARD = /\[(\d{1,2}[가-힣A-Za-z]{1,6}\d{1,2}(?:-\d{2}){1,2})\]/g;
 
 const PHASES = /^(도입|전개|정리|활동\s?\d*|마무리|탐구|확인|평가)/;
 const minutesOf = (s: string) => {
@@ -37,7 +45,17 @@ export function parseLessonPlan(markdown: string): LessonPlan {
   const push = (list: string[], items: string[]) => items.forEach((i) => !list.includes(i) && list.push(i));
 
   const onLine = (raw: string) => {
-    const line = raw.trim();
+    let line = raw.trim();
+    if (!line) return;
+    for (const m of line.matchAll(STANDARD)) push(plan.standards, [`[${m[1]}]`]);
+    // 지도안 symbols: ▣·★ = 자료, ※ = 유의점(교사용, slides never show it)
+    if (/^[▣★]/.test(line)) return push(plan.materials, line.replace(/^[▣★]\s*(?:자료\s*[:：]?)?\s*/, "").split(/,\s*/).filter(Boolean));
+    if (/^※/.test(line)) {
+      const step = plan.steps.at(-1);
+      if (step) step.notes = [...(step.notes ?? []), line.replace(/^※\s*/, "")];
+      return;
+    }
+    line = line.replace(STANDARD, "").trim();
     if (!line) return;
     if (/^(?:단원|대단원|소단원)\s*[:：]/.test(line)) plan.unit ||= after(line);
     else if (/^(?:대상|학년|학급|대상 학급)\s*[:：]/.test(line)) plan.target ||= after(line);
@@ -81,7 +99,7 @@ export function parseLessonPlan(markdown: string): LessonPlan {
       if (!plan.title) plan.title = t;
       section = sectionOf(t);
     } else if (b.type === "paragraph" || b.type === "quote") blocksText(b.runs).split("\n").forEach(onLine);
-    else if (b.type === "list") b.items.forEach((it) => onLine(section ? blocksText(it) : `${blocksText(it)}`));
+    else if (b.type === "list") b.items.forEach((it) => blocksText(it).split("\n").forEach(onLine));
     else if (b.type === "table") readTable(b.header, b.rows, plan, onLine);
   }
   plan.title = plan.title.replace(/\s*(?:교수[·ㆍ]?학습\s?)?지도안\s*$/, "").trim() || plan.unit || "수업";
@@ -92,21 +110,46 @@ export function parseLessonPlan(markdown: string): LessonPlan {
 function readTable(header: string[], rows: string[][], plan: LessonPlan, onLine: (l: string) => void) {
   const h = header.map((x) => x.replace(/\s/g, ""));
   const iPhase = h.findIndex((x) => /단계|과정|구분/.test(x));
-  const iAct = h.findIndex((x) => /활동|교수|학습|내용/.test(x));
-  const iTime = h.findIndex((x) => /시간|분/.test(x));
-  if (iPhase >= 0 && iAct >= 0) {
-    for (const r of rows) {
-      const phase = (r[iPhase] ?? "").trim();
-      const acts = splitItems(r.filter((_, i) => i !== iPhase && i !== iTime).join("\n"));
-      const minutes = iTime >= 0 ? minutesOf(r[iTime] ?? "") : minutesOf(phase);
-      const last = plan.steps.at(-1);
-      if (!phase && last) last.activities.push(...acts); // continuation row of a merged 단계 cell
-      else plan.steps.push({ phase: phase.replace(/\(.*\)/, "").trim() || "활동", minutes, activities: acts });
-    }
+  const iTime = h.findIndex((x) => /시간|^\(?분\)?$/.test(x));
+  // Column roles found in school 지도안: 학습 요소 / 교사 활동 / 학생 활동 / 형태 / 자료 및 유의점
+  const role = (x: string, i: number) =>
+    i === iPhase || i === iTime ? "skip"
+    : /유의|비고/.test(x) && !/자료/.test(x) ? "note"
+    : /자료|준비물|매체/.test(x) ? "material"
+    : /요소|주제/.test(x) ? "other"
+    : /학생/.test(x) ? "student"
+    : /교사/.test(x) ? "teacher"
+    : /형태|조직/.test(x) ? "form"
+    : /활동|교수|학습|내용/.test(x) ? "activity"
+    : "other";
+  const roles = h.map(role);
+  if (iPhase < 0 || !roles.some((r) => r === "activity" || r === "student" || r === "teacher")) {
+    // key-value tables (단원 | …, 학습 목표 | …)
+    for (const r of [header, ...rows]) if (r.length >= 2) onLine(`${r[0]}: ${r.slice(1).join(" ")}`);
     return;
   }
-  // key-value tables (단원 | …, 학습 목표 | …)
-  for (const r of [header, ...rows]) if (r.length >= 2) onLine(`${r[0]}: ${r.slice(1).join(" ")}`);
+  // What students do goes on the slide; teacher-side text becomes notes.
+  const onSlide = roles.includes("student") ? ["student"] : roles.includes("activity") ? ["activity"] : ["teacher"];
+  const cols = (r: string[], want: string[]) => r.filter((_, i) => want.includes(roles[i])).join("\n");
+  for (const r of rows) {
+    const phase = (r[iPhase] ?? "").trim();
+    const acts = splitItems(cols(r, onSlide)).filter((a) => !/^※/.test(a));
+    const notes = splitItems(cols(r, ["teacher", "note", "activity"].filter((x) => !onSlide.includes(x))));
+    for (const m of splitItems(cols(r, ["material"]))) {
+      const name = m.replace(/^[◎◇■□▶☞※]\s*/, "").replace(/^(자료|준비물)\s*[:：]\s*/, "");
+      // sentences (…다/…함) and ※ remarks are 유의점, short nouns are 자료
+      if (/^[※☞]/.test(m) || /유의|주의|다\.?$|함\.?$/.test(name) || name.length > 20) notes.push(name);
+      else for (const x of name.split(/,\s*/)) if (x && !plan.materials.includes(x)) plan.materials.push(x);
+    }
+    const minutes = iTime >= 0 ? minutesOf(r[iTime] ?? "") : minutesOf(phase);
+    const last = plan.steps.at(-1);
+    if (!phase && last) {
+      // continuation row of a merged 단계 cell
+      last.activities.push(...acts);
+      if (notes.length) last.notes = [...(last.notes ?? []), ...notes];
+      if (minutes) last.minutes = (last.minutes ?? 0) + minutes;
+    } else plan.steps.push({ phase: phase.replace(/\(.*\)/, "").trim() || "활동", minutes, activities: acts, ...(notes.length ? { notes } : {}) });
+  }
 }
 
 // ------------------------------------------------------------------ slides
@@ -130,12 +173,12 @@ export function buildSlides(p: LessonPlan, o: { groupRoles?: boolean } = {}): Sl
   const phaseIdx = (s: Step) => p.steps.indexOf(s);
   const materials = p.materials.length ? `준비물: ${p.materials.join(", ")}` : undefined;
   slides.push({ kind: "cover", title: p.title, kicker: p.unit, bullets: [p.target, p.teacher].filter(Boolean) });
-  if (p.objectives.length) slides.push({ kind: "objectives", title: "학습 목표", bullets: p.objectives, footer: materials });
+  if (p.objectives.length) slides.push({ kind: "objectives", title: "학습 목표", kicker: p.standards.length ? p.standards.slice(0, 2).join(" ") : undefined, bullets: p.objectives, footer: materials });
   if (p.steps.length) slides.push({ kind: "flow", title: "오늘의 수업 흐름", bullets: p.steps.map((s) => `${s.phase}|${s.minutes ?? ""}|${s.activities[0] ?? ""}`) });
   if (p.questions.length) slides.push({ kind: "question", kicker: "생각 열기", title: p.questions[0], bullets: p.questions.slice(1, 3), phase: 0 });
   for (const s of p.steps) {
     if (/정리|마무리/.test(s.phase)) continue;
-    slides.push({ kind: "activity", kicker: s.phase, title: s.activities[0] ?? s.phase, bullets: s.activities.slice(1, 5), minutes: s.minutes, notes: s.activities.join("\n"), phase: phaseIdx(s), footer: materials });
+    slides.push({ kind: "activity", kicker: s.phase, title: s.activities[0] ?? s.phase, bullets: s.activities.slice(1, 5), minutes: s.minutes, notes: [...s.activities, ...(s.notes ?? []).map((n) => `[교사] ${n}`)].join("\n"), phase: phaseIdx(s), footer: materials });
     if (o.groupRoles !== false && s.activities.some((a) => /모둠|조별|짝/.test(a)))
       slides.push({ kind: "groups", kicker: s.phase, title: "모둠 역할", bullets: ["이끔이|순서를 정하고 모두가 말하게 해요", "기록이|나온 생각을 적어요", "발표이|모둠의 생각을 전해요", "지킴이|시간과 약속을 챙겨요"], phase: phaseIdx(s) });
   }
@@ -199,7 +242,8 @@ export type Shape =
   | { t: "rect"; x: number; y: number; w: number; h: number; fill?: string; line?: string; lineW?: number; radius?: number; shadow?: boolean; alpha?: number }
   | { t: "ellipse"; x: number; y: number; w: number; h: number; fill: string; alpha?: number; line?: string; lineW?: number }
   | { t: "line"; x: number; y: number; w: number; h: number; color: string; width: number; dash?: boolean }
-  | { t: "text"; x: number; y: number; w: number; h: number; runs: TextRun[]; align?: "left" | "center" | "right"; valign?: "top" | "middle" | "bottom"; lineHeight?: number };
+  | { t: "text"; x: number; y: number; w: number; h: number; runs: TextRun[]; align?: "left" | "center" | "right"; valign?: "top" | "middle" | "bottom"; lineHeight?: number }
+  | { t: "icon"; x: number; y: number; w: number; h: number; name: IconName; color: string; bg: string };
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 
@@ -253,7 +297,10 @@ export function layoutSlide(s: SlideSpec, th: SlideTheme, phases: string[], page
     T(R - 1.9, top - 0.05, 1.9, 0.9, [{ text: `${s.minutes}분`, size: 28, weight: 800, color: th.onAccent }], { align: "center", valign: "middle" });
   }
   const titleY = s.kicker ? top + 0.65 : top;
-  title(s.title, titleY, s.kind === "question" ? 44 : 40, R - L - (s.minutes ? 2.3 : 0));
+  const icon = ({ objectives: "target", flow: "clock", question: "bulb", activity: "pencil", check: "check", closing: "star" } as Partial<Record<SlideKind, IconName>>)[s.kind];
+  const iconX = R - (s.minutes ? 3.05 : 0.95);
+  if (icon) out.push({ t: "icon", x: iconX, y: top - 0.1, w: 0.95, h: 0.95, name: icon, color: th.onAccent, bg: s.kind === "question" || s.kind === "closing" ? th.accent : th.accent2 });
+  title(s.title, titleY, s.kind === "question" ? 44 : 40, R - L - (s.minutes ? 2.3 : 0) - (icon ? 1.15 : 0));
   void hx;
 
   // footer: page chip + phase tracker
@@ -381,6 +428,10 @@ export async function exportPptx(slides: SlideSpec[], theme: SlideTheme, phases:
   pptx.title = slides[0]?.title ?? "수업";
   pptx.author = "교실잇다";
   const face = (w?: Weight) => (w === 800 ? FONT_HEAD : w === 600 ? FONT_SEMI : FONT_BODY);
+  const icons = new Map<string, string | null>();
+  for (const [i, s] of slides.entries())
+    for (const sh of layoutSlide(s, theme, phases, i + 1, slides.length))
+      if (sh.t === "icon") { const k = `${sh.name}:${sh.color}:${sh.bg}`; if (!icons.has(k)) icons.set(k, await iconPng(sh.name, sh.color, sh.bg).catch(() => null)); }
   slides.forEach((s, idx) => {
     const slide = pptx.addSlide();
     slide.background = { color: theme.bg };
@@ -397,7 +448,11 @@ export async function exportPptx(slides: SlideSpec[], theme: SlideTheme, phases:
       else if (sh.t === "ellipse")
         slide.addShape("ellipse", { x: sh.x, y: sh.y, w: sh.w, h: sh.h, fill: { color: sh.fill, transparency: hexAlpha(sh.alpha) }, line: sh.line ? { color: sh.line, width: sh.lineW ?? 1 } : { type: "none" } });
       else if (sh.t === "line") slide.addShape("line", { x: sh.x, y: sh.y, w: sh.w, h: sh.h, line: { color: sh.color, width: sh.width, dashType: sh.dash ? "dash" : "solid" } });
-      else
+      else if (sh.t === "icon") {
+        const png = icons.get(`${sh.name}:${sh.color}:${sh.bg}`);
+        if (png) slide.addImage({ data: png, x: sh.x, y: sh.y, w: sh.w, h: sh.h });
+        else slide.addShape("ellipse", { x: sh.x, y: sh.y, w: sh.w, h: sh.h, fill: { color: sh.bg }, line: { type: "none" } });
+      } else
         slide.addText(
           sh.runs.map((r) => ({ text: r.text, options: { fontSize: r.size, fontFace: face(r.weight), color: r.color ?? theme.fg, breakLine: r.breakAfter } })),
           { x: sh.x, y: sh.y, w: sh.w, h: sh.h, align: sh.align ?? "left", valign: sh.valign ?? "top", margin: 0, lineSpacingMultiple: sh.lineHeight ?? 1.15, fit: "shrink" },

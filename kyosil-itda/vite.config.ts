@@ -24,6 +24,9 @@ function bundleSize(): Plugin {
       const kb = String(Math.round(bytes / 1024));
       for (const f of Object.values(bundle)) if (f.type === "chunk") f.code = f.code.replaceAll(TOKEN, kb);
       this.info(`first-load gzip ≈ ${kb} KB`);
+      // every hashed build file, for the service worker to precache (offline use on school networks)
+      const files = Object.values(bundle).map((f) => f.fileName).filter((f) => f.startsWith("assets/"));
+      this.emitFile({ type: "asset", fileName: "precache.json", source: JSON.stringify(files) });
     },
   };
 }

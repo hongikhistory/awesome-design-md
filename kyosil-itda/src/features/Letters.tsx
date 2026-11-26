@@ -1,9 +1,11 @@
-import { FileDown, LoaderCircle, Plus, Printer, Upload, Wand2, X } from "lucide-react";
+import { FileDown, LoaderCircle, MessageSquareShare, Plus, Printer, Upload, Wand2, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { download, formatOf, kordoc } from "../core/docs/engine";
 import { renderPreview } from "../core/docs/markdown";
 import { markdownToDocx } from "../core/docs/writers";
-import { fmtDate, letterMarkdown, plainHints, sampleLetter, type Audience, type LetterData } from "../core/letters";
+import { fmtDate, letterMarkdown, plainHints, TEMPLATES, type Audience, type ConsentItem, type LetterData } from "../core/letters";
+import { useMyProfile, useSchool } from "../core/profile";
+import { ROOM } from "../core/seed";
 import { useApp } from "../state";
 import { Empty, inFrame, Notice, useToast } from "../ui/common";
 
@@ -38,8 +40,17 @@ export function Letters() {
 }
 
 function Builtin() {
-  const { handoff, setHandoff } = useApp();
-  const [l, setL] = useState<LetterData>(sampleLetter);
+  const { handoff, setHandoff, me, view, send } = useApp();
+  const school = useSchool();
+  const mine = useMyProfile(me.id);
+  const base = () => ({ school: school.school, date: new Date().toISOString().slice(0, 10), dept: mine.dept || "교무부", teacher: me.name, phone: mine.phone || school.phone });
+  const [tpl, setTpl] = useState("trip");
+  const [l, setL] = useState<LetterData>(() => TEMPLATES[0].make(base()));
+  const canReview = !!view(ROOM.grade2);
+  const requestReview = async () => {
+    await send(ROOM.grade2, { type: "msg", text: `[가정통신문 검토 요청] ${l.title}\n발행 예정 ${fmtDate(l.date)} · ${l.dept} ${l.teacher}\n\n${l.body.slice(0, 400)}${l.body.length > 400 ? "…" : ""}\n\n고칠 점을 이 방에 남겨 주세요.` });
+    toast.show("2학년 협의방에 검토 요청을 올렸습니다(종단간 암호화).");
+  };
   const [lint, setLint] = useState<{ message: string; match?: string }[]>([]);
   const [busy, setBusy] = useState("");
   const toast = useToast();
@@ -62,7 +73,9 @@ function Builtin() {
       try {
         const k = await kordoc();
         const r = k.lintGongmunText(`${l.title}\n${l.body}`);
-        setLint(r.map((f) => ({ message: f.suggest ? `${f.message} (제안: ${f.suggest})` : f.message, match: f.match })));
+        // our own hints already cover dates, times and plain words; keep only what they do not
+        const ours = plainHints(`${l.title}\n${l.body}`).map((h) => h.match);
+        setLint(r.filter((f) => !f.match || !ours.some((m) => m.includes(f.match!) || f.match!.includes(m))).map((f) => ({ message: f.suggest && f.suggest.length > 1 ? `${f.message} (제안: ${f.suggest})` : f.message, match: f.match })));
       } catch {
         setLint([]);
       }
@@ -87,8 +100,15 @@ function Builtin() {
   return (
     <div className="letter-layout">
       <section className="panel no-print" aria-labelledby="lf-h">
-        <div className="panel-head"><h2 id="lf-h">내용</h2><button className="btn sm text" onClick={() => setL(sampleLetter())}>예시로 되돌리기</button></div>
+        <div className="panel-head"><h2 id="lf-h">내용</h2><button className="btn sm text" onClick={() => setL(TEMPLATES.find((t) => t.id === tpl)!.make(base()))}>틀로 되돌리기</button></div>
         <div className="panel-body stack">
+          <div className="tpl-grid" role="radiogroup" aria-label="통신문 틀">
+            {TEMPLATES.map((t) => (
+              <button key={t.id} role="radio" aria-checked={tpl === t.id} className="tpl-card" onClick={() => { setTpl(t.id); setL(t.make(base())); }}>
+                <b>{t.name}</b><span className="meta">{t.desc}</span>
+              </button>
+            ))}
+          </div>
           <div className="grid two">
             <label className="field">학교 이름<input id="lt-school" type="text" value={l.school} onChange={(e) => set("school", e.target.value)} /></label>
             <label className="field">받는 사람
@@ -96,7 +116,7 @@ function Builtin() {
                 {(["학부모", "학생", "학부모·학생"] as Audience[]).map((a) => <option key={a}>{a}</option>)}
               </select>
             </label>
-            <label className="field">문서 번호<input id="lt-no" type="text" value={l.docNo} onChange={(e) => set("docNo", e.target.value)} /></label>
+            <label className="field">발행 번호 <span className="hint">학교에서 쓰지 않으면 비움</span><input id="lt-no" type="text" value={l.docNo} onChange={(e) => set("docNo", e.target.value)} /></label>
             <label className="field">발행일<input id="lt-date" type="date" value={l.date} onChange={(e) => set("date", e.target.value)} /></label>
           </div>
           <label className="field">제목<input id="lt-title" type="text" value={l.title} onChange={(e) => set("title", e.target.value)} /></label>
@@ -131,11 +151,18 @@ function Builtin() {
               )}
             </div>
           </fieldset>
+          {l.consent && <ConsentEditor value={l.consent} onChange={(c) => set("consent", c)} />}
+          <label className="field">학교장 직인
+            <select id="lt-seal" value={l.seal ?? "slot"} onChange={(e) => set("seal", e.target.value as "slot" | "none")}>
+              <option value="slot">직인 자리만 표시(인쇄 후 학교에서 날인)</option>
+              <option value="none">직인 생략</option>
+            </select>
+          </label>
           <section aria-labelledby="chk-h" className="stack tight">
             <h3 id="chk-h">읽기 쉬운 말 점검 <span className="meta">{hints.length + lint.length}건</span></h3>
             {hints.length + lint.length === 0 ? <p className="meta">고칠 만한 표현을 찾지 못했습니다.</p> : (
               <ul className="hint-list">
-                {hints.map((h, i) => <li key={`h${i}`}><b>{h.match}</b> → {h.suggestion} <span className="meta">{h.reason}</span></li>)}
+                {hints.map((h, i) => <li key={`h${i}`}><b>{h.match}</b> → <button className="link-btn" onClick={() => setL((x) => ({ ...x, title: x.title.replace(h.match, h.suggestion), body: x.body.replace(h.match, h.suggestion), schedule: x.schedule.map((r) => ({ ...r, value: r.value.replace(h.match, h.suggestion) })) }))} title="이 제안으로 바꾸기">{h.suggestion}</button> <span className="meta">{h.reason}</span></li>)}
                 {lint.map((f, i) => <li key={`k${i}`}>{f.match && <b>{f.match} </b>}{f.message} <span className="meta">공공언어 검수</span></li>)}
               </ul>
             )}
@@ -149,13 +176,14 @@ function Builtin() {
             <button key={k} className={`btn ${k === "hwpx" ? "primary" : ""}`} disabled={!!busy} onClick={() => void save(k)}>{busy === k ? <LoaderCircle className="ico sm spin" aria-hidden /> : <FileDown className="ico sm" aria-hidden />} {k === "hwpx" ? "한글(HWPX)" : k.toUpperCase()}</button>
           ))}
           {!inFrame && <button className="btn" onClick={() => window.print()}><Printer className="ico sm" aria-hidden /> 인쇄</button>}
+          {canReview && <button className="btn" onClick={() => void requestReview()}><MessageSquareShare className="ico sm" aria-hidden /> 학년 협의방에 검토 요청</button>}
         </div>
         <article className="paper" aria-label="가정통신문 미리보기">
           <header className="paper-head">
-            <div className="paper-school"><span className="paper-logo" aria-hidden>{l.school.slice(0, 1)}</span>{l.school}</div>
+            <div className="paper-school">{school.logo ? <img className="paper-logo img" src={school.logo} alt="" /> : <span className="paper-logo" aria-hidden>{l.school.slice(0, 1)}</span>}{l.school}</div>
             <table className="paper-meta">
               <tbody>
-                <tr><th>발행</th><td>{l.docNo}</td><th>발행일</th><td>{fmtDate(l.date)}</td></tr>
+                <tr>{l.docNo && <><th>발행</th><td>{l.docNo}</td></>}<th>발행일</th><td>{fmtDate(l.date)}</td></tr>
                 <tr><th>담당</th><td>{l.dept} {l.teacher}</td><th>문의</th><td>{l.phone}</td></tr>
               </tbody>
             </table>
@@ -168,14 +196,27 @@ function Builtin() {
             <table className="paper-table"><tbody>{l.schedule.map((r, i) => <tr key={i}><th>{r.label}</th><td>{r.value}</td></tr>)}</tbody></table>
           )}
           <p className="paper-date">{fmtDate(l.date)}</p>
-          <p className="paper-sign">{l.school}장 <span className="stamp paper-seal" aria-label="직인">직인</span></p>
-          {l.reply.enabled && (
-            <section className="paper-reply" aria-label="회신서">
+          <p className="paper-sign">{l.school}장 {l.seal !== "none" && <span className="seal-slot" aria-label="직인 자리">(직인)</span>}</p>
+          {(l.reply.enabled || l.consent) && (
+            <section className="paper-reply" aria-label={l.consent ? "동의서" : "회신서"}>
               <div className="cut"><span>자르는 선</span></div>
-              <h3>{l.title} 회신서</h3>
-              <p>{l.reply.question}: {l.reply.options.map((o) => <span key={o} className="box-opt">□ {o}</span>)}</p>
+              <h3>{l.title} {l.consent ? "동의서" : "회신서"}</h3>
+              {l.consent?.items.map((it, i) => (
+                <div key={i} className="consent-block">
+                  <b>{i + 1}. [{it.required ? "필수" : "선택"}] 개인정보 수집·이용 동의</b>
+                  <table className="paper-table"><tbody>
+                    <tr><th>수집·이용 목적</th><td>{it.purpose}</td></tr>
+                    <tr><th>수집 항목</th><td>{it.fields}</td></tr>
+                    <tr><th>보유·이용 기간</th><td><b className="em">{it.period}</b></td></tr>
+                    <tr><th>거부 권리·불이익</th><td>{it.refusal}</td></tr>
+                  </tbody></table>
+                  <p className="consent-check">위 내용에 동의하십니까? <span className="box-opt">□ 동의함</span><span className="box-opt">□ 동의하지 않음</span></p>
+                </div>
+              ))}
+              {l.reply.enabled && <p>{l.reply.question}: {l.reply.options.map((o) => <span key={o} className="box-opt">□ {o}</span>)}</p>}
               <table className="paper-table"><thead><tr>{["학년", "반", "번호", "학생 이름", "보호자 이름", "서명"].map((h) => <th key={h}>{h}</th>)}</tr></thead><tbody><tr>{Array.from({ length: 6 }, (_, i) => <td key={i}>&nbsp;</td>)}</tr></tbody></table>
               <p className="meta">회신 기한: {fmtDate(l.reply.deadline)}까지 담임 선생님께 제출해 주십시오.</p>
+              {l.consent?.under14 && <p className="meta">※ 학생이 만 14세 미만이면 법정대리인(보호자)이 동의하고 서명합니다(개인정보 보호법 제22조의2).</p>}
             </section>
           )}
         </article>
@@ -291,5 +332,33 @@ function SchoolForm() {
         </div>
       </section>
     </div>
+  );
+}
+
+function ConsentEditor({ value, onChange }: { value: NonNullable<LetterData["consent"]>; onChange: (c: NonNullable<LetterData["consent"]>) => void }) {
+  const setItem = (i: number, p: Partial<ConsentItem>) => onChange({ ...value, items: value.items.map((x, j) => (j === i ? { ...x, ...p } : x)) });
+  return (
+    <fieldset className="panel sub" style={{ border: 0, margin: 0 }}>
+      <div className="panel-body stack">
+        <legend className="field">개인정보 수집·이용 항목 <span className="hint">개인정보 보호법 제15조제2항의 네 가지를 모두 적어야 합니다</span></legend>
+        {value.items.map((it, i) => (
+          <div key={i} className="stack tight consent-edit">
+            <div className="row between">
+              <label className="row" style={{ fontWeight: 700 }}><input type="checkbox" checked={it.required} onChange={(e) => setItem(i, { required: e.target.checked })} /> 필수 항목</label>
+              <button className="btn sm text" onClick={() => onChange({ ...value, items: value.items.filter((_, j) => j !== i) })} aria-label={`${i + 1}번 동의 항목 삭제`}><X className="ico sm" aria-hidden /></button>
+            </div>
+            <label className="field">수집·이용 목적<input type="text" value={it.purpose} onChange={(e) => setItem(i, { purpose: e.target.value })} /></label>
+            <label className="field">수집 항목 <span className="hint">꼭 필요한 것만</span><input type="text" value={it.fields} onChange={(e) => setItem(i, { fields: e.target.value })} /></label>
+            <label className="field">보유·이용 기간<input type="text" value={it.period} onChange={(e) => setItem(i, { period: e.target.value })} /></label>
+            <label className="field">동의 거부 권리와 불이익<input type="text" value={it.refusal} onChange={(e) => setItem(i, { refusal: e.target.value })} /></label>
+            {!it.required && /불이익/.test(it.refusal) && !/불이익이 없/.test(it.refusal) && <span className="meta" style={{ color: "var(--warn)" }}>선택 항목에 동의하지 않았다고 불이익을 줄 수 없습니다(제22조).</span>}
+          </div>
+        ))}
+        <div className="row">
+          <button className="btn sm" onClick={() => onChange({ ...value, items: [...value.items, { required: false, purpose: "", fields: "", period: "", refusal: "동의하지 않아도 학교생활에 불이익이 없습니다." }] })}><Plus className="ico sm" aria-hidden /> 항목 추가</button>
+          <label className="row" style={{ fontWeight: 600 }}><input type="checkbox" checked={value.under14} onChange={(e) => onChange({ ...value, under14: e.target.checked })} /> 만 14세 미만 학생 포함(법정대리인 동의)</label>
+        </div>
+      </div>
+    </fieldset>
   );
 }

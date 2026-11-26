@@ -5,8 +5,8 @@ describe("NEIS bytes", () => {
   it("counts Hangul 3, ASCII 1, newline 1", () => {
     expect(neisBytes("가")).toBe(3);
     expect(neisBytes("A1 ")).toBe(3);
-    expect(neisBytes("가\n나")).toBe(7);
-    expect(neisBytes("가\r\n나")).toBe(7);
+    expect(neisBytes("가\n나")).toBe(8);
+    expect(neisBytes("가\r\n나")).toBe(8);
   });
   it("matches the official 500자 = 1500바이트 conversion", () => {
     expect(neisBytes("가".repeat(500))).toBe(LIMITS[2026].subject.chars * 3);
@@ -46,5 +46,11 @@ describe("AI draft prompt", () => {
     expect(p).not.toContain("김민수");
     expect(p).toContain("300자");
     expect(p).toContain("그대로 입력하는 것은");
+  });
+  it("draft prompt removes the student, classmates, school and phone numbers", () => {
+    const p = draftPrompt({ item: "subject", subject: "국어", year: 2026, level: "중", studentName: "김서연", classmates: ["박지호"], schoolName: "한빛중학교",
+      observations: [{ date: "2026-11-01", text: "서연이가 박지호와 한빛중 축제 발표를 준비함. 010-1234-5678" }] });
+    expect(p).not.toMatch(/김서연|서연|박지호|지호|한빛중|010-1234/);
+    expect(p).toContain("다른 학생");
   });
 });
