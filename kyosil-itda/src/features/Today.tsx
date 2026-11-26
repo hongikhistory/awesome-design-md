@@ -1,4 +1,4 @@
-import { ChevronRight, FileStack, GraduationCap, Presentation, ScrollText } from "lucide-react";
+import { ChevronRight, FileStack, GraduationCap, ListChecks, Presentation, ScrollText, UsersRound } from "lucide-react";
 import { useState } from "react";
 import type { Go, Page } from "../App";
 import type { CoverRequest } from "../core/approval";
@@ -116,6 +116,8 @@ const TOUR: { as: string; page: Page; title: string; what: string }[] = [
   { as: "t1", page: "practicum", title: "김하늘 · 지도교사", what: "초점에 맞춰 관찰 기록을 남기고, 교생의 자기평가와 비교합니다." },
   { as: "t1", page: "docs", title: "문서 변환", what: "예시 지도안(DOCX)을 Markdown으로 바꾸고 HWPX로 다시 저장합니다." },
   { as: "t1", page: "slides", title: "수업 슬라이드", what: "지도안에서 슬라이드를 만들고 템플릿을 골라 HTML 발표 파일로 받습니다." },
+  { as: "t1", page: "activities", title: "학생 활동 만들기", what: "확인 문제를 만들고 학생 화면(휴대폰)으로 미리 풀어 봅니다. 근거 판단 활동도 열어 봅니다." },
+  { as: "t1", page: "groups", title: "모둠·자리", what: "떨어뜨릴 짝을 정하고 모둠을 섞은 뒤 교실 화면에 크게 띄웁니다." },
   { as: "t1", page: "letters", title: "가정통신문", what: "내용만 넣어 통신문을 만들고, 학교 HWPX 양식 칸을 채웁니다." },
   { as: "t1", page: "students", title: "학생 상담·기록", what: "누가기록으로 세특을 쓰고, 금지 표현과 NEIS 바이트를 점검합니다." },
   { as: "t1", page: "trust", title: "보안 확인", what: "서버에 저장된 암호문을 보고, 위조 메시지가 걸러지는지 실험합니다." },
@@ -123,8 +125,10 @@ const TOUR: { as: string; page: Page; title: string; what: string }[] = [
 
 
 const TOOLS: { page: Page; title: string; what: string; Icon: typeof FileStack }[] = [
-  { page: "docs", title: "문서 변환", what: "HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown", Icon: FileStack },
   { page: "slides", title: "수업 슬라이드", what: "지도안을 넣으면 발표 자료로", Icon: Presentation },
+  { page: "activities", title: "학생 활동 만들기", what: "확인 문제·근거 판단·출구 카드", Icon: ListChecks },
+  { page: "groups", title: "모둠·자리", what: "역할까지 정하는 모둠 편성", Icon: UsersRound },
+  { page: "docs", title: "문서 변환", what: "HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown", Icon: FileStack },
   { page: "letters", title: "가정통신문", what: "내용만 쓰면 학교 양식대로", Icon: ScrollText },
   { page: "students", title: "학생 상담·기록", what: "누가기록 → 세특·행특 초안 점검", Icon: GraduationCap },
 ];

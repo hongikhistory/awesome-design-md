@@ -781,3 +781,56 @@ table.tt tr.lunch td, table.tt tr.lunch th { height: 24px; font-size: 12px; colo
 .principle > b { font: 800 22px Paperlogy, var(--font); color: var(--primary-text); }
 .principle p { font-size: 14px; color: var(--text-subtle); line-height: 1.65; }
 @media (max-width: 880px) { .about-hero { grid-template-columns: 1fr; } }
+
+/* ================= 학생 활동 만들기 ================= */
+.act-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.act-layout > section:last-child { position: sticky; top: 16px; }
+.act-purpose { padding: 10px 14px; border-radius: var(--r-md); background: var(--primary-bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+.act-editor { min-height: 320px; font-family: var(--mono); font-size: 13.5px; line-height: 1.65; background: var(--surface-sub); }
+.act-summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 6px; padding: 10px 14px; color: var(--primary-text); }
+.device { margin: 0 auto; border-radius: 34px; padding: 14px; background: #1b2333; box-shadow: var(--shadow-2); transition: width .35s var(--ease-out), height .35s var(--ease-out); }
+.device.phone { width: 390px; height: 720px; }
+.device.tablet { width: 100%; max-width: 680px; height: 760px; border-radius: 26px; }
+.device iframe { width: 100%; height: 100%; border: 0; border-radius: 22px; background: #f4f7fc; display: block; }
+.device.tablet iframe { border-radius: 14px; }
+.device-empty { height: 100%; border-radius: 22px; background: #f4f7fc; display: grid; place-items: center; color: #55606f; padding: 20px; text-align: center; }
+
+/* ================= 모둠·자리 ================= */
+.grp-layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 20px; align-items: start; }
+.grp-fs { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; }
+.grp-fs legend { font-weight: 600; font-size: var(--fs-ui); margin-bottom: 6px; }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.chips li { display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 10px; border-radius: 999px; background: var(--warn-bg); border: 1px solid var(--warn-line); font-size: 14px; }
+.chip-pick { display: flex; flex-wrap: wrap; gap: 6px; max-height: 200px; overflow-y: auto; }
+.chip-pick .choice { min-height: 32px; padding: 0 10px; font-size: 14px; }
+.grp-stage { position: relative; display: grid; gap: 12px; }
+.grp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.grp-card { border-radius: 16px; border: 1px solid var(--line); border-top: 6px solid var(--c); background: var(--surface); padding: 14px 16px; animation: deal .45s var(--ease-out) both; }
+.grp-card h3 { color: var(--c); font: 800 20px Paperlogy, var(--font); margin-bottom: 8px; }
+.grp-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.grp-card li { display: flex; align-items: center; gap: 8px; }
+.grp-card .avatar-svg { flex: none; border-radius: 50%; }
+.grp-name { font-weight: 700; color: var(--text-strong); flex: 1; }
+@keyframes deal { from { opacity: 0; transform: translateY(14px) rotate(-1.5deg) scale(.97); } }
+.seat-wrap { display: grid; gap: 14px; }
+.seat-board { text-align: center; padding: 10px; border-radius: 10px; background: #2F5D50; color: #F3F0E6; font-weight: 700; letter-spacing: 4px; }
+.seat-grid { display: grid; gap: 10px 4px; }
+.seat { min-height: 56px; display: grid; place-items: center; border-radius: 10px; background: var(--surface); border: 1px solid var(--line-strong); font-weight: 700; color: var(--text-strong); animation: deal .4s var(--ease-out) both; text-align: center; padding: 4px; }
+.seat.left { margin-left: 6px; } .seat.right { margin-right: 6px; }
+.seat:nth-child(2n+1) { box-shadow: 4px 0 0 -2px var(--surface-sub2); }
+.seat.front { border-color: var(--primary); background: var(--primary-bg); }
+.seat.empty { background: transparent; border-style: dashed; border-color: var(--line); }
+.grp-stage.big { position: fixed; inset: 0; z-index: 40; background: var(--surface); padding: 32px; overflow: auto; align-content: start; }
+.grp-stage.big .grp-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+.grp-stage.big .grp-card h3 { font-size: 30px; }
+.grp-stage.big .grp-name { font-size: 24px; }
+.grp-stage.big .seat { min-height: 84px; font-size: 22px; }
+.grp-close { position: absolute; top: 12px; right: 12px; z-index: 1; }
+.grp-stage:fullscreen { background: var(--surface); padding: 32px; overflow: auto; }
+
+@media (max-width: 1100px) {
+  .act-layout, .grp-layout { grid-template-columns: minmax(0, 1fr); }
+  .act-layout > section:last-child { position: static; }
+}
+@media (max-width: 480px) { .device.phone { width: 100%; height: 640px; border-radius: 24px; padding: 8px; } }
+@media print { .grp-layout { display: block; } .grp-layout > section:first-child { display: none; } }

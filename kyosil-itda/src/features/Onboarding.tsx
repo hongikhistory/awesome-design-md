@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpenCheck, Check, FileStack, GraduationCap, Lock, MessagesSquare, Presentation, ScrollText, ShieldCheck, Sparkles, Users, WifiOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpenCheck, Check, ListChecks, FileStack, GraduationCap, Lock, MessagesSquare, Presentation, ScrollText, ShieldCheck, Sparkles, Users, WifiOff } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { BRAND, DEMO_SCHOOL } from "../brand";
 import { finishIntro, getMe, getSchool, saveMe, saveSchool, type IntroMode, type SchoolLevel } from "../core/profile";
@@ -53,7 +53,7 @@ function Welcome({ head }: HeadRef) {
       <div className="stack">
         <span className="intro-kicker"><Sparkles className="ico sm" aria-hidden /> 홍익인간, 널리 이롭게 하는 교육을 위해</span>
         <h1 ref={head} tabIndex={-1}>{BRAND.tagline}</h1>
-        <p className="intro-lead">문서 정리, 통신문, 생기부, 결강 처리처럼 수업 밖의 일에 묶인 시간을 줄여, 선생님이 학생에게 돌아가도록 돕는 교사용 작업 공간입니다.</p>
+        <p className="intro-lead">지도안 한 장으로 수업 슬라이드, 학생이 휴대폰으로 푸는 활동, 모둠 편성까지. 수업 준비부터 기록까지 이어 주고, 수업 밖의 문서 일은 줄여 주는 교사용 웹콘텐츠입니다.</p>
         <ul className="intro-points">
           <li><Check className="ico sm" aria-hidden /> 설치 없이 브라우저에서, 인터넷이 끊겨도</li>
           <li><Check className="ico sm" aria-hidden /> 한글(HWPX)·엑셀·PDF를 그대로 읽고 다시 씀</li>
@@ -93,6 +93,7 @@ function Day({ head }: HeadRef) {
   const items = [
     { t: "07:50", icon: <MessagesSquare className="ico sm" aria-hidden />, what: "출근길 알림: 강지호 선생님 출장으로 1교시 보결 요청. 인수인계서를 읽고 동의하면 시간표 담당 결재까지 한 번에." },
     { t: "08:40", icon: <Presentation className="ico sm" aria-hidden />, what: "어젯밤 쓴 한글 지도안을 올리면 수업 슬라이드가 나옵니다. 성취기준 코드와 활동 시간 타이머까지." },
+    { t: "09:00", icon: <ListChecks className="ico sm" aria-hidden />, what: "1교시: 모둠을 섞어 교실 화면에 띄우고, 확인 문제를 학생 휴대폰으로. 즉시 해설이 나와 오개념을 그 자리에서 고칩니다." },
     { t: "12:40", icon: <ScrollText className="ico sm" aria-hidden />, what: "현장체험학습 통신문과 개인정보 동의서. 날짜·금액 표기와 쉬운 말을 점검하고, 학년 협의방에 검토를 부탁합니다." },
     { t: "16:30", icon: <GraduationCap className="ico sm" aria-hidden />, what: "오늘 눈에 띈 장면을 누가기록으로 한 줄. 학기 말에는 이 기록으로 세특을 쓰고 NEIS 바이트와 금지 표현을 확인합니다." },
     { t: "17:10", icon: <BookOpenCheck className="ico sm" aria-hidden />, what: "교생 오세린 선생님의 수업 관찰 기록을 정리하고, 자기평가와 다른 영역을 다음 협의 주제로 잡습니다." },

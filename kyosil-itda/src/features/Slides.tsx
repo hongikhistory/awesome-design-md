@@ -1,4 +1,4 @@
-import { FileDown, LoaderCircle, MonitorPlay, Plus, Upload, X } from "lucide-react";
+import { ListChecks, FileDown, LoaderCircle, MonitorPlay, Plus, Upload, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import p400 from "../assets/fonts/paperlogy/Paperlogy-4Regular.subset.woff2?url";
 import p600 from "../assets/fonts/paperlogy/Paperlogy-6SemiBold.subset.woff2?url";
@@ -117,6 +117,7 @@ export function Slides() {
         </div>
         <div className="row">
           <button className="btn primary" disabled={!!busy} onClick={() => void saveHtml()}>{busy === "html" ? <LoaderCircle className="ico sm spin" aria-hidden /> : <MonitorPlay className="ico sm" aria-hidden />} HTML 발표 파일</button>
+          <button className="btn" onClick={() => { setHandoff({ to: "activities", name: plan.title || "수업", markdown: [`# ${plan.title}`, `학습 목표: ${plan.objectives.join(" / ")}`, ...plan.steps.map((s) => `${s.phase}: ${s.activities.join(", ")}`), `평가: ${plan.assessment.join(" / ")}`].join("\n") }); location.hash = "activities"; }}><ListChecks className="ico sm" aria-hidden /> 학생 활동 만들기</button>
           <button className="btn" disabled={!!busy} onClick={() => void savePptx()}>{busy === "pptx" ? <LoaderCircle className="ico sm spin" aria-hidden /> : <FileDown className="ico sm" aria-hidden />} PPTX</button>
         </div>
       </div>

@@ -24,7 +24,7 @@ interface AppState {
 }
 
 export interface Handoff {
-  to: "slides" | "letters";
+  to: "slides" | "letters" | "activities";
   name: string;
   markdown: string;
 }
