@@ -29,25 +29,25 @@ export function About({ go }: { go: Go }) {
 
       <section className="section" aria-labelledby="ov-h">
         <h2 id="ov-h">개요</h2>
-        <table className="sheet">
+        <div className="scroll-x"><table className="sheet">
           <tbody>
             <tr><th scope="row">작품명</th><td>{BRAND.name} — {BRAND.tagline}</td></tr>
             <tr><th scope="row">대상</th><td>중·고등학교 교사(교과·담임), 시간표 담당, 교육실습생과 지도교사</td></tr>
             <tr><th scope="row">시연 무대</th><td>가상 학교 <b>{DEMO_SCHOOL}</b> 2학년 1반 담임 곽민혁(역사) 선생님, 시간표 담당 박민지 선생님, 교생 오세린 선생님. 사람·학생·시간표는 모두 지어낸 것이며 실제 학교와 관계없습니다.</td></tr>
-            <tr><th scope="row">핵심 기능</th><td>① 수업 슬라이드: 지도안 → 템플릿 5종의 HTML 발표 파일·PPTX, 성취기준·활동 타이머 <br />② 학생 활동 만들기: 확인 문제·근거 판단·출구 카드를 학생이 휴대폰으로 푸는 웹 활동으로(로그인·서버 없음), 활동지 HWPX <br />③ 모둠 편성·자리 배치, 학급 도구함(1인 1역·경품 추첨·룰렛·사다리타기·인물 퀴즈·진진가) <br />④ 수업 에셋: 박물관·사료·통계 등 교과별 공식 자료실 연결과 수업 중 띄우는 에셋 보드 <br />⑤ 과목별 스튜디오: 교과에 따라 색·무늬·그림·슬라이드 틀·추천 자료가 바뀜 <br />⑥ 문서 변환: HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown, 브라우저 안에서만 처리 <br />⑦ 가정통신문: 공문서 표기 점검, 개인정보 동의서 틀, 학교 HWPX 양식 빈칸 채우기 <br />⑧ 학생 상담·기록: 누가기록·상담, 생기부 기재 점검(NEIS 바이트, 금지 표현), 암호 백업 <br />⑨ 결강 처리: 교체 우선 제안, 근거를 보여 주는 보결 추천, 인수인계서, 결재란 <br />⑩ 교육실습: 임상장학 순서의 관찰·평가 비교·피드백 협의, 참관록 <br />⑪ 대화방: 종단간 암호화 메시지, 함께 편집하는 체크리스트·투표</td></tr>
+            <tr><th scope="row">핵심 기능</th><td>◎ 과목별 수업 만들기: 역사·국어·수학·과학·사회·영어·미술·창체 8개 꾸러미(지도안·슬라이드·확인 문제·근거 판단·출구 카드)를 한 번에, 다른 주제는 뼈대와 AI 요청문 <br />◎ 도우미 이음이: 기기 안에서 도는 규칙 기반 챗봇(수업 꾸러미, 학생 뽑기, 타이머, 화면 찾기, NEIS 바이트) <br />① 수업 슬라이드: 지도안 → 템플릿 5종의 HTML 발표 파일·PPTX, 성취기준·활동 타이머 <br />② 학생 활동 만들기: 확인 문제·근거 판단·출구 카드를 학생이 휴대폰으로 푸는 웹 활동으로(로그인·서버 없음), 활동지 HWPX <br />③ 모둠 편성·자리 배치, 학급 도구함(1인 1역·경품 추첨·룰렛·사다리타기·인물 퀴즈·진진가) <br />④ 수업 에셋: 박물관·사료·통계 등 교과별 공식 자료실 연결과 수업 중 띄우는 에셋 보드 <br />⑤ 과목별 스튜디오: 교과에 따라 색·무늬·그림·슬라이드 틀·추천 자료가 바뀜 <br />⑥ 문서 변환: HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown, 브라우저 안에서만 처리 <br />⑦ 가정통신문: 공문서 표기 점검, 개인정보 동의서 틀, 학교 HWPX 양식 빈칸 채우기 <br />⑧ 학생 상담·기록: 누가기록·상담, 생기부 기재 점검(NEIS 바이트, 금지 표현), 암호 백업 <br />⑨ 결강 처리: 교체 우선 제안, 근거를 보여 주는 보결 추천, 인수인계서, 결재란 <br />⑩ 교육실습: 임상장학 순서의 관찰·평가 비교·피드백 협의, 참관록 <br />⑪ 대화방: 종단간 암호화 메시지, 함께 편집하는 체크리스트·투표</td></tr>
             <tr><th scope="row">바로 쓸 수 있는 것</th><td>①~⑧은 서버 없이 이 기기 안에서 동작해 지금 바로 쓸 수 있습니다. ⑨~⑪은 학교 중계 서버가 필요한 시연판입니다.</td></tr>
             <tr><th scope="row">근거 자료</th><td>2026 학교생활기록부 기재요령 발췌와 학생부종합지원포털, 「행정업무의 운영 및 혁신에 관한 규정」, 개인정보 보호법 제15·22·22조의2·23조, 국립국어원 공공언어 자료, 경기도교육청 생성형 AI 활용 가이드. 출처마다 확실성을 표시했습니다(저장소 docs/FIELD-RESEARCH.md).</td></tr>
             <tr><th scope="row">실행</th><td>주소 하나로 PC·태블릿·스마트폰 브라우저에서 실행합니다. 홈 화면에 추가하면 앱처럼 열리고, 한 번 연 뒤에는 오프라인에서도 동작합니다(PWA).</td></tr>
             <tr><th scope="row">첫 화면 용량</th><td>{BUNDLE_KB} (gzip, HTML·JS·CSS 기준). 문서 도구는 처음 열 때 받습니다.</td></tr>
             <tr><th scope="row">디자인 기준</th><td>대한민국 정부 디자인 시스템(KRDS) 공식 토큰의 색·글자 크기·모서리 규칙과 고대비 모드, 직접 그린 일러스트와 아이콘</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       <section className="section" aria-labelledby="p-h">
         <h2 id="p-h">1. 문제 정의</h2>
         <p className="problem-statement">중등 교사는 수업 밖의 <b>문서·연락·기록</b>에 하루의 많은 시간을 씁니다. 이를 도울 도구는 많지만 <b>학교 문서 형식</b>(한글)과 <b>학생 개인정보 규정</b>을 함께 지키지 못해, 결국 손으로 옮겨 적고 메신저로 조율합니다. 교육부도 2024년 「학교 행정업무 경감 및 효율화 방안」과 2026년 ‘학교 현장 가짜 일 줄이기’ 과제로 같은 문제를 짚었습니다.</p>
-        <table className="sheet">
+        <div className="scroll-x"><table className="sheet">
           <thead><tr><th scope="col">벽</th><th scope="col">현장에서 일어나는 일</th><th scope="col">왜 기존 도구로 안 되는가</th><th scope="col">{BRAND.name}</th></tr></thead>
           <tbody>
             <tr>
@@ -69,7 +69,7 @@ export function About({ go }: { go: Go }) {
               <td>교체를 먼저 찾고, 보결 후보는 근거와 함께 비교합니다. 인수인계서와 결재란, 관찰 초점에 맞춘 교생 피드백이 서명된 암호 기록으로 남습니다.</td>
             </tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       <section className="section" aria-labelledby="s-h">
@@ -106,7 +106,7 @@ export function About({ go }: { go: Go }) {
 
       <section className="section" aria-labelledby="d-h">
         <h2 id="d-h">4. 곽민혁 선생님의 하루로 보는 흐름</h2>
-        <table className="sheet">
+        <div className="scroll-x"><table className="sheet">
           <thead><tr><th scope="col">시각</th><th scope="col">상황</th><th scope="col">쓰는 화면</th></tr></thead>
           <tbody>
             <tr><td>07:50</td><td>강지호 선생님 출장, 1교시 보결 요청에 인수인계서를 읽고 동의 → 시간표 담당 결재</td><td>결강 처리</td></tr>
@@ -116,12 +116,12 @@ export function About({ go }: { go: Go }) {
             <tr><td>16:30</td><td>출구 카드와 오늘 관찰한 장면을 누가기록으로, 학기 말에는 세특 초안을 점검</td><td>학생 상담·기록</td></tr>
             <tr><td>17:10</td><td>교생 수업 관찰 기록 정리, 자기평가와 다른 영역을 다음 협의 주제로</td><td>교육실습</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       <section className="section" aria-labelledby="t-h">
         <h2 id="t-h">5. 기술 구조</h2>
-        <table className="sheet">
+        <div className="scroll-x"><table className="sheet">
           <thead><tr><th scope="col">계층</th><th scope="col">구성</th><th scope="col">선택 이유</th></tr></thead>
           <tbody>
             <tr><td>기기(브라우저)</td><td>Web Crypto: ECDH P-256 키 교환, AES-256-GCM 암호화, ECDSA 서명. 개인 키는 꺼낼 수 없는 형태로 IndexedDB에 보관합니다.</td><td>별도 설치나 네이티브 모듈 없이 표준 API만으로 암호화할 수 있습니다.</td></tr>
@@ -130,13 +130,13 @@ export function About({ go }: { go: Go }) {
             <tr><td>문서 엔진</td><td>kordoc 4.24.66(MIT)을 브라우저용으로 묶어 필요할 때만 불러옵니다. DOCX·XLSX는 자체 OOXML 작성기, PPTX는 pptxgenjs, 발표 파일은 페이퍼로지 글꼴을 넣은 단일 HTML입니다.</td><td>학교 문서와 학생 정보가 서버로 나가지 않습니다.</td></tr>
             <tr><td>데이터 모델</td><td>모든 기록은 서명된 암호문 이벤트로 남고, 화면은 이벤트를 순서대로 반영해 만듭니다. 공동 체크리스트는 CRDT를 씁니다.</td><td>도착 순서가 달라도 결과가 같고, 처리 기록이 그대로 감사 기록이 됩니다.</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       <section className="section" aria-labelledby="v-h">
         <h2 id="v-h">6. 기대 효과와 현장 검증 계획</h2>
         <p className="small muted" style={{ marginBottom: 10 }}>아직 현장 검증은 하지 않았습니다. 실습 학교 한 곳에서 4주 동안 아래 지표를 잴 계획입니다.</p>
-        <table className="sheet">
+        <div className="scroll-x"><table className="sheet">
           <thead><tr><th scope="col">지표</th><th scope="col">측정 방법</th></tr></thead>
           <tbody>
             <tr><td>결강 처리 시간</td><td>결강 등록부터 결재까지 걸린 시간을 처리 기록에서 자동으로 계산해, 도입 전의 종이 방식과 비교합니다.</td></tr>
@@ -146,7 +146,7 @@ export function About({ go }: { go: Go }) {
             <tr><td>생기부 점검</td><td>모의 세특 30건에서 기재 금지 표현과 NEIS 바이트 초과를 교사 혼자 찾을 때와 도구를 쓸 때의 놓친 건수를 비교합니다.</td></tr>
             <tr><td>접근성</td><td>KWCAG 2.2 자동 점검(axe)에서 위반 0건을 유지하고, 고대비 모드의 사용성을 확인합니다.</td></tr>
           </tbody>
-        </table>
+        </table></div>
       </section>
 
       <section className="section" aria-labelledby="l-h">

@@ -1009,3 +1009,63 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius
 @media (max-width: 720px) { .next-title { font-size: 24px; } .opener-q { font-size: 18px; } }
 .topbar .brand b { white-space: nowrap; }
 @media (max-width: 720px) { .topbar .persona select { max-width: 150px; } .find-btn kbd { display: none; } }
+
+/* ───────── 이음이 (mascot + chatbot) ───────── */
+.mascot { overflow: visible; display: block; }
+.mascot .m-body { transform-origin: 60px 106px; animation: m-bob 3.2s ease-in-out infinite; }
+.mascot .m-eyes { transform-origin: 60px 58px; animation: m-blink 4.6s infinite; }
+.mascot.m-hi .m-arm-r { transform-origin: 96px 74px; animation: m-wave 1.6s ease-in-out infinite; }
+.mascot.m-happy .m-body { animation: m-hop .9s ease-in-out infinite; }
+.mascot .m-leaf-r { transform-origin: 60px 16px; animation: m-leaf 2.4s ease-in-out infinite; }
+@keyframes m-bob { 50% { transform: translateY(-3px) scale(1.015, .99); } }
+@keyframes m-hop { 50% { transform: translateY(-6px); } }
+@keyframes m-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes m-wave { 50% { transform: rotate(-22deg); } }
+@keyframes m-leaf { 50% { transform: rotate(8deg); } }
+.chat-fab { position: fixed; right: 20px; bottom: 20px; z-index: 30; border: 0; background: none; padding: 0; cursor: pointer; display: flex; align-items: center; flex-direction: row-reverse; gap: 8px; filter: drop-shadow(0 8px 16px rgba(20, 16, 12, .18)); }
+.chat-fab:focus-visible { outline: 3px solid var(--primary); outline-offset: 4px; border-radius: 50%; }
+.chat-fab-tip { background: var(--surface); color: var(--text-strong); border: 1px solid var(--line); padding: 8px 12px; border-radius: 14px 14px 4px 14px; font-size: 14px; font-weight: 600; white-space: nowrap; animation: enter .4s .6s var(--ease-out) both; }
+.chat { position: fixed; right: 20px; bottom: 100px; z-index: 31; width: min(380px, calc(100vw - 32px)); height: min(560px, calc(100vh - 140px)); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow-2); overflow: hidden; animation: enter .25s var(--ease-out) both; }
+.chat-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--primary-bg); border-bottom: 1px solid var(--primary-line); }
+.chat-head h2 { font-size: 17px; color: var(--text-strong); }
+.chat-list { overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.chat-msg { max-width: 88%; display: grid; gap: 8px; }
+.chat-msg p { padding: 10px 13px; border-radius: 16px; font-size: 15px; line-height: 1.55; white-space: pre-line; }
+.chat-msg.bot { align-self: flex-start; }
+.chat-msg.bot p { background: var(--surface-sub); color: var(--text); border-top-left-radius: 4px; }
+.chat-msg.me { align-self: flex-end; }
+.chat-msg.me p { background: var(--primary); color: var(--on-primary); border-top-right-radius: 4px; }
+.chat-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-btn { border: 1px solid var(--primary-line); background: var(--surface); color: var(--primary-text); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; min-height: 32px; }
+.chip-btn:hover { background: var(--primary-bg); }
+.chip-btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+.chat-timer { align-self: stretch; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; border: 1px solid var(--primary-line); background: var(--primary-bg); }
+.chat-timer b { font-size: 24px; font-variant-numeric: tabular-nums; color: var(--primary-text); }
+.chat-timer-bar { height: 6px; border-radius: 99px; background: var(--surface); overflow: hidden; }
+.chat-timer-bar i { display: block; height: 100%; background: var(--primary); transition: width .25s linear; }
+.chat-input { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); }
+.chat-input input { flex: 1; min-width: 0; border: 1px solid var(--line-strong); border-radius: 12px; padding: 0 12px; font: inherit; font-size: 15px; min-height: 40px; background: var(--surface); color: var(--text-strong); }
+@media (max-width: 720px) {
+  .chat-fab { bottom: 84px; right: 12px; } .chat-fab .mascot { width: 52px; height: 52px; } .chat-fab-tip { display: none; }
+  .chat { right: 8px; left: 8px; width: auto; bottom: 146px; height: min(520px, calc(100vh - 220px)); }
+}
+@media print { .chat-fab, .chat { display: none; } }
+
+/* ───────── 과목별 수업 만들기 ───────── */
+.pack-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; margin-bottom: 20px; }
+.pack-tile { display: grid; gap: 4px; text-align: left; padding: 14px 16px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; border-top: 5px solid var(--c); transition: transform .18s var(--ease-out), box-shadow .18s; }
+.pack-tile:hover { transform: translateY(-2px); box-shadow: var(--shadow-1); }
+.pack-tile[aria-pressed="true"] { border-color: var(--c); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent); }
+.pack-subj { font-size: 13px; font-weight: 800; color: var(--c); }
+.pack-tile b { color: var(--text-strong); font-size: 16px; }
+.pk-list { margin: 6px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.pk-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.pk-steps li { display: grid; grid-template-columns: 92px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.pk-steps b { color: var(--primary-text); }
+.pk-include { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pk-include div { display: grid; padding: 10px 12px; border-radius: 12px; background: var(--primary-bg); }
+.pk-include b { font-size: 22px; color: var(--primary-text); }
+.pk-include span { font-size: var(--fs-meta); color: var(--text-subtle); }
+.pk-q { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; color: var(--text-strong); }
+.topbar .brand svg, .topbar .brand img { flex: none; }
+.chat[hidden] { display: none; }

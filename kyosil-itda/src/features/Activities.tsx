@@ -40,6 +40,18 @@ export function Activities() {
   // 수업 슬라이드에서 넘어온 지도안: 학습 목표 → 출구 카드 점검 항목, 수업 내용 → AI 요청문
   useEffect(() => {
     if (handoff?.to !== "activities") return;
+    if (handoff.pack) {
+      const pk = handoff.pack;
+      setTexts({ quiz: pk.quiz, evidence: pk.evidence, exit: pk.exit });
+      setTitles(pk.titles);
+      const lines0 = handoff.markdown.split("\n");
+      const obj0 = (lines0.find((l) => l.startsWith("학습 목표:")) ?? "").replace("학습 목표:", "").split(/[·/]/).map((x) => x.trim()).filter(Boolean);
+      setLesson((x) => ({ ...x, subject: pk.subject, content: lines0.filter((l) => !l.startsWith("#")).join("\n"), objectives: obj0.length ? obj0 : x.objectives }));
+      setKind("quiz");
+      setHandoff(null);
+      toast.show(`${pk.subject} 수업 꾸러미를 불러왔습니다. 확인 문제·근거 판단·출구 카드 탭을 차례로 보세요.`);
+      return;
+    }
     const lines = handoff.markdown.split("\n");
     const obj = (lines.find((l) => l.startsWith("학습 목표:")) ?? "").replace("학습 목표:", "").split("/").map((x) => x.trim()).filter(Boolean);
     setLesson((x) => ({ ...x, content: lines.filter((l) => !l.startsWith("#")).join("\n"), objectives: obj.length ? obj : x.objectives }));

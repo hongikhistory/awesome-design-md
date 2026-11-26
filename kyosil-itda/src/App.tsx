@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ClipboardPen, Search, Contrast, FileStack, GraduationCap, House, KeyRound, Landmark, ListChecks, PartyPopper, Settings2, UsersRound, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
+import { ArrowLeftRight, ClipboardPen, Search, Wand2, Contrast, FileStack, GraduationCap, House, KeyRound, Landmark, ListChecks, PartyPopper, Settings2, UsersRound, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
 import { Component, lazy, Suspense, useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { isOpen } from "./core/approval";
 import { PEOPLE } from "./core/school";
@@ -7,6 +7,7 @@ import { Cover } from "./features/Cover";
 import { Practicum } from "./features/Practicum";
 import { Rooms } from "./features/Rooms";
 import { Today } from "./features/Today";
+import { ChatBot } from "./features/ChatBot";
 import { Trust } from "./features/Trust";
 import { BRAND } from "./brand";
 import { getMe, introDone, saveMe, useMyProfile, useSchool, useStudioId, type IntroMode } from "./core/profile";
@@ -24,17 +25,20 @@ const Activities = lazy(() => import("./features/Activities").then((m) => ({ def
 const Groups = lazy(() => import("./features/Groups").then((m) => ({ default: m.Groups })));
 const Assets = lazy(() => import("./features/Assets").then((m) => ({ default: m.Assets })));
 const ClassTools = lazy(() => import("./features/ClassTools").then((m) => ({ default: m.ClassTools })));
+const Packs = lazy(() => import("./features/Packs").then((m) => ({ default: m.Packs })));
 const Students = lazy(() => import("./features/Students").then((m) => ({ default: m.Students })));
 import { Logo } from "./ui/Brand";
 import { Palette, type PaletteItem } from "./ui/Palette";
 import { recordDay, setUsageUser } from "./core/daily";
+import { KEYWORDS } from "./core/pages";
 import { Avatar, inFrame, Notice } from "./ui/common";
 
-export type Page = "today" | "docs" | "slides" | "activities" | "assets" | "classtools" | "groups" | "letters" | "students" | "rooms" | "cover" | "practicum" | "trust" | "settings" | "about";
+export type Page = "today" | "packs" | "docs" | "slides" | "activities" | "assets" | "classtools" | "groups" | "letters" | "students" | "rooms" | "cover" | "practicum" | "trust" | "settings" | "about";
 export type Go = (p: Page, as?: string) => void;
 
 const NAV: { id: Page; label: string; short: string; Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>; group: string }[] = [
   { id: "today", label: "오늘", short: "오늘", Icon: House, group: "" },
+  { id: "packs", label: "과목별 수업 만들기", short: "만들기", Icon: Wand2, group: "수업" },
   { id: "slides", label: "수업 슬라이드", short: "슬라이드", Icon: Presentation, group: "수업" },
   { id: "activities", label: "학생 활동 만들기", short: "활동", Icon: ListChecks, group: "수업" },
   { id: "assets", label: "수업 에셋", short: "에셋", Icon: Landmark, group: "수업" },
@@ -50,21 +54,6 @@ const NAV: { id: Page; label: string; short: string; Icon: ComponentType<{ class
   { id: "trust", label: "보안 확인", short: "보안", Icon: ShieldCheck, group: "정보" },
   { id: "about", label: "작품 설명", short: "설명", Icon: Info, group: "정보" },
 ];
-/** extra words a teacher might type in quick find (Ctrl+K) */
-const KEYWORDS: Partial<Record<Page, string>> = {
-  slides: "ppt 발표 지도안 피피티 프레젠테이션 성취기준",
-  activities: "퀴즈 형성평가 문제 출구카드 근거 판단 사료 활동지",
-  assets: "박물관 유물 사진 지도 에뮤지엄 자료",
-  docs: "hwp hwpx 한글 docx 워드 엑셀 xlsx pdf 마크다운 변환 개인정보",
-  classtools: "룰렛 사다리 추첨 경품 뽑기 1인1역 역할 진진가 인물퀴즈 아이스브레이킹 자리",
-  groups: "모둠 자리 배치 좌석 짝",
-  students: "세특 생기부 상담 누가기록 행특 neis",
-  letters: "가정통신문 동의서 안내문 공문 체험학습",
-  cover: "보결 교체 결강 출장",
-  practicum: "교생 실습 관찰",
-  rooms: "메신저 대화",
-  settings: "프로필 사진 학교 설정 백업",
-};
 const TAB: Page[] = ["today", "slides", "activities", "classtools"];
 
 const pageFromHash = (): Page => {
@@ -265,6 +254,8 @@ export function App() {
           </div></div>
         ) : page === "today" ? (
           <Today go={go} openMine={openMine} />
+        ) : page === "packs" ? (
+          <Packs go={go} />
         ) : page === "docs" ? (
           <Docs go={go} />
         ) : page === "slides" ? (
@@ -306,6 +297,7 @@ export function App() {
           <span>전체</span>
         </button>
       </nav>
+      {ready && <ChatBot go={go} />}
       {find && <Palette items={paletteItems} onClose={() => setFind(false)} onPick={(id) => { setFind(false); go(id as Page); }} />}
       {sheet && (
         <div className="sheet-backdrop" onClick={() => setSheet(false)}>

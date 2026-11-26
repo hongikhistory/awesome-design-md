@@ -27,6 +27,8 @@ export interface Handoff {
   to: "slides" | "letters" | "activities";
   name: string;
   markdown: string;
+  /** a whole lesson pack from 과목별 수업 만들기 / 챗봇: fills all three activity kinds at once */
+  pack?: { subject: string; quiz: string; evidence: string; exit: string; titles: { quiz: string; evidence: string; exit: string } };
 }
 
 const Ctx = createContext<AppState | null>(null);

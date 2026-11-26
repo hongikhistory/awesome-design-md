@@ -1,4 +1,4 @@
-import { ChevronRight, Download, FileStack, GraduationCap, Landmark, ListChecks, PartyPopper, Presentation, ScrollText, UsersRound } from "lucide-react";
+import { ChevronRight, Download, Wand2, FileStack, GraduationCap, Landmark, ListChecks, PartyPopper, Presentation, UsersRound } from "lucide-react";
 import { useState } from "react";
 import type { Go, Page } from "../App";
 import type { CoverRequest } from "../core/approval";
@@ -118,6 +118,7 @@ const TOUR: { as: string; page: Page; title: string; what: string }[] = [
   { as: "s1", page: "practicum", title: "오세린 · 교생", what: "계획 협의에서 ‘관찰받고 싶은 초점’을 정합니다." },
   { as: "t1", page: "practicum", title: "곽민혁 · 지도교사", what: "초점에 맞춰 관찰 기록을 남기고, 교생의 자기평가와 비교합니다." },
   { as: "t1", page: "docs", title: "문서 변환", what: "예시 지도안(DOCX)을 Markdown으로 바꾸고 HWPX로 다시 저장합니다." },
+  { as: "t1", page: "packs", title: "과목별 수업 만들기 · 이음이", what: "수학을 골라 슬라이드와 확인 문제를 열어 봅니다. 오른쪽 아래 이음이에게 ‘과학 수업 만들어 줘’라고 말해 봅니다." },
   { as: "t1", page: "slides", title: "수업 슬라이드", what: "지도안에서 슬라이드를 만들고 템플릿을 골라 HTML 발표 파일로 받습니다." },
   { as: "t1", page: "activities", title: "학생 활동 만들기", what: "확인 문제를 만들고 학생 화면(휴대폰)으로 미리 풀어 봅니다. 근거 판단 활동도 열어 봅니다." },
   { as: "t1", page: "groups", title: "모둠·자리", what: "떨어뜨릴 짝을 정하고 모둠을 섞은 뒤 교실 화면에 크게 띄웁니다." },
@@ -130,13 +131,13 @@ const TOUR: { as: string; page: Page; title: string; what: string }[] = [
 
 
 const TOOLS: { page: Page; title: string; what: string; Icon: typeof FileStack }[] = [
+  { page: "packs", title: "과목별 수업 만들기", what: "과목만 고르면 지도안·슬라이드·활동까지", Icon: Wand2 },
   { page: "slides", title: "수업 슬라이드", what: "지도안을 넣으면 발표 자료로", Icon: Presentation },
   { page: "activities", title: "학생 활동 만들기", what: "확인 문제·근거 판단·출구 카드", Icon: ListChecks },
   { page: "assets", title: "수업 에셋", what: "유물·지도·시뮬레이션을 바로 띄우기", Icon: Landmark },
   { page: "classtools", title: "학급 도구함", what: "1인 1역·추첨·룰렛·사다리·진진가", Icon: PartyPopper },
   { page: "groups", title: "모둠·자리", what: "역할까지 정하는 모둠 편성", Icon: UsersRound },
   { page: "docs", title: "문서 변환", what: "HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown", Icon: FileStack },
-  { page: "letters", title: "가정통신문", what: "내용만 쓰면 학교 양식대로", Icon: ScrollText },
   { page: "students", title: "학생 상담·기록", what: "누가기록 → 세특·행특 초안 점검", Icon: GraduationCap },
 ];
 
