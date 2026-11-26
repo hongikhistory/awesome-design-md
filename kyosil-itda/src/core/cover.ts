@@ -135,6 +135,36 @@ export function slotsFor(absentId: string, day: number, tt: Timetable): Slot[] {
 const round = (n: number) => Math.round(n * 10) / 10;
 const clamp = (n: number) => Math.max(0, Math.min(100, n));
 
+// ---- Swap-first suggestions ----------------------------------------------
+// Schools try a lesson swap before a cover: the class loses no lesson and nobody
+// teaches an extra period. A swap with teacher T works when T is free at the absent
+// slot AND T teaches the same class on another day at a time the absent teacher is free.
+
+export interface SwapOption {
+  personId: string;
+  day: number; // T's lesson the absent teacher takes over (on a day they are present)
+  period: number;
+  lesson: Lesson;
+}
+
+export function swapOptions(slot: Slot, ctx: CoverContext): SwapOption[] {
+  const out: SwapOption[] = [];
+  for (const p of ctx.people) {
+    if (p.role === "student-teacher" || p.id === slot.absentId || ctx.unavailable?.includes(p.id)) continue;
+    if (busyAt(ctx, p.id, slot.day, slot.period)) continue;
+    (ctx.timetable[p.id] ?? []).forEach((day, d) =>
+      day.forEach((l, per) => {
+        if (!l || d === slot.day || l.classId !== slot.lesson.classId) return;
+        if (busyAt(ctx, slot.absentId, d, per)) return;
+        out.push({ personId: p.id, day: d, period: per, lesson: l });
+      }),
+    );
+  }
+  // Prefer swaps later in the same week (the absent teacher makes it up after returning).
+  const dist = (o: SwapOption) => (o.day > slot.day ? o.day - slot.day : 10 + slot.day - o.day);
+  return out.sort((a, b) => dist(a) - dist(b) || a.period - b.period || a.personId.localeCompare(b.personId));
+}
+
 // ---- Handoff card privacy check -------------------------------------------
 
 export interface PrivacyWarning {

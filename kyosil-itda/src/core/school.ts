@@ -26,6 +26,9 @@ export const DAYS = ["월", "화", "수", "목", "금"] as const;
 export const PERIODS = 7;
 export const CLASSES = ["1-1", "1-2", "2-1", "2-2", "3-1", "3-2"];
 
+/** Middle-school bell schedule: 45-minute lessons, 10-minute breaks, lunch after 4th. */
+export const PERIOD_TIMES = ["09:00", "09:55", "10:50", "11:45", "13:30", "14:25", "15:20"];
+
 export const PEOPLE: Person[] = [
   { id: "t1", name: "김하늘", subject: "국어", department: "인문", role: "teacher", grades: [2, 3], room: "본관 2층", color: "#0075de" },
   { id: "t2", name: "이서준", subject: "수학", department: "자연", role: "teacher", grades: [1, 2], room: "본관 3층", color: "#2a9d99" },
@@ -35,7 +38,8 @@ export const PEOPLE: Person[] = [
   { id: "t6", name: "강지호", subject: "국어", department: "인문", role: "teacher", grades: [1], room: "본관 3층", color: "#c2185b" },
   { id: "t7", name: "윤채원", subject: "체육", department: "예체능", role: "teacher", grades: [1, 2, 3], room: "체육관", color: "#523410" },
   { id: "t8", name: "한지민", subject: "수학", department: "자연", role: "teacher", grades: [3], room: "본관 3층", color: "#213183" },
-  { id: "s1", name: "오세린", subject: "국어", department: "인문", role: "student-teacher", grades: [2], room: "본관 2층", color: "#ff64c8" },
+  { id: "s1", name: "오세린", subject: "국어", department: "인문", role: "student-teacher", grades: [2], room: "본관 2층", color: "#d63d4a" },
+  { id: "s2", name: "윤다온", subject: "수학", department: "자연", role: "student-teacher", grades: [1], room: "본관 3층", color: "#9e6a00" },
 ];
 
 export const ROLE_LABEL: Record<Role, string> = {

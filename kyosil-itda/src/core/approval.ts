@@ -15,10 +15,10 @@ export type RequestStatus =
   | "CANCELLED";
 
 export const STATUS_LABEL: Record<RequestStatus, string> = {
-  AWAITING_CONSENT: "1단계 · 대강 교사 동의 대기",
-  AWAITING_COORDINATOR: "2단계 · 시간표 담당 승인 대기",
-  APPLIED: "3단계 · 시간표 반영 완료",
-  DECLINED: "대강 교사 사양",
+  AWAITING_CONSENT: "상대 교사 동의 대기",
+  AWAITING_COORDINATOR: "시간표 담당 결재 대기",
+  APPLIED: "결재 완료 · 시간표 반영",
+  DECLINED: "상대 교사 사양",
   REJECTED: "담당 반려",
   CANCELLED: "요청 취소",
 };
@@ -34,6 +34,10 @@ export interface HandoffCard {
 export interface CoverRequestCreated {
   type: "cover.request";
   reqId: string;
+  /** "cover": candidate teaches the absent lesson. "swap": the two lessons trade places. */
+  kind?: "cover" | "swap";
+  /** for swaps: the candidate's lesson the absent teacher takes over */
+  swapWith?: { day: number; period: number; classId: string; subject: string };
   absentId: string;
   day: number;
   period: number;
@@ -92,7 +96,7 @@ export function reduceRequests(log: Stamped<WorkflowEvent>[]): Map<string, Cover
         status: "AWAITING_CONSENT",
         createdAt: at,
         updatedAt: at,
-        audit: [{ at, actorId: actor.id, text: "대강 요청 · 인수인계 카드 전달", ok: true }],
+        audit: [{ at, actorId: actor.id, text: e.kind === "swap" ? "교체 요청" : "대강 요청 · 인수인계 카드 전달", ok: true }],
       });
       continue;
     }
@@ -113,7 +117,7 @@ export function reduceRequests(log: Stamped<WorkflowEvent>[]): Map<string, Cover
         break;
       case "cover.decide":
         if (actor.role !== "coordinator") deny("시간표 담당이 아닌 사람의 승인");
-        else if (r.status === "AWAITING_COORDINATOR") move(e.approve ? "APPLIED" : "REJECTED", e.approve ? "승인 · 시간표 반영" : `반려${e.reason ? ` · ${e.reason}` : ""}`);
+        else if (r.status === "AWAITING_COORDINATOR") move(e.approve ? "APPLIED" : "REJECTED", e.approve ? "결재 · 시간표 반영" : `반려${e.reason ? ` · ${e.reason}` : ""}`);
         else if (r.status === "AWAITING_CONSENT" && e.approve && e.skipConsent) {
           if (!e.reason?.trim()) deny("동의 생략 사유 없음");
           else {

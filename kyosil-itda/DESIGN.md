@@ -1,35 +1,48 @@
 # Design System: 교실잇다
 
-Base: [`design-md/notion/DESIGN.md`](../design-md/notion/DESIGN.md). This file records only what 교실잇다 adds or changes.
+## 0. Basis
+- **Foundation:** KRDS, the Korean government UI/UX design system (`krds-uiux@1.1.0`, published by NIA, `resources/css/token/krds_tokens.css`). Colour primitives, semantic roles, type scale, radius scale and the high-contrast theme are taken from that file.
+- **Not used:** the government emblem, the "공식 전자정부 누리집" banner and any agency branding. This is a school tool that follows KRDS rules; it does not present itself as a government service.
+- **Concept:** a staff room's paperwork. Bordered forms, a 결재란 with seals, a printed timetable with bell times, and a 참관록 form. These replace generic SaaS cards, pills and emoji.
 
-## 1. Atmosphere
-A school staff room on quality paper: warm neutrals, whisper borders (`1px solid rgba(0,0,0,0.1)`), one saturated accent (`#0075de`). Security is shown calmly (green pill, plain tables) rather than with alarm colours.
-
-## 2. Colour roles
-| Token | Light | Dark | Use |
+## 1. Colour (KRDS token → role)
+| Role (CSS var) | KRDS token | Light | High contrast |
 |---|---|---|---|
-| `--bg` | `#ffffff` | `#191919` | page |
-| `--tint` | `#f6f5f4` | `#262524` | sidebar, note boxes, empty states |
-| `--text-2` | `#615d59` | `#b4aea8` | descriptions |
-| `--accent` | `#0075de` | `#3d9bf0` | primary action, current step, mentor marker |
-| `--ok` | `#1aae39` | — | consent, applied, encryption pill |
-| `--warn` | `#dd5b00` | — | privacy warnings, fatigue penalty, cover lessons |
-| `--danger` | `#d13b3b` | — | reject / decline |
-| student-teacher marker | `#ff64c8` | — | self-assessment dot (Notion pink) |
+| `--primary` fill, focus | primary-50 | `#256ef4` | `#256ef4` |
+| `--primary-hover` | primary-60 | `#0b50d0` | `#0b50d0` |
+| `--primary-text` | text-primary (primary-60 / primary-20) | `#0b50d0` | `#b1cefb` |
+| `--primary-bg` | surface-primary-subtler (primary-5 / 95) | `#ecf2fe` | `#020f27` |
+| `--text` | text-basic (gray-90 / gray-5) | `#1e2124` | `#f4f5f6` |
+| `--text-subtle` | text-subtle (gray-70 / gray-20) | `#464c53` | `#cdd1d5` |
+| `--text-meta` | gray-60 / gray-30 | `#58616a` | `#b1b8be` |
+| `--surface` | surface-white (gray-0 / gray-100) | `#ffffff` | `#000000` |
+| `--surface-sub` | surface-gray-subtler (gray-5 / 95) | `#f4f5f6` | `#131416` |
+| `--line` | border-gray-light (gray-20 / gray-70) | `#cdd1d5` | `#464c53` |
+| `--ok` / `--warn` / `--danger` | text-success / warning / danger (‑60) | `#267337` `#8a5c00` `#bd2c0f` | ‑20 values |
+| `--seal` 결재 도장 | point-60 | `#ab2b36` | `#e0858c` |
 
-## 3. Typography
-Inter → Pretendard → Apple SD Gothic Neo → Malgun Gothic. `word-break: keep-all` for Korean. Page title 28px/700 (-0.6px), section 20px/700, body 15px/400, captions 12–13px. Numbers that matter (scores, bundle size) use 26–30px/700 with negative tracking.
+KRDS ships a high-contrast theme instead of a dark theme. It applies to the OS dark preference, a host `data-theme="dark"`, and the in-app 고대비 toggle (`data-contrast="high"`). `data-contrast="normal"` forces the light theme.
+
+## 2. Typography
+- Stack: `Pretendard GOV` (KRDS-specified, used if installed) → `Pretendard Variable` (bundled, dynamic subset, OFL) → Apple SD Gothic Neo → Malgun Gothic.
+- KRDS PC scale: heading-medium 24 (page title), heading-small 19 (section), heading-xsmall 17 (panel title), body-medium 17 (reading text), body-small 15 (UI default), body-xsmall 13 (meta). On mobile the title drops to 22.
+- `font-variant-numeric: tabular-nums` everywhere: timetables and scores line up.
+
+## 3. Shape and space
+- Radius: 4 (badges), 6 (buttons, inputs), 10 (panels), following KRDS small/medium/large.
+- Panels are flat: 1px `--line` border, no shadow. Hierarchy comes from the page-title rule (2px `--text-strong`) and table header rules, as on printed forms.
+- 8px spacing rhythm. Control height 40px (32px small), the KRDS medium/small sizes.
 
 ## 4. Components
-- **Pill** (9999px): status, step labels, counts. Colour = meaning, never decoration.
-- **Card** (12px radius, sub-0.05 shadow): one decision or one record per card.
-- **Stepper**: three equal cells (동의 → 승인 → 반영); done = green tint, current = blue tint, failed = red tint.
-- **Candidate card**: score top-right, five factor rows (label · bar · signed points · reason). Negative factors use the warn colour.
-- **Tag pad**: five observation tags, each with its own colour, also reachable with Alt+1…5.
-- **Gap track**: 1–4 scale; blue dot = mentor, pink dot = self.
+- **Buttons** (KRDS): primary (filled), secondary (primary outline), tertiary (gray outline, default), text.
+- **Badge**: rectangular, 4px radius, tinted semantic background. Used only for status, never decoration.
+- **결재란**: a vertical "결재" label, three columns (요청 · 상대 교사 · 시간표 담당), seal stamps (요청/동의/결재, or a gray 사양/반려), names and dates in the footer row.
+- **Timetable**: a bordered grid with bell times (09:00 … 15:20), a lunch row, today's column header inverted, changed periods in warning tint with a note (대강 · 강지호).
+- **Comparison sheet**: candidates are table rows with a radio; each factor cell shows signed points and the reason sentence.
+- **Step indicator** (KRDS 단계 표시기): numbered circles joined by a line; done = filled primary with ✓.
+- **Notice** (KRDS 안내 박스): icon + text, tinted background per meaning.
+- **Icons**: Lucide line icons at 18px, stroke 1.8. No emoji.
 
-## 5. Layout
-Desktop: 248px sidebar + content (max 1180px). ≤860px: sidebar becomes a top bar (persona) and a six-item bottom tab bar; content gutter 16px; no horizontal page scroll.
-
-## 6. Accessibility
-Visible focus ring (`2px solid #097fe8`), radio/tab roles on pickers, `aria-live` toasts, every colour-coded state also has a text label.
+## 5. Accessibility
+- WCAG 2.2 AA verified with axe-core on 8 views × 2 themes: 0 violations.
+- Every radio-like control uses `role="radio"` + `aria-checked`. Visible focus ring is 2px `--primary`. `prefers-reduced-motion` disables transitions.

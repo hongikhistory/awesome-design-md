@@ -1,6 +1,6 @@
 // App-shell service worker: cache-first for same-origin GET, network fallback.
 // No user data passes through here; encrypted data lives in IndexedDB/localStorage.
-const CACHE = "kyosil-itda-v1";
+const CACHE = "kyosil-itda-v2";
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["./", "./index.html", "./manifest.webmanifest", "./icon.svg"])).then(() => self.skipWaiting()));
 });

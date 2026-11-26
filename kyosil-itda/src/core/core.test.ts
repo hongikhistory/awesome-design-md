@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { reduceRequests, type Stamped, type WorkflowEvent } from "./approval";
-import { privacyCheck, recommend, slotsFor, DEFAULT_WEIGHTS } from "./cover";
+import { privacyCheck, recommend, slotsFor, swapOptions, DEFAULT_WEIGHTS } from "./cover";
 import {
   createDeviceKeys,
   createRoomKey,
@@ -104,6 +104,26 @@ describe("cover recommendation", () => {
     const first = recommend(slot, ctx, DEFAULT_WEIGHTS)[0];
     const again = recommend(slot, { ...ctx, assigned: { [first.personId]: [[slot.day, slot.period]] } });
     expect(again.some((c) => c.personId === first.personId)).toBe(false);
+  });
+});
+
+describe("swap-first suggestions", () => {
+  const tt = buildTimetable();
+  const ctx = { people: PEOPLE, timetable: tt, history: COVER_HISTORY };
+  const all = PEOPLE.filter((p) => p.role !== "student-teacher").flatMap((p) => DAYS.flatMap((_, d) => slotsFor(p.id, d, tt)));
+
+  it("only proposes swaps that keep every timetable conflict-free", () => {
+    let found = 0;
+    for (const slot of all) {
+      for (const o of swapOptions(slot, ctx)) {
+        found++;
+        expect(o.day).not.toBe(slot.day); // absent teacher is away that day
+        expect(tt[o.personId][slot.day][slot.period]).toBeNull(); // partner free at the absent slot
+        expect(tt[slot.absentId][o.day][o.period]).toBeNull(); // absent teacher free at the partner's slot
+        expect(o.lesson.classId).toBe(slot.lesson.classId); // same class: students lose no lesson
+      }
+    }
+    expect(found).toBeGreaterThan(0);
   });
 });
 

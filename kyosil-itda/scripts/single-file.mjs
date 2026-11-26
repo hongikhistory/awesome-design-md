@@ -7,7 +7,9 @@ const dist = new URL("../dist/", import.meta.url).pathname;
 let html = readFileSync(join(dist, "index.html"), "utf8");
 const icon = `data:image/svg+xml;base64,${readFileSync(join(dist, "icon.svg")).toString("base64")}`;
 
-html = html.replace(/<link rel="stylesheet"[^>]*href="\.\/([^"]+)"[^>]*>/g, (_, f) => `<style>${readFileSync(join(dist, f), "utf8")}</style>`);
+// Web fonts are separate files; a single file falls back to the system Korean font instead.
+const css = (f) => readFileSync(join(dist, f), "utf8").replace(/@font-face\{[^}]*\}/g, "");
+html = html.replace(/<link rel="stylesheet"[^>]*href="\.\/([^"]+)"[^>]*>/g, (_, f) => `<style>${css(f)}</style>`);
 html = html.replace(/<script type="module" crossorigin src="\.\/([^"]+)"><\/script>/g, (_, f) => {
   const js = readFileSync(join(dist, f), "utf8").replaceAll("</script", "<\\/script");
   return `<script type="module">${js}</script>`;

@@ -28,10 +28,10 @@ export async function ensureSeed(): Promise<boolean> {
 
   await createRoom({ roomId: ROOM.staff, name: "교무실 · 전체", kind: "chat", members: ids, by: "t3" });
   await createRoom({ roomId: ROOM.grade2, name: "2학년 협의", kind: "chat", members: ["t1", "t2", "t4", "t5", "s1"], by: "t1" });
-  await createRoom({ roomId: ROOM.workflow, name: "대강·교체 업무", kind: "workflow", members: teachers, by: "t3" });
+  await createRoom({ roomId: ROOM.workflow, name: "결강 처리 (교직원)", kind: "workflow", members: teachers, by: "t3" });
   await createRoom({
     roomId: ROOM.practicum,
-    name: "교생실습 · 김하늘 × 오세린",
+    name: "교육실습 · 김하늘 × 오세린",
     kind: "practicum",
     members: ["t1", "s1"],
     by: "t1",
@@ -59,13 +59,15 @@ export async function ensureSeed(): Promise<boolean> {
   // A pending cover request created by the actual recommender (so the demo is live).
   const slot = slotsFor("t6", 2, TIMETABLE)[0];
   if (slot) {
-    const best = recommend(slot, { people: PEOPLE, timetable: TIMETABLE, history: COVER_HISTORY }, DEFAULT_WEIGHTS)[0];
+    const list = recommend(slot, { people: PEOPLE, timetable: TIMETABLE, history: COVER_HISTORY }, DEFAULT_WEIGHTS);
+    const best = list.find((c) => c.personId === "t1") ?? list[0]; // the demo tour expects 김하늘
     if (best)
       events.push([
         ROOM.workflow,
         "t6",
         {
           type: "cover.request",
+          kind: "cover",
           reqId: "req_seed",
           absentId: "t6",
           day: slot.day,
@@ -91,6 +93,7 @@ export async function ensureSeed(): Promise<boolean> {
   const sid = "sess_1";
   const prac: [string, AppEvent, number][] = [
     ["t1", { type: "prac.session", sessionId: sid, title: "2-1 국어 · 시의 비유 표현", date: new Date(now - DAY).toISOString().slice(0, 10), classId: "2-1", durationMin: 45, createdBy: "t1", plan: "도입(5) 생활 속 비유 → 전개(30) 시 낭독, 비유 찾기 모둠 활동 → 정리(10) 비유 만들기 출구 카드" }, at(-600)],
+    ["s1", { type: "prac.focus", sessionId: sid, tags: ["question", "engagement"], question: "학생 답을 받은 뒤 이어서 묻는 발문이 자연스러운지, 뒤쪽 모둠까지 참여가 고르게 되는지 봐 주세요." }, at(-599.5)],
     ["t1", { type: "prac.note", noteId: "n1", sessionId: sid, t: 95, tag: "question", text: "‘마음이 호수다’ 예시로 시작. 학생 반응 좋음.", author: "t1" }, at(-599)],
     ["t1", { type: "prac.note", noteId: "n2", sessionId: sid, t: 410, tag: "question", text: "‘왜 그렇게 생각했니?’ 후속 발문 없이 다음 학생으로 넘어감. 대기 시간 2초.", author: "t1" }, at(-598)],
     ["t1", { type: "prac.note", noteId: "n3", sessionId: sid, t: 780, tag: "board", text: "판서 구조(원관념 → 보조관념) 명확. 뒤쪽 학생도 잘 보임.", author: "t1" }, at(-597)],

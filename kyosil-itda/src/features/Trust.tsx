@@ -5,7 +5,7 @@ import { deviceKeys } from "../core/keystore";
 import { relay, type Envelope } from "../core/relay";
 import { nameOf, PEOPLE } from "../core/school";
 import { timeLabel, useApp } from "../state";
-import { Avatar } from "../ui/common";
+import { Notice } from "../ui/common";
 
 export function Trust() {
   const { me, views, tick } = useApp();
@@ -32,7 +32,7 @@ export function Trust() {
     const k = await deviceKeys(me.id);
     try {
       await crypto.subtle.exportKey("jwk", k.privateKey);
-      setExportResult("⚠ 내보내기에 성공했습니다(예상과 다름).");
+      setExportResult("경고: 내보내기에 성공했습니다(예상과 다름).");
     } catch (e) {
       setExportResult(`차단됨 · 브라우저가 거부: ${(e as Error).name}. 개인 키는 이 기기 밖으로 꺼낼 수 없습니다.`);
     }
@@ -55,79 +55,90 @@ export function Trust() {
     const after = (await readAll(me.id)).find((v) => v.room.roomId === mine.room.roomId);
     const shown = after?.events.some((e) => e.id === forged.id);
     setLab((l) => [
-      `${new Date().toLocaleTimeString("ko-KR")} · ${kind === "tamper" ? "암호문 1글자 변조" : "보낸 사람을 ‘박민지(시간표 담당)’로 사칭"} → ‘${mine.room.name}’에 주입 · ${shown ? "⚠ 화면에 표시됨" : `✅ 차단: 서명·인증 검증 실패로 표시되지 않음 (열 수 없는 메시지 ${before}→${after?.unreadable ?? "?"}건)`}`,
+      `${new Date().toLocaleTimeString("ko-KR")} · ${kind === "tamper" ? "암호문 1글자 변조" : "보낸 사람을 ‘박민지(시간표 담당)’로 사칭"} → ‘${mine.room.name}’에 주입 · ${shown ? "경고: 화면에 표시됨" : `차단됨: 서명·인증 검증에서 걸러져 화면에 나타나지 않음 (열 수 없는 메시지 ${before}→${after?.unreadable ?? "?"}건)`}`,
       ...l,
     ]);
   };
 
+  const yes = <span className="badge ok">열람 가능</span>;
+  const no = <span className="badge">암호문만</span>;
   return (
     <>
       <div className="page-head">
         <div>
+          <div className="crumb">정보 · 보안 확인</div>
           <h1>서버가 보는 것</h1>
-          <p>운영자 화면을 그대로 보여 줍니다. 서버는 방 이름·참여자·시각 같은 최소한의 메타데이터와 암호문만 갖고, 내용은 볼 수 없습니다.</p>
+          <p className="lead">중계 서버 운영자의 화면을 그대로 보여 줍니다. 서버는 방 이름·참여자·시각 같은 최소한의 정보와 암호문만 갖습니다.</p>
         </div>
-        <span className="pill gray">중계 저장소 {Math.round(totalBytes / 1024)} KB</span>
+        <span className="meta">중계 저장소 {Math.round(totalBytes / 1024)} KB · 암호문 {snap.envelopes.length}건</span>
       </div>
 
-      <div className="grid two">
-        <section className="card" aria-labelledby="see-h">
-          <h2 id="see-h">볼 수 있는 것 / 없는 것</h2>
-          <table className="data" style={{ marginTop: 10 }}>
-            <thead><tr><th>정보</th><th>서버</th><th>방 구성원</th></tr></thead>
-            <tbody>
-              <tr><td>메시지·위젯·카드·참관 기록 내용</td><td>❌ 암호문</td><td>✅</td></tr>
-              <tr><td>루브릭 점수·피드백·성찰</td><td>❌ 암호문</td><td>✅ 두 사람만</td></tr>
-              <tr><td>방 이름, 참여자 목록</td><td>⚠ 보임</td><td>✅</td></tr>
-              <tr><td>보낸 시각, 보낸 사람 ID</td><td>⚠ 보임</td><td>✅</td></tr>
-              <tr><td>개인 키</td><td>❌ 없음</td><td>❌ 자기 기기에만</td></tr>
-            </tbody>
-          </table>
-          <p className="tiny muted" style={{ marginTop: 8 }}>메타데이터 노출은 숨기지 않고 표시합니다. 방 이름에 민감한 정보를 넣지 마세요.</p>
-        </section>
-
-        <section className="card" aria-labelledby="dev-h">
-          <h2 id="dev-h">기기 키 확인</h2>
-          <p className="small muted" style={{ marginTop: 6 }}>만나서 서로의 안전 번호를 비교하면 중간에 키가 바뀌지 않았음을 확인할 수 있습니다.</p>
-          <div className="stack" style={{ marginTop: 10 }}>
-            {PEOPLE.map((p) => (
-              <div key={p.id} className="row" style={{ flexWrap: "nowrap" }}>
-                <Avatar id={p.id} />
-                <span style={{ minWidth: 56 }} className="small">{p.name}</span>
-                <span className="mono faint" style={{ flex: 1 }}>{prints[p.id] ?? "…"}</span>
-                {p.id === me.id && <span className="pill">나</span>}
-              </div>
-            ))}
+      <div className="grid two" style={{ alignItems: "start" }}>
+        <section className="panel" aria-labelledby="see-h">
+          <div className="panel-head"><h2 id="see-h">누가 무엇을 볼 수 있나</h2></div>
+          <div className="panel-body">
+            <table className="sheet">
+              <thead><tr><th scope="col">정보</th><th scope="col">중계 서버</th><th scope="col">방 구성원</th></tr></thead>
+              <tbody>
+                <tr><td>메시지, 체크리스트, 인수인계서, 관찰 기록</td><td>{no}</td><td>{yes}</td></tr>
+                <tr><td>루브릭 점수, 피드백, 성찰</td><td>{no}</td><td>{yes} <span className="meta">두 사람만</span></td></tr>
+                <tr><td>방 이름, 참여자 목록</td><td><span className="badge warn">보임</span></td><td>{yes}</td></tr>
+                <tr><td>보낸 시각, 보낸 사람</td><td><span className="badge warn">보임</span></td><td>{yes}</td></tr>
+                <tr><td>개인 키</td><td><span className="badge">없음</span></td><td><span className="badge">자기 기기에만</span></td></tr>
+              </tbody>
+            </table>
+            <p className="meta" style={{ marginTop: 8 }}>서버에 보이는 정보도 숨기지 않고 표시합니다. 방 이름에는 민감한 내용을 넣지 마세요.</p>
           </div>
-          <button className="btn" style={{ marginTop: 12 }} onClick={tryExport}>내 개인 키 내보내기 시도</button>
-          {exportResult && <p className="note-box ok small" style={{ marginTop: 8 }} role="status">{exportResult}</p>}
+        </section>
+
+        <section className="panel" aria-labelledby="dev-h">
+          <div className="panel-head"><h2 id="dev-h">기기 키 확인</h2></div>
+          <div className="panel-body stack">
+            <p className="small muted">서로 만나 안전 번호를 비교하면, 중간에 키가 바뀌지 않았는지 확인할 수 있습니다.</p>
+            <table className="sheet">
+              <thead><tr><th scope="col">사람</th><th scope="col">안전 번호</th></tr></thead>
+              <tbody>
+                {PEOPLE.map((p) => (
+                  <tr key={p.id} className={p.id === me.id ? "selected" : ""}>
+                    <td style={{ whiteSpace: "nowrap" }}>{p.name}{p.id === me.id ? " (나)" : ""}</td>
+                    <td className="mono">{prints[p.id] ?? "…"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div><button className="btn" onClick={tryExport}>내 개인 키 내보내기 시도</button></div>
+            {exportResult && <Notice kind="ok" role="status">{exportResult}</Notice>}
+            <p className="meta">시연판은 한 브라우저 안에서 모든 사람의 기기를 흉내 냅니다. 실제로는 각자 자기 기기에서 키를 만듭니다.</p>
+          </div>
         </section>
       </div>
 
-      <section className="card" aria-labelledby="lab-h" style={{ marginTop: 14 }}>
-        <h2 id="lab-h">공격 실험실</h2>
-        <p className="small muted" style={{ marginTop: 6 }}>서버(또는 서버를 장악한 공격자)가 할 수 있는 일을 직접 해 봅니다. 위조된 메시지는 서명 검증과 AES-GCM 인증에서 걸러집니다.</p>
-        <div className="row" style={{ marginTop: 10 }}>
-          <button className="btn" onClick={() => attack("tamper")}>암호문 변조 주입</button>
-          <button className="btn" onClick={() => attack("impersonate")}>시간표 담당 사칭 주입</button>
+      <section className="panel section" aria-labelledby="lab-h">
+        <div className="panel-head"><h2 id="lab-h">위조 실험</h2><span className="meta">서버를 장악한 공격자가 할 수 있는 일</span></div>
+        <div className="panel-body stack">
+          <p className="small muted">아래 버튼은 서버에 위조된 메시지를 직접 넣습니다. 받는 쪽 기기는 서명 검증과 AES-GCM 인증으로 이를 걸러 냅니다.</p>
+          <div className="row">
+            <button className="btn" onClick={() => attack("tamper")}>암호문 한 글자 바꿔 넣기</button>
+            <button className="btn" onClick={() => attack("impersonate")}>시간표 담당인 척 넣기</button>
+          </div>
+          {lab.length > 0 && <ul className="small" style={{ margin: 0, paddingLeft: 20 }}>{lab.map((l, i) => <li key={i}>{l}</li>)}</ul>}
         </div>
-        {lab.length > 0 && <ul className="small" style={{ marginTop: 10 }}>{lab.map((l, i) => <li key={i}>{l}</li>)}</ul>}
       </section>
 
-      <section className="card" aria-labelledby="rooms-h" style={{ marginTop: 14 }}>
-        <h2 id="rooms-h">서버에 저장된 방</h2>
-        <div className="scroll-x">
-          <table className="data" style={{ marginTop: 8 }}>
-            <thead><tr><th>방 이름</th><th>참여자</th><th>키 세대</th><th>봉인된 키</th><th>자동 삭제</th><th>{me.name} 열람</th></tr></thead>
+      <section className="panel section" aria-labelledby="rooms-h">
+        <div className="panel-head"><h2 id="rooms-h">서버에 저장된 방</h2></div>
+        <div className="panel-body scroll-x">
+          <table className="sheet">
+            <thead><tr><th scope="col">방 이름</th><th scope="col">참여자</th><th scope="col" className="num">키 세대</th><th scope="col" className="num">봉인된 키</th><th scope="col">자동 삭제</th><th scope="col">{me.name} 열람</th></tr></thead>
             <tbody>
               {snap.rooms.map((r) => (
                 <tr key={r.roomId}>
                   <td>{r.name}</td>
-                  <td className="small">{r.members.map(nameOf).join(", ")}</td>
-                  <td>{r.epoch}</td>
-                  <td className="small">{Object.values(r.keys).reduce((n, k) => n + Object.keys(k).length, 0)}개</td>
-                  <td className="small">{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString("ko-KR") : "—"}</td>
-                  <td>{readable.has(r.roomId) ? <span className="pill ok">가능</span> : <span className="pill gray">불가</span>}</td>
+                  <td className="meta">{r.members.map(nameOf).join(", ")}</td>
+                  <td className="num">{r.epoch}</td>
+                  <td className="num">{Object.values(r.keys).reduce((n, k) => n + Object.keys(k).length, 0)}개</td>
+                  <td>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString("ko-KR") : "—"}</td>
+                  <td>{readable.has(r.roomId) ? <span className="badge ok">가능</span> : <span className="badge">불가</span>}</td>
                 </tr>
               ))}
             </tbody>
@@ -135,17 +146,17 @@ export function Trust() {
         </div>
       </section>
 
-      <section className="card" aria-labelledby="env-h" style={{ marginTop: 14 }}>
-        <h2 id="env-h">최근 암호문 {snap.envelopes.length}건 중 12건</h2>
-        <div className="scroll-x">
-          <table className="data" style={{ marginTop: 8 }}>
-            <thead><tr><th>시각</th><th>방</th><th>보낸 사람</th><th>암호문 (AES-256-GCM)</th></tr></thead>
+      <section className="panel section" aria-labelledby="env-h">
+        <div className="panel-head"><h2 id="env-h">최근 암호문 12건</h2></div>
+        <div className="panel-body scroll-x">
+          <table className="sheet">
+            <thead><tr><th scope="col">시각</th><th scope="col">방</th><th scope="col">보낸 사람</th><th scope="col">암호문 (AES-256-GCM)</th></tr></thead>
             <tbody>
               {latest.map((e) => (
                 <tr key={e.id}>
-                  <td className="small" style={{ whiteSpace: "nowrap" }}>{timeLabel(e.at)}</td>
-                  <td className="small">{snap.rooms.find((r) => r.roomId === e.roomId)?.name ?? e.roomId}</td>
-                  <td className="small">{nameOf(e.sender)}</td>
+                  <td style={{ whiteSpace: "nowrap" }}>{timeLabel(e.at)}</td>
+                  <td>{snap.rooms.find((r) => r.roomId === e.roomId)?.name ?? e.roomId}</td>
+                  <td style={{ whiteSpace: "nowrap" }}>{nameOf(e.sender)}</td>
                   <td><span className="cipher">{e.ct.slice(0, 120)}{e.ct.length > 120 ? "…" : ""}</span></td>
                 </tr>
               ))}

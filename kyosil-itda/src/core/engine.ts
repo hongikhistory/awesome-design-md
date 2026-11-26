@@ -12,7 +12,7 @@ import {
   type WrappedKey,
 } from "./crypto";
 import { deviceKeys } from "./keystore";
-import type { Note, Scores, Session } from "./practicum";
+import type { Note, Scores, Session, TagKey } from "./practicum";
 import { relay, type Envelope, type RelayState, type RoomKind, type RoomRecord } from "./relay";
 import type { WidgetOp } from "./widgets";
 
@@ -21,7 +21,9 @@ export type PracticumEvent =
   | ({ type: "prac.note" } & Note)
   | { type: "prac.score"; sessionId: string; by: "mentor" | "self"; scores: Scores }
   | { type: "prac.feedback"; sessionId: string; glow: string; grow: string; next: string }
-  | { type: "prac.reflect"; sessionId: string; text: string };
+  | { type: "prac.reflect"; sessionId: string; text: string }
+  /** planning conference: what the student teacher wants observed */
+  | { type: "prac.focus"; sessionId: string; tags: TagKey[]; question: string };
 
 export type AppEvent = { type: "msg"; text: string } | { type: "system"; text: string } | WidgetOp | WorkflowEvent | PracticumEvent;
 
@@ -42,6 +44,7 @@ export interface RoomView {
 }
 
 const uid = () => globalThis.crypto.randomUUID();
+export const MAX_SKEW_MS = 5 * 60_000;
 const ctx = (roomId: string, epoch: number) => `${roomId}#${epoch}`;
 const aadOf = (e: Pick<Envelope, "roomId" | "epoch" | "sender" | "id">) => `${e.roomId}|${e.epoch}|${e.sender}|${e.id}`;
 
@@ -162,6 +165,9 @@ export async function readAll(me: string): Promise<RoomView[]> {
 }
 
 async function open(me: string, room: RoomRecord, env: Envelope, state: RelayState): Promise<Decrypted | null> {
+  // Clients stamp their own events; refuse ones dated in the future (reorder/backdate attacks
+  // still need a server timestamp in production — see docs/REVIEW.md D4).
+  if (env.at > Date.now() + MAX_SKEW_MS) return null;
   const signer = state.directory[env.sender];
   if (!signer || !room.keys[String(env.epoch)]?.[env.sender]) return null; // sender must have been a member of that epoch
   if (!(await verifyEnvelope(signer.ecdsa, aadOf(env), env, env.sig))) return null;

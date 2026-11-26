@@ -38,31 +38,73 @@ export interface RelayState {
   envelopes: Envelope[];
 }
 
-const KEY = "kyosil:relay:v1";
-const empty = (): RelayState => ({ version: 1, directory: {}, rooms: [], envelopes: [] });
+// One storage key per record (envelope, room, public key). Writers never read-modify-write
+// a shared blob, so concurrent tabs cannot overwrite each other's appends.
+// (v1 kept everything in one key and lost writes under concurrency; see docs/REVIEW.md D1.)
+const PREFIX = "kyosil:v2:";
+const K = { dir: `${PREFIX}d:`, room: `${PREFIX}r:`, env: `${PREFIX}e:` };
+const memory = new Map<string, string>(); // fallback when storage is unavailable
 
-let memory: RelayState | null = null; // fallback when storage is unavailable
-
-function load(): RelayState {
+function store(): Storage | null {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const v = JSON.parse(raw) as RelayState;
-      if (v?.version === 1) return v;
-    }
+    const s = globalThis.localStorage;
+    if (!s) return null;
+    s.getItem(PREFIX); // throws when blocked
+    return s;
   } catch {
-    /* storage blocked: stay in memory */
+    return null;
   }
-  return memory ?? empty();
 }
 
-function save(s: RelayState) {
-  memory = s;
+function put(key: string, value: unknown) {
+  const raw = JSON.stringify(value);
+  memory.set(key, raw);
   try {
-    localStorage.setItem(KEY, JSON.stringify(s));
+    store()?.setItem(key, raw);
   } catch {
     /* quota or privacy mode: keep in memory */
   }
+}
+
+function remove(key: string) {
+  memory.delete(key);
+  try {
+    store()?.removeItem(key);
+  } catch {
+    /* ignore */
+  }
+}
+
+function entries(): [string, string][] {
+  const s = store();
+  if (!s) return [...memory.entries()].filter(([k]) => k.startsWith(PREFIX));
+  const out: [string, string][] = [];
+  for (let i = 0; i < s.length; i++) {
+    const k = s.key(i);
+    if (k?.startsWith(PREFIX)) out.push([k, s.getItem(k) ?? "null"]);
+  }
+  return out;
+}
+
+function load(): RelayState {
+  const state: RelayState = { version: 1, directory: {}, rooms: [], envelopes: [] };
+  for (const [k, raw] of entries()) {
+    try {
+      const v = JSON.parse(raw);
+      if (!v) continue;
+      if (k.startsWith(K.dir)) state.directory[k.slice(K.dir.length)] = v;
+      else if (k.startsWith(K.room)) state.rooms.push(v);
+      else if (k.startsWith(K.env)) state.envelopes.push(v);
+    } catch {
+      /* skip corrupt record */
+    }
+  }
+  state.rooms.sort((a, b) => a.createdAt - b.createdAt || a.roomId.localeCompare(b.roomId));
+  state.envelopes.sort((a, b) => a.at - b.at || a.id.localeCompare(b.id));
+  return state;
+}
+
+function changed() {
   channel?.postMessage({ type: "changed" });
   for (const fn of listeners) fn();
 }
@@ -70,12 +112,11 @@ function save(s: RelayState) {
 const channel: BroadcastChannel | null = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("kyosil-relay") : null;
 const listeners = new Set<() => void>();
 channel?.addEventListener("message", () => {
-  memory = null;
   for (const fn of listeners) fn();
 });
 if (typeof window !== "undefined")
   window.addEventListener("storage", (e) => {
-    if (e.key === KEY) for (const fn of listeners) fn();
+    if (e.key === null || e.key.startsWith(PREFIX)) for (const fn of listeners) fn();
   });
 
 export const relay = {
@@ -87,49 +128,43 @@ export const relay = {
     };
   },
   publishKey(personId: string, jwk: PublicIdentity) {
-    const s = load();
-    s.directory[personId] = jwk;
-    save(s);
+    put(K.dir + personId, jwk);
+    changed();
   },
   upsertRoom(room: RoomRecord) {
-    const s = load();
-    s.rooms = [...s.rooms.filter((r) => r.roomId !== room.roomId), room];
-    save(s);
+    put(K.room + room.roomId, room);
+    changed();
   },
   append(env: Envelope) {
-    const s = load();
-    if (!s.envelopes.some((e) => e.id === env.id)) s.envelopes.push(env);
-    save(s);
+    put(K.env + env.id, env);
+    changed();
   },
   appendMany(envs: Envelope[]) {
-    const s = load();
-    const seen = new Set(s.envelopes.map((e) => e.id));
-    for (const e of envs) if (!seen.has(e.id)) s.envelopes.push(e);
-    save(s);
+    for (const e of envs) put(K.env + e.id, e);
+    changed();
   },
   /** Demo only: put an attacker-crafted envelope on the relay (tamper / impersonation tests). */
   inject(env: Envelope) {
-    const s = load();
-    s.envelopes.push(env);
-    save(s);
+    put(K.env + env.id, env);
+    changed();
   },
   /** Drop expired workspaces and their ciphertext (retention policy). */
   sweep(now = Date.now()) {
     const s = load();
     const dead = new Set(s.rooms.filter((r) => r.expiresAt && r.expiresAt < now).map((r) => r.roomId));
     if (!dead.size) return 0;
-    s.rooms = s.rooms.filter((r) => !dead.has(r.roomId));
-    s.envelopes = s.envelopes.filter((e) => !dead.has(e.roomId));
-    save(s);
+    for (const id of dead) remove(K.room + id);
+    for (const e of s.envelopes) if (dead.has(e.roomId)) remove(K.env + e.id);
+    changed();
     return dead.size;
   },
   reset() {
-    memory = null;
+    for (const [k] of entries()) remove(k);
     try {
-      localStorage.removeItem(KEY);
+      store()?.removeItem("kyosil:relay:v1"); // legacy single-blob store
     } catch {
       /* ignore */
     }
-    save(empty());
+    changed();
   },
 };
