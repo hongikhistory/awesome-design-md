@@ -36,8 +36,8 @@ KRDS ships a high-contrast theme instead of a dark theme. It applies to the OS d
 ## 4. Components
 - **Buttons** (KRDS): primary (filled), secondary (primary outline), tertiary (gray outline, default), text.
 - **Badge**: rectangular, 4px radius, tinted semantic background. Used only for status, never decoration.
-- **결재란**: a vertical "결재" label, three columns (요청 · 상대 교사 · 시간표 담당), seal stamps (요청/동의/결재, or a gray 사양/반려), names and dates in the footer row.
-- **Timetable**: a bordered grid with bell times (09:00 … 15:20), a lunch row, today's column header inverted, changed periods in warning tint with a note (대강 · 강지호).
+- **결재란**: a vertical "결재" label, three columns (요청 · 상대 교사 · 시간표 담당), seal stamps (요청/동의/결재, or a gray 거절/반려), names and dates in the footer row.
+- **Timetable**: a bordered grid with bell times (09:00 … 15:20), a lunch row, today's column header inverted, changed periods in warning tint with a note (보결 (강지호)).
 - **Comparison sheet**: candidates are table rows with a radio; each factor cell shows signed points and the reason sentence.
 - **Step indicator** (KRDS 단계 표시기): numbered circles joined by a line; done = filled primary with ✓.
 - **Notice** (KRDS 안내 박스): icon + text, tinted background per meaning.

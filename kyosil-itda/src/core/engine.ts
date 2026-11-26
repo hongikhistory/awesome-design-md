@@ -64,7 +64,7 @@ async function wrapFor(roomId: string, epoch: number, key: CryptoKey, wrapperId:
   const out: Record<string, WrappedKey> = {};
   for (const m of members) {
     const pub = state.directory[m];
-    if (!pub) throw Error(`${m}의 공개키가 등록되지 않았습니다.`);
+    if (!pub) throw Error(`${m}의 공개 키가 등록되지 않았습니다.`);
     out[m] = await wrapRoomKey(key, wrapperId, own.privateKey, pub.ecdh, ctx(roomId, epoch));
   }
   return out;
@@ -100,7 +100,7 @@ export async function changeMembers(roomId: string, by: string, members: string[
   const key = await createRoomKey();
   const updated: RoomRecord = { ...room, members: list, epoch: next, keys: { ...room.keys, [String(next)]: await wrapFor(roomId, next, key, by, list, state) } };
   relay.upsertRoom(updated);
-  await post(roomId, by, { type: "system", text: `참여자 변경 · 새 암호 키(${next}세대)로 교체` });
+  await post(roomId, by, { type: "system", text: "참여자가 바뀌어 새 암호 키로 교체했습니다." });
   return updated;
 }
 

@@ -119,7 +119,7 @@ export function Trust() {
           <p className="small muted">아래 버튼은 서버에 위조된 메시지를 직접 넣습니다. 받는 쪽 기기는 서명 검증과 AES-GCM 인증으로 이를 걸러 냅니다.</p>
           <div className="row">
             <button className="btn" onClick={() => attack("tamper")}>암호문 한 글자 바꿔 넣기</button>
-            <button className="btn" onClick={() => attack("impersonate")}>시간표 담당인 척 넣기</button>
+            <button className="btn" onClick={() => attack("impersonate")}>시간표 담당 명의로 위조해 넣기</button>
           </div>
           {lab.length > 0 && <ul className="small" style={{ margin: 0, paddingLeft: 20 }}>{lab.map((l, i) => <li key={i}>{l}</li>)}</ul>}
         </div>
@@ -129,13 +129,13 @@ export function Trust() {
         <div className="panel-head"><h2 id="rooms-h">서버에 저장된 방</h2></div>
         <div className="panel-body scroll-x">
           <table className="sheet">
-            <thead><tr><th scope="col">방 이름</th><th scope="col">참여자</th><th scope="col" className="num">키 세대</th><th scope="col" className="num">봉인된 키</th><th scope="col">자동 삭제</th><th scope="col">{me.name} 열람</th></tr></thead>
+            <thead><tr><th scope="col">방 이름</th><th scope="col">참여자</th><th scope="col" className="num">키 교체</th><th scope="col" className="num">전달된 방 키</th><th scope="col">자동 삭제</th><th scope="col">{me.name} 열람</th></tr></thead>
             <tbody>
               {snap.rooms.map((r) => (
                 <tr key={r.roomId}>
                   <td>{r.name}</td>
                   <td className="meta">{r.members.map(nameOf).join(", ")}</td>
-                  <td className="num">{r.epoch}</td>
+                  <td className="num">{r.epoch - 1}회</td>
                   <td className="num">{Object.values(r.keys).reduce((n, k) => n + Object.keys(k).length, 0)}개</td>
                   <td>{r.expiresAt ? new Date(r.expiresAt).toLocaleDateString("ko-KR") : "—"}</td>
                   <td>{readable.has(r.roomId) ? <span className="badge ok">가능</span> : <span className="badge">불가</span>}</td>

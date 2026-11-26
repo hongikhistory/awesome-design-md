@@ -17,7 +17,7 @@ export type Go = (p: Page, as?: string) => void;
 const NAV: { id: Page; label: string; short: string; Icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>; group: string }[] = [
   { id: "today", label: "오늘", short: "오늘", Icon: House, group: "업무" },
   { id: "rooms", label: "대화방", short: "대화", Icon: MessagesSquare, group: "업무" },
-  { id: "cover", label: "결강 처리 (교체·대강)", short: "결강", Icon: ArrowLeftRight, group: "업무" },
+  { id: "cover", label: "결강 처리 (교체·보결)", short: "결강", Icon: ArrowLeftRight, group: "업무" },
   { id: "practicum", label: "교육실습", short: "실습", Icon: ClipboardPen, group: "업무" },
   { id: "trust", label: "보안 확인", short: "보안", Icon: ShieldCheck, group: "정보" },
   { id: "about", label: "작품 설명", short: "설명", Icon: Info, group: "정보" },
@@ -125,7 +125,7 @@ export function App() {
               <Contrast className="ico sm" aria-hidden /> {contrast === "high" ? "기본 대비" : "고대비"}
             </button>
             {armReset ? (
-              <button className="btn sm danger" onClick={() => { setArmReset(false); void resetDemo(); }}>지우기 확인</button>
+              <button className="btn sm danger" onClick={() => { setArmReset(false); void resetDemo(); }}>초기화 확인</button>
             ) : (
               <button className="btn sm" onClick={() => setArmReset(true)} title="시연 데이터와 기기 키를 처음 상태로">
                 <RotateCcw className="ico sm" aria-hidden /> 초기화

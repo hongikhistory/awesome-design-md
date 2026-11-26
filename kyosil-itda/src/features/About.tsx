@@ -23,9 +23,9 @@ export function About({ go }: { go: Go }) {
           <tbody>
             <tr><th scope="row">작품명</th><td>교실잇다</td></tr>
             <tr><th scope="row">대상</th><td>중등학교 교직원(교사, 시간표 담당), 교육실습생과 지도교사</td></tr>
-            <tr><th scope="row">핵심 기능</th><td>① 결강 처리: 교체 우선 제안, 근거를 보여 주는 대강 추천, 인수인계서, 결재 <br />② 교육실습: 임상장학 순서의 관찰·평가 비교·피드백 협의, 참관록 <br />③ 대화방: 종단간 암호화 메시지, 함께 고치는 체크리스트·투표</td></tr>
-            <tr><th scope="row">실행</th><td>주소 하나로 PC·태블릿·스마트폰 브라우저에서 실행. 홈 화면에 추가하면 앱처럼 열립니다(PWA).</td></tr>
-            <tr><th scope="row">첫 화면 용량</th><td>{BUNDLE_KB} (gzip, HTML·JS·CSS 기준, 한글 글꼴은 필요한 글자만 나중에 받음)</td></tr>
+            <tr><th scope="row">핵심 기능</th><td>① 결강 처리: 교체 우선 제안, 근거를 보여 주는 보결 추천, 인수인계서, 결재 <br />② 교육실습: 임상장학 순서의 관찰·평가 비교·피드백 협의, 참관록 <br />③ 대화방: 종단간 암호화 메시지, 함께 편집하는 체크리스트·투표</td></tr>
+            <tr><th scope="row">실행</th><td>주소 하나로 PC·태블릿·스마트폰 브라우저에서 실행합니다. 홈 화면에 추가하면 앱처럼 열립니다(PWA).</td></tr>
+            <tr><th scope="row">첫 화면 용량</th><td>{BUNDLE_KB} (gzip, HTML·JS·CSS 기준). 한글 글꼴은 필요한 글자 범위만 나중에 받습니다.</td></tr>
             <tr><th scope="row">디자인 기준</th><td>대한민국 정부 디자인 시스템(KRDS) 공식 토큰의 색·글자 크기·모서리 규칙과 고대비 모드</td></tr>
           </tbody>
         </table>
@@ -38,8 +38,8 @@ export function About({ go }: { go: Go }) {
           <tbody>
             <tr>
               <td><b>결강 처리</b></td>
-              <td>시간표 담당이 시간표를 보며 교체 가능한 수업과 공강 교사를 직접 찾습니다. 대강 교사는 수업 정보 없이 교실에 들어가기도 합니다.</td>
-              <td>교체 가능 수업을 먼저 찾고, 대강 후보는 형평성·부담·교과 연계로 비교표를 만듭니다. 수업 인수인계서가 함께 전달되고, 결재란으로 처리 단계가 남습니다.</td>
+              <td>시간표 담당이 시간표를 보며 교체 가능한 수업과 공강 교사를 직접 찾습니다. 보결 교사는 수업 정보 없이 교실에 들어가기도 합니다.</td>
+              <td>교체 가능 수업을 먼저 찾고, 보결 후보는 형평성·부담·교과 연계를 기준으로 비교표를 만듭니다. 수업 인수인계서가 함께 전달되고, 결재란으로 처리 단계가 남습니다.</td>
             </tr>
             <tr>
               <td><b>교육실습 기록</b></td>
@@ -60,7 +60,7 @@ export function About({ go }: { go: Go }) {
         <div className="grid two">
           <div className="panel"><div className="panel-body stack tight">
             <h3>임상장학의 3단계</h3>
-            <p className="small">Goldhammer(1969)와 Cogan(1973)의 임상장학은 <b>계획 협의 → 수업 관찰 → 피드백 협의</b>의 순환으로 수업을 개선합니다. 교육실습 화면은 이 순서를 그대로 따르고, 관찰 초점을 교생이 먼저 정하게 해 관찰이 교생의 질문에 답하도록 했습니다.</p>
+            <p className="small">Goldhammer(1969)와 Cogan(1973)의 임상장학은 <b>계획 협의 → 수업 관찰 → 피드백 협의</b>의 순환으로 수업을 개선합니다. 교육실습 화면은 이 순서를 그대로 따르고, 교생이 관찰 초점을 먼저 정하게 해서, 관찰이 교생의 질문에 답하도록 했습니다.</p>
           </div></div>
           <div className="panel"><div className="panel-body stack tight">
             <h3>반성적 실천과 자기평가</h3>
@@ -74,10 +74,10 @@ export function About({ go }: { go: Go }) {
         <table className="sheet">
           <thead><tr><th scope="col">계층</th><th scope="col">구성</th><th scope="col">선택 이유</th></tr></thead>
           <tbody>
-            <tr><td>기기(브라우저)</td><td>Web Crypto: ECDH P-256 키 교환, AES-256-GCM 암호화, ECDSA 서명. 개인 키는 꺼낼 수 없는 형태로 IndexedDB에 보관</td><td>별도 설치나 네이티브 모듈 없이 표준 API만으로 암호화</td></tr>
-            <tr><td>전송</td><td>시연판: 탭 간 BroadcastChannel. 운영판 계획: HTTPS 중계 + 같은 학교 안 WebRTC</td><td>서버가 꺼져도 같은 학교 기기끼리 동기화할 수 있게</td></tr>
-            <tr><td>중계 서버</td><td>암호문, 봉인된 방 키, 공개 키 목록만 저장. 보존 기간이 지나면 삭제</td><td>서버 운영자도 내용을 볼 수 없게</td></tr>
-            <tr><td>데이터 모델</td><td>모든 기록은 서명된 암호문 이벤트. 화면은 이벤트를 순서대로 접어서 만듦. 공동 체크리스트는 CRDT</td><td>도착 순서가 달라도 같은 결과, 처리 기록이 그대로 감사 기록이 됨</td></tr>
+            <tr><td>기기(브라우저)</td><td>Web Crypto: ECDH P-256 키 교환, AES-256-GCM 암호화, ECDSA 서명. 개인 키는 꺼낼 수 없는 형태로 IndexedDB에 보관합니다.</td><td>별도 설치나 네이티브 모듈 없이 표준 API만으로 암호화할 수 있습니다.</td></tr>
+            <tr><td>전송</td><td>시연판: 탭 간 BroadcastChannel. 운영판 계획: HTTPS 중계 + 같은 학교 안 WebRTC</td><td>서버가 꺼져도 같은 학교의 기기끼리 동기화할 수 있습니다.</td></tr>
+            <tr><td>중계 서버</td><td>암호문, 암호화된 방 키, 공개 키 목록만 저장하고, 보존 기간이 지나면 삭제합니다.</td><td>서버 운영자도 내용을 볼 수 없습니다.</td></tr>
+            <tr><td>데이터 모델</td><td>모든 기록은 서명된 암호문 이벤트로 남고, 화면은 이벤트를 순서대로 반영해 만듭니다. 공동 체크리스트는 CRDT를 씁니다.</td><td>도착 순서가 달라도 결과가 같고, 처리 기록이 그대로 감사 기록이 됩니다.</td></tr>
           </tbody>
         </table>
       </section>
@@ -88,10 +88,10 @@ export function About({ go }: { go: Go }) {
         <table className="sheet">
           <thead><tr><th scope="col">지표</th><th scope="col">측정 방법</th></tr></thead>
           <tbody>
-            <tr><td>결강 처리 시간</td><td>결강 등록부터 결재까지 걸린 시간(처리 기록에서 자동 산출), 도입 전 종이 방식과 비교</td></tr>
-            <tr><td>인수인계 정보 누락</td><td>대강 교사 설문: “수업 목표와 활동을 알고 들어갔다” 5점 척도</td></tr>
-            <tr><td>교생 피드백의 구체성</td><td>피드백 문장 중 관찰 장면을 근거로 든 비율(참관록 분석)</td></tr>
-            <tr><td>접근성</td><td>KWCAG 2.2 자동 점검(axe) 위반 0건 유지, 고대비 모드 사용성 확인</td></tr>
+            <tr><td>결강 처리 시간</td><td>결강 등록부터 결재까지 걸린 시간을 처리 기록에서 자동으로 계산해, 도입 전의 종이 방식과 비교합니다.</td></tr>
+            <tr><td>인수인계 정보 누락</td><td>보결 교사 설문: “수업 목표와 활동을 알고 들어갔다” 5점 척도</td></tr>
+            <tr><td>교생 피드백의 구체성</td><td>참관록의 피드백 문장 가운데 관찰 장면을 근거로 든 문장의 비율을 셉니다.</td></tr>
+            <tr><td>접근성</td><td>KWCAG 2.2 자동 점검(axe)에서 위반 0건을 유지하고, 고대비 모드의 사용성을 확인합니다.</td></tr>
           </tbody>
         </table>
       </section>
@@ -100,7 +100,7 @@ export function About({ go }: { go: Go }) {
         <h2 id="l-h">5. 한계</h2>
         <ul className="small" style={{ paddingLeft: 20, margin: 0, display: "grid", gap: 4 }}>
           <li>시연판은 한 브라우저 안에서 모든 사람의 기기 키를 만듭니다. 실제 서비스에서는 각자 자기 기기에서 만듭니다.</li>
-          <li>같은 키 세대 안에서는 순방향 비밀성이 없습니다. 큰 그룹에는 MLS(RFC 9420) 도입이 다음 과제입니다.</li>
+          <li>참여자가 바뀌기 전까지는 같은 방 키를 계속 쓰므로 순방향 비밀성이 없습니다. 큰 그룹에는 MLS(RFC 9420) 도입이 다음 과제입니다.</li>
           <li>이벤트 시각은 기기가 찍습니다. 미래 시각은 거부하지만, 운영판에서는 중계 서버가 시각을 찍어야 합니다.</li>
           <li>시간표와 사람은 모두 가상 데이터입니다(가상의 한빛중학교). NEIS 연동은 범위 밖입니다.</li>
         </ul>

@@ -14,6 +14,7 @@ import {
   type Weights,
 } from "../core/cover";
 import { COVER_HISTORY, DAYS, nameOf, PEOPLE, PERIOD_TIMES, person, TIMETABLE } from "../core/school";
+import { josa } from "../core/josa";
 import { ROOM } from "../core/seed";
 import { timeLabel, useApp } from "../state";
 import { Avatar, Empty, Notice, useToast } from "../ui/common";
@@ -47,8 +48,8 @@ export function Cover() {
       <div className="page-head">
         <div>
           <div className="crumb">업무 · 결강 처리</div>
-          <h1>결강 처리 (교체 · 대강)</h1>
-          <p className="lead">교체를 먼저 찾고, 맞바꿀 수업이 없으면 대강을 요청합니다. 처리 순서는 상대 교사 동의, 시간표 담당 결재입니다.</p>
+          <h1>결강 처리 (교체 · 보결)</h1>
+          <p className="lead">맞바꿀 수 있는 수업(교체)을 먼저 찾고, 없으면 보결을 요청합니다. 요청은 상대 교사 동의와 시간표 담당 결재를 거쳐 시간표에 반영됩니다.</p>
         </div>
       </div>
       <NewRequest />
@@ -71,7 +72,7 @@ function FairnessBoard({ history, highlight }: { history: Record<string, number>
   const max = Math.max(1, ...teachers.map((t) => history[t.id] ?? 0));
   return (
     <section className="panel" aria-labelledby="fair-h">
-      <div className="panel-head"><h3 id="fair-h">대강 현황</h3><span className="meta">최근 4주 · 이번 주 결재 포함</span></div>
+      <div className="panel-head"><h3 id="fair-h">보결 현황</h3><span className="meta">최근 4주 · 이번 주 결재 포함</span></div>
       <div className="panel-body">
         {teachers.map((t) => (
           <div key={t.id} className={`fair-row ${highlight.includes(t.id) ? "me" : ""}`}>
@@ -138,7 +139,7 @@ function NewRequest() {
           factors: [],
           swapWith: { day: pick.o.day, period: pick.o.period, classId: pick.o.lesson.classId, subject: pick.o.lesson.subject },
         });
-      toast.show(`${nameOf(partnerId!)} 선생님께 ${pick.kind === "swap" ? "교체" : "대강"} 요청을 보냈습니다.`);
+      toast.show(`${nameOf(partnerId!)} 선생님께 ${pick.kind === "swap" ? "교체" : "보결"} 요청을 보냈습니다.`);
       setSlot(null);
       setPick(null);
       setCard(emptyCard);
@@ -187,11 +188,11 @@ function NewRequest() {
               <div>
                 <h3>① 교체 가능한 수업 <span className="meta">수업 결손·추가 근무 없음</span></h3>
                 {swaps.length === 0 ? (
-                  <p className="meta" style={{ marginTop: 6 }}>{slot.lesson.classId} 학급에서 맞바꿀 수 있는 수업이 없습니다. 대강 후보를 확인하세요.</p>
+                  <p className="meta" style={{ marginTop: 6 }}>{slot.lesson.classId} 학급에서 맞바꿀 수 있는 수업이 없습니다. 아래 보결 후보를 확인하세요.</p>
                 ) : (
                   <div className="scroll-x" style={{ marginTop: 8 }}>
                     <table className="sheet">
-                      <thead><tr><th scope="col">선택</th><th scope="col">교사</th><th scope="col">{DAYS[slot.day]} {slot.period + 1}교시</th><th scope="col">맞바꿀 수업</th></tr></thead>
+                      <thead><tr><th scope="col">선택</th><th scope="col">교사</th><th scope="col">바꾸는 방법</th></tr></thead>
                       <tbody>
                         {swaps.map((o) => {
                           const sel = pick?.kind === "swap" && pick.o === o;
@@ -200,8 +201,7 @@ function NewRequest() {
                             <tr key={id} className={`clickable ${sel ? "selected" : ""}`} onClick={() => setPick({ kind: "swap", o })}>
                               <td><input id={id} type="radio" name="pick" checked={sel} onChange={() => setPick({ kind: "swap", o })} /></td>
                               <td><label htmlFor={id}>{nameOf(o.personId)} <span className="meta">{person(o.personId)?.subject}</span></label></td>
-                              <td>{nameOf(o.personId)} 선생님이 {slot.lesson.classId} 수업</td>
-                              <td>{DAYS[o.day]} {o.period + 1}교시 {o.lesson.classId} {o.lesson.subject} → {absent?.name} 선생님</td>
+                              <td>{DAYS[slot.day]} {slot.period + 1}교시 {slot.lesson.classId} 수업은 {nameOf(o.personId)} 선생님이, {DAYS[o.day]} {o.period + 1}교시 {o.lesson.classId} {o.lesson.subject} 수업은 {absent?.name} 선생님이 맡습니다.</td>
                             </tr>
                           );
                         })}
@@ -213,9 +213,9 @@ function NewRequest() {
 
               <div>
                 <div className="row between">
-                  <h3>② 대강 후보 비교 <span className="meta">{DAYS[slot.day]} {slot.period + 1}교시({PERIOD_TIMES[slot.period]})에 수업이 없는 선생님</span></h3>
+                  <h3>② 보결 후보 비교 <span className="meta">{DAYS[slot.day]} {slot.period + 1}교시({PERIOD_TIMES[slot.period]})에 공강인 선생님</span></h3>
                 </div>
-                {candidates.length === 0 ? <Empty>이 시간에 수업이 없는 선생님이 없습니다.</Empty> : (
+                {candidates.length === 0 ? <Empty>이 시간에 공강인 선생님이 없습니다. 시간표 담당과 상의해 주세요.</Empty> : (
                   <div className="scroll-x" style={{ marginTop: 8 }}>
                     <table className="sheet">
                       <thead>
@@ -268,11 +268,11 @@ function NewRequest() {
 
         {slot && pick && (
           <div className="handoff">
-            <div className="handoff-title">수 업 인 수 인 계 서</div>
+            <div className="handoff-title" aria-label="수업 인수인계서">수 업 인 수 인 계 서</div>
             <table className="sheet" style={{ borderTop: 0 }}>
               <tbody>
                 <tr><th scope="row">수업</th><td>{DAYS[slot.day]}요일 {slot.period + 1}교시 ({PERIOD_TIMES[slot.period]}) · {slot.lesson.classId} {slot.lesson.subject}</td></tr>
-                <tr><th scope="row">인계</th><td>{absent?.name} → {nameOf(partnerId!)} ({pick.kind === "swap" ? "교체" : "대강"})</td></tr>
+                <tr><th scope="row">인계</th><td>{absent?.name} → {nameOf(partnerId!)} ({pick.kind === "swap" ? "교체" : "보결"})</td></tr>
                 {([["goal", "학습 목표", "예: 비유와 상징의 차이를 설명할 수 있다.", true], ["progress", "진도", "예: 교과서 84쪽까지", false], ["activity", "활동 안내", "예: 활동지 2번 모둠 활동 20분", true], ["materials", "자료 위치", "예: 교무실 책상 오른쪽 서랍", false], ["notes", "학급 유의사항", "학생을 특정하지 않게 적습니다. 예: 모둠 4는 자원 발표로", false]] as [keyof HandoffCard, string, string, boolean][]).map(([k, label, ph, req]) => (
                   <tr key={k}>
                     <th scope="row"><label htmlFor={`card-${k}`}>{label}{req && <span style={{ color: "var(--danger)" }}> *</span>}</label></th>
@@ -290,9 +290,9 @@ function NewRequest() {
               )}
               <div className="row">
                 <button className="btn primary" disabled={busy || (pick.kind === "cover" && (!card.goal.trim() || !card.activity.trim()))} onClick={submit}>
-                  {warnings.length ? "경고를 확인했고 그대로 요청" : `${pick.kind === "swap" ? "교체" : "대강"} 요청 보내기`}
+                  {warnings.length ? "경고를 확인하고 요청 보내기" : `${pick.kind === "swap" ? "교체" : "보결"} 요청 보내기`}
                 </button>
-                <span className="meta">{pick.kind === "cover" ? "대강은 학습 목표와 활동 안내가 필수입니다." : "교체는 인계서가 선택입니다."} 인계서는 교직원만 열 수 있게 암호화됩니다.</span>
+                <span className="meta">{pick.kind === "cover" ? "보결 요청에는 학습 목표와 활동 안내를 꼭 적어야 합니다." : "교체 요청은 인수인계서를 비워 두어도 됩니다."} 인수인계서는 교직원만 열 수 있게 암호화됩니다.</span>
               </div>
             </div>
           </div>
@@ -310,7 +310,7 @@ function stampOf(r: CoverRequest, who: string, text: string) {
 function Kyeoljae({ r }: { r: CoverRequest }) {
   const req = r.audit[0];
   const consent = stampOf(r, r.candidateId, "동의");
-  const declined = stampOf(r, r.candidateId, "사양");
+  const declined = stampOf(r, r.candidateId, "거절");
   const decided = r.audit.find((a) => a.ok && (a.text.startsWith("결재") || a.text.startsWith("반려") || a.text.startsWith("동의 생략")));
   const coordinator = PEOPLE.find((p) => p.role === "coordinator")!;
   const cell = (a: typeof req | undefined, label: string, voidLabel?: string) =>
@@ -322,12 +322,12 @@ function Kyeoljae({ r }: { r: CoverRequest }) {
         <tr>
           <th rowSpan={3} scope="rowgroup" className="side-label">결재</th>
           <th scope="col" className="head">요청</th>
-          <th scope="col" className="head">{r.kind === "swap" ? "교체 교사" : "대강 교사"}</th>
+          <th scope="col" className="head">{r.kind === "swap" ? "교체 교사" : "보결 교사"}</th>
           <th scope="col" className="head">시간표 담당</th>
         </tr>
         <tr className="stamps">
           <td>{cell(req, "요청")}</td>
-          <td>{declined ? cell(declined, "", "사양") : r.consentSkipped && !consent ? <span className="stamp-wait">생략</span> : cell(consent, "동의")}</td>
+          <td>{declined ? cell(declined, "", "거절") : r.consentSkipped && !consent ? <span className="stamp-wait">생략</span> : cell(consent, "동의")}</td>
           <td>{decided ? cell(decided, "결재", decided.text.startsWith("반려") ? "반려" : undefined) : r.status === "CANCELLED" ? <span className="stamp-wait">취소</span> : cell(undefined, "")}</td>
         </tr>
         <tr className="foot">
@@ -347,7 +347,7 @@ function RequestCard({ r }: { r: CoverRequest }) {
   const [showCard, setShowCard] = useState(r.candidateId === me.id && isOpen(r.status));
   const [showAudit, setShowAudit] = useState(false);
   const act = (payload: Parameters<typeof send>[1]) => send(ROOM.workflow, payload);
-  const kind = r.kind === "swap" ? "교체" : "대강";
+  const kind = r.kind === "swap" ? "교체" : "보결";
   const tone = r.status === "APPLIED" ? "ok" : isOpen(r.status) ? "info" : "danger";
   const hasCard = Object.values(r.card).some((v) => v.trim());
 
@@ -403,11 +403,11 @@ function RequestCard({ r }: { r: CoverRequest }) {
 
       {r.status === "AWAITING_CONSENT" && r.candidateId === me.id && (
         <div className="panel-body" style={{ borderTop: "1px solid var(--line)", background: "var(--primary-bg)" }}>
-          <b>{nameOf(r.requesterId)} 선생님이 {kind}을 요청했습니다.</b>
+          <b>{nameOf(r.requesterId)} 선생님이 {josa(kind, "을/를")} 요청했습니다.</b>
           <div className="row nowrap" style={{ marginTop: 8 }}>
             <input type="text" value={comment} onChange={(e) => setComment(e.target.value)} placeholder="남길 말 (선택)" aria-label="응답 메모" />
             <button className="btn primary" onClick={() => act({ type: "cover.consent", reqId: r.reqId, accept: true, comment: comment.trim() || undefined })}>동의</button>
-            <button className="btn danger" onClick={() => act({ type: "cover.consent", reqId: r.reqId, accept: false, comment: comment.trim() || undefined })}>사양</button>
+            <button className="btn danger" onClick={() => act({ type: "cover.consent", reqId: r.reqId, accept: false, comment: comment.trim() || undefined })}>거절</button>
           </div>
         </div>
       )}
@@ -440,7 +440,7 @@ function RequestCard({ r }: { r: CoverRequest }) {
       )}
       {r.requesterId === me.id && r.status === "DECLINED" && (
         <div className="panel-body" style={{ borderTop: "1px solid var(--line)" }}>
-          <p className="meta">상대 교사가 사양했습니다. 위 ‘결강 등록’에서 같은 교시를 다시 골라 다른 후보에게 요청하세요.</p>
+          <p className="meta">상대 교사가 거절했습니다. 위의 ‘결강 등록’에서 같은 교시를 다시 골라 다른 선생님께 요청하세요.</p>
         </div>
       )}
     </article>

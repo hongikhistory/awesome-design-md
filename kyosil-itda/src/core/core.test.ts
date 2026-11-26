@@ -180,7 +180,7 @@ describe("approval workflow", () => {
     const skip = (reason?: string) =>
       reduceRequests([t(req, "t1", "teacher", 1), t({ type: "cover.decide", reqId: "r1", approve: true, skipConsent: true, reason }, "t3", "coordinator", 2)]).get("r1")!;
     expect(skip().status).toBe("AWAITING_CONSENT");
-    expect(skip("대강 교사 출장 중, 교감 확인").status).toBe("APPLIED");
+    expect(skip("보결 교사 출장 중, 교감 확인").status).toBe("APPLIED");
   });
 
   it("is independent of log order (sorted by time)", () => {

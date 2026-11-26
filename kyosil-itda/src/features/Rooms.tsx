@@ -26,7 +26,7 @@ export function Rooms() {
         <div>
           <div className="crumb">업무 · 대화방</div>
           <h1>대화방</h1>
-          <p className="lead">메시지와 체크리스트·투표는 이 기기에서 암호화된 뒤 전송됩니다. 체크리스트와 투표는 방 안의 모두가 함께 고칩니다.</p>
+          <p className="lead">메시지와 체크리스트·투표는 이 기기에서 암호화된 뒤 전송됩니다. 체크리스트와 투표는 방에 있는 모든 사람이 함께 편집합니다.</p>
         </div>
         <button className="btn primary" onClick={() => setCreating((c) => !c)} aria-expanded={creating}><Plus className="ico sm" aria-hidden /> 새 대화방</button>
       </div>
@@ -82,7 +82,7 @@ function NewRoom({ onDone }: { onDone: (id?: string) => void }) {
             onDone(r.roomId);
           }}>만들기</button>
           <button className="btn" onClick={() => onDone()}>취소</button>
-          <span className="meta">참여자마다 방 키를 따로 봉인해 보냅니다.</span>
+          <span className="meta">방 키는 참여자마다 따로 암호화해서 보냅니다.</span>
         </div>
       </div>
     </section>
@@ -136,11 +136,11 @@ function Chat({ roomId }: { roomId: string }) {
             <div className="meta" style={{ marginTop: 2 }}>{v.room.members.map(nameOf).join(", ")}</div>
           </div>
           <div className="row">
-            <span className="badge ok" title="AES-256-GCM 암호화, 참여자별 ECDH 키 봉인, ECDSA 서명"><Lock className="ico sm" aria-hidden /> 종단간 암호화 · {v.room.epoch}세대 키</span>
+            <span className="badge ok" title={`AES-256-GCM 암호화, 참여자별 ECDH 키 전달, ECDSA 서명 · 키 교체 ${v.room.epoch - 1}회`}><Lock className="ico sm" aria-hidden /> 종단간 암호화</span>
             <button className="btn sm" onClick={() => setManage((m) => !m)} aria-expanded={manage}><Users className="ico sm" aria-hidden /> 참여자</button>
           </div>
         </div>
-        {v.unreadable > 0 && <p className="meta" style={{ marginTop: 6 }}>합류 이전이거나 검증에 실패한 메시지 {v.unreadable}건은 이 기기에서 열 수 없습니다.</p>}
+        {v.unreadable > 0 && <p className="meta" style={{ marginTop: 6 }}>참여하기 전에 오간 메시지나 검증에 실패한 메시지 {v.unreadable}건은 이 기기에서 열 수 없습니다.</p>}
         {manage && <Members roomId={roomId} onDone={() => setManage(false)} />}
       </div>
       <div className="chat-body" ref={bodyRef} aria-live="polite">

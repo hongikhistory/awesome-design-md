@@ -92,7 +92,7 @@ export function Practicum() {
       ) : me.role === "student-teacher" ? (
         <Notice kind="plain">
           <b>아직 열린 실습 공간이 없습니다.</b>
-          <p className="muted" style={{ marginTop: 4 }}>지도교사가 실습 공간을 열면 이 기기에 암호 키가 전달되어 바로 볼 수 있습니다.</p>
+          <p className="muted" style={{ marginTop: 4 }}>지도교사가 실습 공간을 열면 이 기기로 암호 키가 전달되어 바로 볼 수 있습니다.</p>
         </Notice>
       ) : null}
       {me.role !== "student-teacher" && <OpenSpace />}
@@ -283,7 +283,7 @@ function Plan({ roomId, d, isMentor }: { roomId: string; d: SessionData; isMento
             <>
               <div className="row">{d.focus.tags.map((k) => <span key={k} className="badge" style={{ borderColor: tagColor(k), color: tagColor(k) }}>{tagLabel(k)}</span>)}</div>
               {d.focus.question && <p className="body">“{d.focus.question}”</p>}
-              <p className="meta">관찰 화면에서 이 영역의 버튼이 ‘초점’으로 표시됩니다.</p>
+              <p className="meta">수업 관찰 화면에서 이 영역의 버튼에 ‘교생이 요청한 초점’이 표시됩니다.</p>
             </>
           ) : (
             <Empty>교생이 아직 관찰 초점을 정하지 않았습니다.</Empty>
@@ -373,20 +373,20 @@ function Observe({ roomId, d }: { roomId: string; d: SessionData }) {
             {TAGS.map((t, i) => (
               <button key={t.key} role="radio" aria-checked={tag === t.key} className={`tagbtn ${focus.includes(t.key) ? "focus" : ""}`} onClick={() => setTag(t.key)}>
                 <span><span className="dot" style={{ background: tagColor(t.key) }} />{t.label}</span>
-                {focus.includes(t.key) ? <span className="focus-mark">교생 요청 초점</span> : <kbd>Alt+{i + 1}</kbd>}
+                {focus.includes(t.key) ? <span className="focus-mark">교생이 요청한 초점</span> : <kbd>Alt+{i + 1}</kbd>}
               </button>
             ))}
           </div>
           <form className="row nowrap" onSubmit={(e) => { e.preventDefault(); void add(); }}>
             {startAt === null && <input type="text" value={manual} onChange={(e) => setManual(e.target.value)} placeholder="분:초" aria-label="시각(분:초)" style={{ width: 84 }} />}
-            <input ref={input} type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="본 장면을 사실대로 적기 (예: 대기 시간 2초)" aria-label="관찰 메모" />
+            <input ref={input} type="text" value={text} onChange={(e) => setText(e.target.value)} placeholder="관찰한 장면을 사실대로 적으세요 (예: 발문 후 대기 시간 2초)" aria-label="관찰 메모" />
             <button className="btn primary" type="submit" disabled={!text.trim()}>기록</button>
           </form>
-          <p className="meta">평가보다 장면을 적습니다. 학생 이름은 적지 않습니다. 교생도 다른 선생님 수업을 참관할 때 이 화면에 기록할 수 있습니다.</p>
+          <p className="meta">판단보다 장면을 먼저 적고, 학생 이름은 적지 않습니다. 교생도 다른 선생님의 수업을 참관할 때 이 화면에 기록할 수 있습니다.</p>
         </div>
       </section>
       <section className="panel" aria-labelledby="tl-h">
-        <div className="panel-head"><h3 id="tl-h">수업 흐름 위의 기록 {d.notes.length}개</h3>
+        <div className="panel-head"><h3 id="tl-h">시간대별 관찰 기록 {d.notes.length}개</h3>
           <div className="row">{TAGS.map((t) => <span key={t.key} className="legend"><i style={{ background: tagColor(t.key) }} />{t.label} {counts[t.key]}</span>)}</div>
         </div>
         <div className="panel-body">
@@ -457,7 +457,7 @@ function Rubric({ roomId, d, isMentor }: { roomId: string; d: SessionData; isMen
           {!both ? (
             <Notice kind="plain">
               지도교사 평가 {d.mentorScores ? "제출됨" : "대기"} · 자기평가 {d.selfScores ? "제출됨" : "대기"}
-              <p className="meta" style={{ marginTop: 4 }}>둘 다 모이면 차이가 가장 큰 영역을 피드백 협의 주제로 제안합니다.</p>
+              <p className="meta" style={{ marginTop: 4 }}>두 평가가 모두 모이면, 차이가 가장 큰 영역을 피드백 협의 주제로 제안합니다.</p>
             </Notice>
           ) : (
             <>
@@ -507,7 +507,7 @@ function Feedback({ roomId, d, isMentor }: { roomId: string; d: SessionData; isM
               <>
                 <label className="field">잘된 점 <span className="hint">장면과 효과를 함께</span><textarea id="fb-glow" value={fb.glow} onChange={(e) => setFb({ ...fb, glow: e.target.value })} /></label>
                 <label className="field">다음에 바꿔 볼 점 <span className="hint">한두 가지에 집중</span><textarea id="fb-grow" value={fb.grow} onChange={(e) => setFb({ ...fb, grow: e.target.value })} /></label>
-                <label className="field">다음 수업 목표 <span className="hint">관찰할 수 있게</span><input id="fb-next" type="text" value={fb.next} onChange={(e) => setFb({ ...fb, next: e.target.value })} placeholder="예: 후속 발문 3회 이상" /></label>
+                <label className="field">다음 수업 목표 <span className="hint">관찰할 수 있는 행동으로</span><input id="fb-next" type="text" value={fb.next} onChange={(e) => setFb({ ...fb, next: e.target.value })} placeholder="예: 후속 발문 3회 이상" /></label>
                 <div><button className="btn primary" disabled={!fb.glow.trim() || !fb.grow.trim()} onClick={async () => { await send(roomId, { type: "prac.feedback", sessionId: d.session.sessionId, ...fb }); toast.show("피드백을 교생에게 전달했습니다."); }}>교생에게 전달</button></div>
               </>
             ) : d.feedback ? (
@@ -584,7 +584,7 @@ function Record({ d, mentorId, studentId, days }: { d: SessionData; mentorId: st
             <tr><th scope="row">교생 성찰</th><td style={{ whiteSpace: "pre-wrap" }}>{d.reflection?.text ?? "—"}</td></tr>
           </tbody>
         </table>
-        <p className="meta">학생 개인을 특정하는 정보는 담지 않았습니다. 원본 기록은 두 사람의 기기에서만 열리며{days !== null ? `, ${days}일 뒤 서버에서 삭제됩니다` : ""}.</p>
+        <p className="meta">참관록에는 학생 개인을 특정하는 정보를 적지 않습니다. 원본 기록은 두 사람의 기기에서만 열리며{days !== null ? `, ${days}일 뒤 서버에서 삭제됩니다` : ""}.</p>
       </div>
     </section>
   );

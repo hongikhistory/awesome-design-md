@@ -18,8 +18,8 @@ export const STATUS_LABEL: Record<RequestStatus, string> = {
   AWAITING_CONSENT: "상대 교사 동의 대기",
   AWAITING_COORDINATOR: "시간표 담당 결재 대기",
   APPLIED: "결재 완료 · 시간표 반영",
-  DECLINED: "상대 교사 사양",
-  REJECTED: "담당 반려",
+  DECLINED: "상대 교사 거절",
+  REJECTED: "시간표 담당 반려",
   CANCELLED: "요청 취소",
 };
 
@@ -96,7 +96,7 @@ export function reduceRequests(log: Stamped<WorkflowEvent>[]): Map<string, Cover
         status: "AWAITING_CONSENT",
         createdAt: at,
         updatedAt: at,
-        audit: [{ at, actorId: actor.id, text: e.kind === "swap" ? "교체 요청" : "대강 요청 · 인수인계 카드 전달", ok: true }],
+        audit: [{ at, actorId: actor.id, text: e.kind === "swap" ? "교체 요청" : "보결 요청 · 인수인계서 전달", ok: true }],
       });
       continue;
     }
@@ -110,21 +110,21 @@ export function reduceRequests(log: Stamped<WorkflowEvent>[]): Map<string, Cover
     };
     switch (e.type) {
       case "cover.consent":
-        if (actor.id !== r.candidateId) deny("대강 교사가 아닌 사람의 동의");
-        else if (r.status !== "AWAITING_CONSENT") deny("동의 단계가 아님");
+        if (actor.id !== r.candidateId) deny("상대 교사가 아닌 사람의 동의");
+        else if (r.status !== "AWAITING_CONSENT") deny("동의할 수 있는 단계가 아님");
         else if (e.accept) move("AWAITING_COORDINATOR", `동의${e.comment ? ` · “${e.comment}”` : ""}`);
-        else move("DECLINED", `사양${e.comment ? ` · “${e.comment}”` : ""}`);
+        else move("DECLINED", `거절${e.comment ? ` · “${e.comment}”` : ""}`);
         break;
       case "cover.decide":
-        if (actor.role !== "coordinator") deny("시간표 담당이 아닌 사람의 승인");
+        if (actor.role !== "coordinator") deny("시간표 담당이 아닌 사람의 결재");
         else if (r.status === "AWAITING_COORDINATOR") move(e.approve ? "APPLIED" : "REJECTED", e.approve ? "결재 · 시간표 반영" : `반려${e.reason ? ` · ${e.reason}` : ""}`);
         else if (r.status === "AWAITING_CONSENT" && e.approve && e.skipConsent) {
           if (!e.reason?.trim()) deny("동의 생략 사유 없음");
           else {
             r.consentSkipped = e.reason.trim();
-            move("APPLIED", `동의 생략 승인 · 사유: ${r.consentSkipped}`);
+            move("APPLIED", `동의 생략 결재 · 사유: ${r.consentSkipped}`);
           }
-        } else deny("승인할 수 없는 단계");
+        } else deny("결재할 수 있는 단계가 아님");
         break;
       case "cover.cancel":
         if (actor.id !== r.requesterId) deny("요청자가 아닌 사람의 취소");

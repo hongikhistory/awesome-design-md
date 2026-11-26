@@ -40,8 +40,8 @@ export function changesFor(owner: string, requests: CoverRequest[]) {
         map.set(at(r.swapWith.day, r.swapWith.period), { label: r.swapWith.classId, note: `교체 · ${nameOf(r.candidateId)} 수업` });
       }
     } else {
-      if (r.candidateId === owner) map.set(at(r.day, r.period), { label: r.classId, note: `대강 · ${nameOf(r.absentId)}` });
-      if (r.absentId === owner) map.set(at(r.day, r.period), { label: "결강", note: `대강 ${nameOf(r.candidateId)}` });
+      if (r.candidateId === owner) map.set(at(r.day, r.period), { label: r.classId, note: `보결 (${nameOf(r.absentId)})` });
+      if (r.absentId === owner) map.set(at(r.day, r.period), { label: "결강", note: `${nameOf(r.candidateId)} 보결` });
     }
   }
   return map;
@@ -105,11 +105,11 @@ function FragmentRow({ p, children }: { p: number; children: React.ReactNode }) 
 
 const TOUR: { as: string; page: Page; title: string; what: string }[] = [
   { as: "t3", page: "today", title: "박민지 · 시간표 담당", what: "결재 대기와 이번 주 시간표 변경을 확인합니다." },
-  { as: "t1", page: "cover", title: "김하늘 · 국어", what: "강지호 선생님의 대강 요청과 인수인계 카드를 읽고 동의합니다." },
+  { as: "t1", page: "cover", title: "김하늘 · 국어", what: "강지호 선생님의 보결 요청과 인수인계서를 읽고 동의합니다." },
   { as: "t3", page: "cover", title: "박민지 · 시간표 담당", what: "결재란에 결재하면 두 선생님의 시간표가 바뀝니다." },
-  { as: "t5", page: "cover", title: "정유나 · 사회", what: "내 결강을 등록하고, 교체 우선 제안과 대강 후보 비교표를 봅니다." },
+  { as: "t5", page: "cover", title: "정유나 · 사회", what: "내 결강을 등록하고, 교체 제안과 보결 후보 비교표를 봅니다." },
   { as: "s1", page: "practicum", title: "오세린 · 교생", what: "계획 협의에서 ‘관찰받고 싶은 초점’을 정합니다." },
-  { as: "t1", page: "practicum", title: "김하늘 · 지도교사", what: "초점에 맞춰 관찰 기록을 남기고 자기평가와 비교합니다." },
+  { as: "t1", page: "practicum", title: "김하늘 · 지도교사", what: "초점에 맞춰 관찰 기록을 남기고, 교생의 자기평가와 비교합니다." },
   { as: "t1", page: "trust", title: "보안 확인", what: "서버에 저장된 암호문을 보고, 위조 메시지가 걸러지는지 실험합니다." },
 ];
 
@@ -163,7 +163,7 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
           <div className="crumb">{weekDates()[todayIndex()]} {DAYS[todayIndex()]}요일</div>
           <h1>{me.name} {me.role === "student-teacher" ? "교생" : "선생님"}의 이번 주</h1>
           <p className="lead">
-            {me.role === "student-teacher" ? `지도교사 ${nameOf(owner)} 선생님의 시간표입니다.` : "교체·대강이 반영된 칸은 노란색으로 표시됩니다."}
+            {me.role === "student-teacher" ? `지도교사 ${nameOf(owner)} 선생님의 시간표입니다.` : "교체·보결이 반영된 칸은 노란색으로 표시됩니다."}
           </p>
         </div>
       </div>
@@ -181,13 +181,13 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
               {consent.length + approve.length + openMine === 0 && <p className="muted">처리할 요청이 없습니다.</p>}
               {consent.map((r) => (
                 <button key={r.reqId} className="btn" style={{ justifyContent: "space-between", whiteSpace: "normal", textAlign: "left", minHeight: 48 }} onClick={() => go("cover")}>
-                  <span>{nameOf(r.requesterId)} 선생님 {r.kind === "swap" ? "교체" : "대강"} 요청 · {DAYS[r.day]} {r.period + 1}교시 {r.classId}</span>
+                  <span>{nameOf(r.requesterId)} 선생님의 {r.kind === "swap" ? "교체" : "보결"} 요청 · {DAYS[r.day]} {r.period + 1}교시 {r.classId}</span>
                   <span className="badge warn">동의 필요</span>
                 </button>
               ))}
               {approve.map((r) => (
                 <button key={r.reqId} className="btn" style={{ justifyContent: "space-between", whiteSpace: "normal", textAlign: "left", minHeight: 48 }} onClick={() => go("cover")}>
-                  <span>{nameOf(r.absentId)} → {nameOf(r.candidateId)} {r.kind === "swap" ? "교체" : "대강"} · {DAYS[r.day]} {r.period + 1}교시</span>
+                  <span>{nameOf(r.absentId)} → {nameOf(r.candidateId)} {r.kind === "swap" ? "교체" : "보결"} · {DAYS[r.day]} {r.period + 1}교시</span>
                   <span className="badge info">결재 대기</span>
                 </button>
               ))}

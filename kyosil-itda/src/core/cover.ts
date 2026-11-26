@@ -80,14 +80,14 @@ export function recommend(slot: Slot, ctx: CoverContext, w: Weights = DEFAULT_WE
       key: "fairness",
       max: w.fairness,
       points: round(w.fairness * (1 - h / maxHistory)),
-      reason: `최근 4주 대강 ${h}회`,
+      reason: `최근 4주 보결 ${h}회`,
     });
     const load = lessonsOn(ctx, p.id, slot.day);
     factors.push({
       key: "load",
       max: w.load,
       points: round(w.load * (1 - load / PERIODS)),
-      reason: `이날 수업 ${load}시간`,
+      reason: `당일 수업 ${load}시간`,
     });
     const before = slot.period > 0 && busyAt(ctx, p.id, slot.day, slot.period - 1);
     const after = slot.period < PERIODS - 1 && busyAt(ctx, p.id, slot.day, slot.period + 1);
@@ -96,7 +96,7 @@ export function recommend(slot: Slot, ctx: CoverContext, w: Weights = DEFAULT_WE
       key: "fatigue",
       max: 0,
       points: -round((w.fatigue * adjacent) / 2),
-      reason: adjacent === 2 ? "앞뒤 교시 모두 수업" : adjacent === 1 ? (before ? "앞 교시 수업" : "뒤 교시 수업") : "앞뒤 교시 여유",
+      reason: adjacent === 2 ? "앞뒤 교시 모두 수업 있음" : adjacent === 1 ? (before ? "이전 교시 수업 있음" : "다음 교시 수업 있음") : "앞뒤 교시 비어 있음",
     });
     const sameSubject = p.subject === slot.lesson.subject;
     const sameDept = absent && p.department === absent.department;
@@ -112,7 +112,7 @@ export function recommend(slot: Slot, ctx: CoverContext, w: Weights = DEFAULT_WE
       key: "familiarity",
       max: w.familiarity,
       points: teachesClass ? w.familiarity : sameGrade ? round(w.familiarity / 2) : 0,
-      reason: teachesClass ? `${slot.lesson.classId} 수업 담당` : sameGrade ? `${grade}학년 수업 담당` : "이 학년 수업 없음",
+      reason: teachesClass ? `${slot.lesson.classId} 수업 담당` : sameGrade ? `${grade}학년 수업 담당` : "해당 학년 수업 없음",
     });
     const total = factors.reduce((s, f) => s + f.points, 0);
     const maxTotal = w.fairness + w.load + w.subject + w.familiarity || 1;
@@ -184,8 +184,8 @@ export function privacyCheck(text: string): PrivacyWarning[] {
   const push = (kind: PrivacyWarning["kind"], re: RegExp, hint: string) => {
     for (const m of text.matchAll(re)) out.push({ kind, match: m[0], hint });
   };
-  push("phone", /01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/g, "연락처는 카드에 적지 마세요.");
-  push("rrn", /\d{6}[-\s]?[1-4]\d{6}/g, "주민등록번호 형태가 있습니다.");
+  push("phone", /01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/g, "연락처는 인수인계서에 적지 마세요.");
+  push("rrn", /\d{6}[-\s]?[1-4]\d{6}/g, "주민등록번호로 보이는 숫자가 있습니다.");
   for (const m of text.matchAll(/([가-힣]{2,4})\s?(?:학생|군|양)(?:은|는|이|가|을|를|에게|과|와|도|의)?(?=[\s,.!?]|$)/g)) {
     if (!NOT_NAMES.has(m[1])) out.push({ kind: "named-student", match: m[0], hint: "학생 이름 대신 '학생 A'처럼 적어 주세요." });
   }
