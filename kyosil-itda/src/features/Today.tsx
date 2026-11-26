@@ -1,6 +1,8 @@
+import { ChevronRight, FileStack, GraduationCap, Presentation, ScrollText } from "lucide-react";
 import { useState } from "react";
 import type { Go, Page } from "../App";
 import type { CoverRequest } from "../core/approval";
+import { ROOM } from "../core/seed";
 import { DAYS, nameOf, PERIOD_TIMES, PERIODS, TIMETABLE } from "../core/school";
 import { useApp } from "../state";
 import { inFrame, Notice } from "../ui/common";
@@ -110,8 +112,39 @@ const TOUR: { as: string; page: Page; title: string; what: string }[] = [
   { as: "t5", page: "cover", title: "정유나 · 사회", what: "내 결강을 등록하고, 교체 제안과 보결 후보 비교표를 봅니다." },
   { as: "s1", page: "practicum", title: "오세린 · 교생", what: "계획 협의에서 ‘관찰받고 싶은 초점’을 정합니다." },
   { as: "t1", page: "practicum", title: "김하늘 · 지도교사", what: "초점에 맞춰 관찰 기록을 남기고, 교생의 자기평가와 비교합니다." },
+  { as: "t1", page: "docs", title: "문서 변환", what: "예시 지도안(DOCX)을 Markdown으로 바꾸고 HWPX로 다시 저장합니다." },
+  { as: "t1", page: "slides", title: "수업 슬라이드", what: "지도안에서 슬라이드를 만들고 템플릿을 골라 HTML 발표 파일로 받습니다." },
+  { as: "t1", page: "letters", title: "가정통신문", what: "내용만 넣어 통신문을 만들고, 학교 HWPX 양식 칸을 채웁니다." },
+  { as: "t1", page: "students", title: "학생 상담·기록", what: "누가기록으로 세특을 쓰고, 금지 표현과 NEIS 바이트를 점검합니다." },
   { as: "t1", page: "trust", title: "보안 확인", what: "서버에 저장된 암호문을 보고, 위조 메시지가 걸러지는지 실험합니다." },
 ];
+
+
+const TOOLS: { page: Page; title: string; what: string; Icon: typeof FileStack }[] = [
+  { page: "docs", title: "문서 변환", what: "HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown", Icon: FileStack },
+  { page: "slides", title: "수업 슬라이드", what: "지도안을 넣으면 발표 자료로", Icon: Presentation },
+  { page: "letters", title: "가정통신문", what: "내용만 쓰면 학교 양식대로", Icon: ScrollText },
+  { page: "students", title: "학생 상담·기록", what: "누가기록 → 세특·행특 초안 점검", Icon: GraduationCap },
+];
+
+function Tools({ go }: { go: Go }) {
+  const { view } = useApp();
+  const rec = view(ROOM.class21);
+  const due = rec?.events.filter((e) => e.payload.type === "rec.counsel" && e.payload.next && e.payload.next >= new Date().toISOString().slice(0, 10)).length ?? 0;
+  const drafts = new Set(rec?.events.filter((e) => e.payload.type === "rec.draft").map((e) => (e.payload as { no: number }).no)).size;
+  const note: Partial<Record<Page, string>> = rec ? { students: `생기부 초안 ${drafts}명${due ? ` · 예정 상담 ${due}건` : ""}` } : {};
+  return (
+    <section className="tools" aria-label="수업·문서·학생 도구">
+      {TOOLS.map((t) => (
+        <button key={t.page} className="tool" onClick={() => go(t.page)}>
+          <span className="tool-ico"><t.Icon className="ico" aria-hidden /></span>
+          <span className="tool-text"><b>{t.title}</b><span className="meta">{note[t.page] ?? t.what}</span></span>
+          <ChevronRight className="ico sm tool-go" aria-hidden />
+        </button>
+      ))}
+    </section>
+  );
+}
 
 function Tour({ go }: { go: Go }) {
   const [done, setDone] = useState<number[]>(() => {
@@ -133,7 +166,7 @@ function Tour({ go }: { go: Go }) {
   return (
     <section className="panel" aria-labelledby="tour-h">
       <div className="panel-head">
-        <h2 id="tour-h">시연 안내 · 7단계</h2>
+        <h2 id="tour-h">시연 안내 · {TOUR.length}단계</h2>
         <span className="meta">버튼을 누르면 그 사람으로 바뀌어 해당 화면이 열립니다</span>
       </div>
       <div className="panel-body" style={{ paddingTop: 4, paddingBottom: 4 }}>
@@ -167,6 +200,8 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
           </p>
         </div>
       </div>
+
+      {me.role !== "student-teacher" && <Tools go={go} />}
 
       <div className="grid two" style={{ alignItems: "start" }}>
         <section className="panel" aria-labelledby="tt-h">

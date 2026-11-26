@@ -28,6 +28,8 @@ KRDS ships a high-contrast theme instead of a dark theme. It applies to the OS d
 - KRDS PC scale: heading-medium 24 (page title), heading-small 19 (section), heading-xsmall 17 (panel title), body-medium 17 (reading text), body-small 15 (UI default), body-xsmall 13 (meta). On mobile the title drops to 22.
 - `font-variant-numeric: tabular-nums` everywhere: timetables and scores line up.
 
+- **Slides:** Paperlogy (OFL 1.1; 400/600/800, KS X 1001 subset) for every slide. Body text ≥ 26pt at 13.333×7.5 in. Paperlogy never appears in app chrome, which stays on Pretendard.
+
 ## 3. Shape and space
 - Radius: 4 (badges), 6 (buttons, inputs), 10 (panels), following KRDS small/medium/large.
 - Panels are flat: 1px `--line` border, no shadow. Hierarchy comes from the page-title rule (2px `--text-strong`) and table header rules, as on printed forms.
@@ -43,6 +45,11 @@ KRDS ships a high-contrast theme instead of a dark theme. It applies to the OS d
 - **Notice** (KRDS 안내 박스): icon + text, tinted background per meaning.
 - **Icons**: Lucide line icons at 18px, stroke 1.8. No emoji.
 
+- **Slide templates** (5): 파스텔 노트 (cream + white rounded cards, coral/mint), 형광펜 (white paper, black type, yellow highlight), 칠판 (green board, chalk yellow), 블루 미니멀 (KRDS primary numbers), 라벤더 (lilac + large circles). Common grammar borrowed from popular classroom templates: oversized title, kicker pill, numbered step cards, phase tracker in the footer, sticky-note closing cards. Every text/background pair is ≥ 4.5:1 (≥ 3:1 for ≥ 18pt or 14pt bold).
+- **가정통신문 paper:** A4 ratio sheet on white regardless of theme, double rule under the school header, metadata table, letter-spaced kicker, centred title, 학교장 + seal, dashed cut line with 회신서 table. Print uses `@page A4` and drops app chrome.
+- **Records:** NEIS byte meter (primary → warning at 90% → danger over 100%), findings as tinted rows with a level badge (금지/주의/문체) and a confidence chip (기재요령 확인 / 원문 대조 필요 / 관례).
+- **Format chips** in the converter use each format's familiar colour (HWP blue, Word blue, Excel green, PowerPoint orange, PDF red) with white 11px bold text.
+
 ## 5. Accessibility
-- WCAG 2.2 AA verified with axe-core on 8 views × 2 themes: 0 violations.
+- WCAG 2.2 AA verified with axe-core on 13 views × 2 themes: 0 violations (slide thumbnails included).
 - Every radio-like control uses `role="radio"` + `aria-checked`. Visible focus ring is 2px `--primary`. `prefers-reduced-motion` disables transitions.

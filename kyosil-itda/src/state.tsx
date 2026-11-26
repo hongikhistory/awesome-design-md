@@ -18,6 +18,15 @@ interface AppState {
   resetDemo: () => Promise<void>;
   /** bumps whenever the relay changes (used by the transparency view) */
   tick: number;
+  /** a document handed from one tool to another (e.g. 문서 변환 → 수업 슬라이드); in memory only */
+  handoff: Handoff | null;
+  setHandoff: (h: Handoff | null) => void;
+}
+
+export interface Handoff {
+  to: "slides" | "letters";
+  name: string;
+  markdown: string;
 }
 
 const Ctx = createContext<AppState | null>(null);
@@ -45,6 +54,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [tick, setTick] = useState(0);
+  const [handoff, setHandoff] = useState<Handoff | null>(null);
   const seq = useRef(0);
 
   const refresh = useCallback(async () => {
@@ -118,6 +128,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     requests,
     resetDemo,
     tick,
+    handoff,
+    setHandoff,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

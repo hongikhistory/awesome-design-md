@@ -11,6 +11,7 @@ export const ROOM = {
   grade2: "room_grade2",
   workflow: "room_workflow",
   practicum: "room_practicum",
+  class21: "room_class_2_1",
 };
 
 const MIN = 60_000;
@@ -29,6 +30,7 @@ export async function ensureSeed(): Promise<boolean> {
   await createRoom({ roomId: ROOM.staff, name: "교무실 · 전체", kind: "chat", members: ids, by: "t3" });
   await createRoom({ roomId: ROOM.grade2, name: "2학년 협의", kind: "chat", members: ["t1", "t2", "t4", "t5", "s1"], by: "t1" });
   await createRoom({ roomId: ROOM.workflow, name: "결강 처리 (교직원)", kind: "workflow", members: teachers, by: "t3" });
+  await createRoom({ roomId: ROOM.class21, name: "학급 기록 · 2학년 1반(담임)", kind: "records", members: ["t1"], by: "t1" });
   await createRoom({
     roomId: ROOM.practicum,
     name: "교육실습 · 김하늘 × 오세린",
@@ -108,6 +110,24 @@ export async function ensureSeed(): Promise<boolean> {
   const sealed = [];
   for (const [room, by, ev, t] of events) sealed.push(await seal(room, by, ev, t));
   for (const [by, ev, t] of prac) sealed.push(await seal(ROOM.practicum, by, ev, t));
+  // Class records for 2-1 (담임 김하늘). Fictional students; one draft deliberately breaks the rules
+  // so the checker has something to show.
+  const roster = ["강민준", "김서연", "박지호", "이하은", "정우진", "최수아", "한도윤", "윤지민", "임예준", "오채원", "서지안", "신유나"].map((name, i) => ({ no: i + 1, name }));
+  const d = (offset: number) => new Date(now - offset * DAY).toISOString().slice(0, 10);
+  const rec: AppEvent[] = [
+    { type: "rec.roster", classId: "2-1", students: roster },
+    { type: "rec.obs", id: "o1", no: 2, date: d(40), area: "subject", subject: "국어", text: "시의 비유 표현 수업에서 ‘마음이 호수다’의 원관념과 보조관념을 구분하고, 친구들이 찾은 비유를 표로 정리해 모둠 발표를 이끔." },
+    { type: "rec.obs", id: "o2", no: 2, date: d(21), area: "subject", subject: "국어", text: "설명문 쓰기에서 첫 초고의 문단 순서를 스스로 바꾸고, 고쳐 쓴 이유를 메모로 남김." },
+    { type: "rec.obs", id: "o3", no: 2, date: d(12), area: "behavior", text: "학급 회의에서 의견이 갈리자 양쪽 의견을 정리해 칠판에 적고 표결 방법을 제안함." },
+    { type: "rec.obs", id: "o4", no: 2, date: d(5), area: "club", text: "독서 동아리에서 한 달 동안 읽은 책의 인물 관계도를 만들어 부원들과 공유함." },
+    { type: "rec.obs", id: "o5", no: 5, date: d(18), area: "behavior", text: "체육대회 준비 기간에 장비 정리를 맡아 매일 점심시간에 체육 창고를 정돈함." },
+    { type: "rec.obs", id: "o6", no: 9, date: d(9), area: "career", text: "진로 탐색 시간에 관심 직업 세 가지의 하루 일과를 조사해 비교표로 발표함." },
+    { type: "rec.counsel", id: "c1", no: 5, date: d(30), with: "학생", method: "대면", topics: ["교우"], content: "모둠 활동에서 의견을 말하기 어렵다고 함. 발표 전에 짝과 먼저 이야기해 보기로 함.", followUp: "다음 모둠 활동에서 짝 토의 시간을 2분 먼저 주기", next: d(-2) },
+    { type: "rec.counsel", id: "c2", no: 5, date: d(14), with: "학부모", method: "전화", topics: ["생활", "가정"], content: "등교 시간이 늦어지는 문제로 통화함. 가정에서도 아침 준비 시간을 함께 점검하기로 함.", followUp: "2주간 지각 기록 확인 후 다시 연락" },
+    { type: "rec.counsel", id: "c3", no: 9, date: d(7), with: "학생", method: "대면", topics: ["진로", "학업"], content: "과학 실험에 관심이 많아 관련 진로를 알고 싶어 함. 진로 활동 시간의 직업 조사와 연결하기로 함.", followUp: "진로 상담 교사에게 관련 자료 요청" },
+    { type: "rec.draft", no: 2, item: "subject", subject: "국어", year: 2026, text: "시의 비유 표현을 배우며 원관념과 보조관념을 구분하고 친구들이 찾은 비유를 표로 정리해 모둠 발표를 이끔. 수학 학원에서 배운 정리 방식을 활용했습니다. 설명문 쓰기에서 문단 순서를 스스로 고치고 그 이유를 설명함." },
+  ];
+  for (const [i, ev] of rec.entries()) sealed.push(await seal(ROOM.class21, "t1", ev, at(-900 + i)));
   relay.appendMany(sealed);
   return true;
 }

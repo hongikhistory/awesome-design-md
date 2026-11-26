@@ -5,7 +5,7 @@
 
 import type { Ciphertext, PublicIdentity, WrappedKey } from "./crypto";
 
-export type RoomKind = "chat" | "workflow" | "practicum";
+export type RoomKind = "chat" | "workflow" | "practicum" | "records" | "private";
 
 /** Everything here is visible to the relay operator, by design and on screen. */
 export interface RoomRecord {
