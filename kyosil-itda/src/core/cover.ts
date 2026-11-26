@@ -70,7 +70,8 @@ export function recommend(slot: Slot, ctx: CoverContext, w: Weights = DEFAULT_WE
       !ctx.unavailable?.includes(p.id) &&
       !busyAt(ctx, p.id, slot.day, slot.period),
   );
-  const maxHistory = Math.max(1, ...eligible.map((p) => ctx.history[p.id] ?? 0));
+  // School-wide scale (+1) so the least-busy candidate is not automatically 0 or 100.
+  const maxHistory = Math.max(0, ...Object.values(ctx.history)) + 1;
 
   const out = eligible.map((p): Candidate => {
     const factors: Factor[] = [];

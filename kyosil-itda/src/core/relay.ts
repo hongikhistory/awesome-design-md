@@ -80,9 +80,11 @@ if (typeof window !== "undefined")
 
 export const relay = {
   snapshot: load,
-  subscribe(fn: () => void) {
+  subscribe(fn: () => void): () => void {
     listeners.add(fn);
-    return () => listeners.delete(fn);
+    return () => {
+      listeners.delete(fn);
+    };
   },
   publishKey(personId: string, jwk: PublicIdentity) {
     const s = load();
@@ -103,6 +105,12 @@ export const relay = {
     const s = load();
     const seen = new Set(s.envelopes.map((e) => e.id));
     for (const e of envs) if (!seen.has(e.id)) s.envelopes.push(e);
+    save(s);
+  },
+  /** Demo only: put an attacker-crafted envelope on the relay (tamper / impersonation tests). */
+  inject(env: Envelope) {
+    const s = load();
+    s.envelopes.push(env);
     save(s);
   },
   /** Drop expired workspaces and their ciphertext (retention policy). */
