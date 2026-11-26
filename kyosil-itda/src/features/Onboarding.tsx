@@ -100,7 +100,7 @@ function Day({ head }: HeadRef) {
   ];
   return (
     <div className="stack">
-      <h1 ref={head} tabIndex={-1}>{DEMO_SCHOOL} 2학년 1반 담임, 김하늘 선생님의 하루</h1>
+      <h1 ref={head} tabIndex={-1}>{DEMO_SCHOOL} 2학년 1반 담임, 곽민혁 선생님의 하루</h1>
       <p className="intro-lead">시연은 가상 학교인 {DEMO_SCHOOL}를 무대로 합니다. 사람과 학생은 모두 지어낸 인물입니다.</p>
       <ol className="day">
         {items.map((x, i) => (
@@ -143,7 +143,7 @@ function Start({ head, onDone }: HeadRef & { onDone: (mode: IntroMode) => void }
       <div className="choose" role="radiogroup" aria-label="시작 방법">
         <button role="radio" aria-checked={mode === "demo"} className="choice-card" onClick={() => setMode("demo")}>
           <b>시연으로 둘러보기</b>
-          <span>{DEMO_SCHOOL}(가상) 김하늘 선생님이 되어 모든 기능을 봅니다. 왼쪽 아래에서 시간표 담당·교생으로 바꿀 수 있습니다.</span>
+          <span>{DEMO_SCHOOL}(가상) 곽민혁 선생님이 되어 모든 기능을 봅니다. 왼쪽 아래에서 시간표 담당·교생으로 바꿀 수 있습니다.</span>
         </button>
         <button role="radio" aria-checked={mode === "real"} className="choice-card" onClick={() => setMode("real")}>
           <b>우리 학교에서 쓰기</b>

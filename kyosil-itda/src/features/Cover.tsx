@@ -273,7 +273,7 @@ function NewRequest() {
               <tbody>
                 <tr><th scope="row">수업</th><td>{DAYS[slot.day]}요일 {slot.period + 1}교시 ({PERIOD_TIMES[slot.period]}) · {slot.lesson.classId} {slot.lesson.subject}</td></tr>
                 <tr><th scope="row">인계</th><td>{absent?.name} → {nameOf(partnerId!)} ({pick.kind === "swap" ? "교체" : "보결"})</td></tr>
-                {([["goal", "학습 목표", "예: 비유와 상징의 차이를 설명할 수 있다.", true], ["progress", "진도", "예: 교과서 84쪽까지", false], ["activity", "활동 안내", "예: 활동지 2번 모둠 활동 20분", true], ["materials", "자료 위치", "예: 교무실 책상 오른쪽 서랍", false], ["notes", "학급 유의사항", "학생을 특정하지 않게 적습니다. 예: 모둠 4는 자원 발표로", false]] as [keyof HandoffCard, string, string, boolean][]).map(([k, label, ph, req]) => (
+                {([["goal", "학습 목표", "예: 임진왜란의 전개 과정을 지도에서 설명할 수 있다.", true], ["progress", "진도", "예: 교과서 84쪽까지", false], ["activity", "활동 안내", "예: 활동지 2번 모둠 활동 20분", true], ["materials", "자료 위치", "예: 교무실 책상 오른쪽 서랍", false], ["notes", "학급 유의사항", "학생을 특정하지 않게 적습니다. 예: 모둠 4는 자원 발표로", false]] as [keyof HandoffCard, string, string, boolean][]).map(([k, label, ph, req]) => (
                   <tr key={k}>
                     <th scope="row"><label htmlFor={`card-${k}`}>{label}{req && <span style={{ color: "var(--danger)" }}> *</span>}</label></th>
                     <td><textarea id={`card-${k}`} rows={k === "notes" ? 2 : 2} value={card[k]} onChange={(e) => setCard({ ...card, [k]: e.target.value })} placeholder={ph} aria-required={req} /></td>

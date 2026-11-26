@@ -20,23 +20,23 @@ interface Item {
 }
 
 const ACCEPT = ".hwp,.hwpx,.docx,.xlsx,.xls,.pptx,.pdf,.csv,.md,.markdown,.txt";
-const SAMPLE_MD = `# 2학년 국어 교수·학습 지도안
+const SAMPLE_MD = `# 2학년 역사 교수·학습 지도안
 
-| 단원 | 3. 시의 표현 |
+| 단원 | 동학 농민 운동 |
 | --- | --- |
 | 대상 | 2학년 1반 |
-| 학습 목표 | 비유의 뜻을 알고, 비유의 효과를 설명할 수 있다 |
+| 수업자 | 곽민혁 |
+| 학습 목표 | 여러 기록을 비교해 동학 농민 운동의 성격을 판단할 수 있다 |
 
-| 단계 | 교수·학습 활동 | 시간 |
-| --- | --- | --- |
-| 도입 | 생활 속 비유 찾기 | 5분 |
-| 전개 | 시 낭독하고 비유 표현에 밑줄 긋기 | 15분 |
-|  | 모둠별로 비유를 찾아 효과 말하기 | 15분 |
-| 정리 | 비유 만들기 출구 카드 | 10분 |
+| 단계 | 교사 활동 | 학생 활동 | 시간 | 자료 및 유의점 |
+| --- | --- | --- | --- | --- |
+| 도입 | 난·봉기·운동·혁명 네 이름을 제시한다 | 같은 사건의 여러 이름을 보고 까닭을 짐작한다 | 5' | PPT |
+| 전개 | 사료 읽기를 안내하고 순회한다 | 사료 다섯 편을 읽고 근거를 분류한다 | 20' | 사료 카드, 활동지 |
+|  | 모둠 토의를 진행한다 | 다른 이름을 고른 친구와 근거를 비교한다 | 15' | ※ 정답이 하나가 아님을 강조한다 |
+| 정리 | 명칭의 변화를 정리한다 | 이름을 정하고 출구 카드를 쓴다 | 5' | 출구 카드 |
 
-발문: 마음이 호수라면 어떤 마음일까?
-평가: 비유를 넣어 한 문장 쓰기
-준비물: 활동지, 모둠 보드, 색연필
+발문: 같은 사건을 왜 사람마다 다르게 부를까?
+평가: 근거를 들어 사건의 이름 정하기
 `;
 
 const sizeLabel = (n: number) => (n > 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)}MB` : `${Math.max(1, Math.round(n / 1024))}KB`);
@@ -74,8 +74,8 @@ export function Docs({ go }: { go: Go }) {
   };
 
   const addSample = async () => {
-    const bytes = await markdownToDocx(SAMPLE_MD, { title: "2학년 국어 지도안" });
-    await add([new File([bytes as BlobPart], "2학년 국어 지도안(예시).docx")]);
+    const bytes = await markdownToDocx(SAMPLE_MD, { title: "2학년 역사 지도안" });
+    await add([new File([bytes as BlobPart], "2학년 역사 지도안(예시).docx")]);
   };
 
   const onDrop = (e: DragEvent) => {

@@ -7,9 +7,9 @@ describe("activity text formats", () => {
     const { items, errors } = parseQuiz(SAMPLE_QUIZ);
     expect(errors).toEqual([]);
     expect(items.map((i) => i.type)).toEqual(["choice", "ox", "short"]);
-    expect(items[0]).toMatchObject({ answer: 1, options: ["직유", "은유", "의인", "과장"] });
+    expect(items[0]).toMatchObject({ answer: 0, options: ["조병갑", "전봉준", "최제우", "김옥균"] });
     expect(items[1]).toMatchObject({ answer: true });
-    expect(items[2]).toMatchObject({ answers: ["의인법", "의인"] });
+    expect(items[2]).toMatchObject({ answers: ["최제우", "수운 최제우"] });
   });
   it("reports missing answers and out-of-range choices", () => {
     expect(parseQuiz("1. 질문\n① 가 ② 나").errors[0]).toMatch(/정답/);
@@ -18,9 +18,9 @@ describe("activity text formats", () => {
   it("reads evidence sources with their origin", () => {
     const e = parseEvidence(SAMPLE_EVIDENCE);
     expect(e.errors).toEqual([]);
-    expect(e.claims).toHaveLength(3);
-    expect(e.sources).toHaveLength(4);
-    expect(e.sources[1]).toMatchObject({ title: "교무부 안내", from: "가상 자료, 교무부" });
+    expect(e.claims).toEqual(["난", "봉기", "운동", "혁명"]);
+    expect(e.sources).toHaveLength(5);
+    expect(e.sources[3]).toMatchObject({ title: "전봉준 공초", from: "1895년 재판 기록, 교사 요약" });
   });
   it("reads exit prompts and self-checks", () => {
     const x = parseExit(SAMPLE_EXIT);
@@ -38,8 +38,8 @@ describe("student page", () => {
   });
   it("makes a printable worksheet", () => {
     const e = parseEvidence(SAMPLE_EVIDENCE);
-    const md = activityMarkdown({ kind: "evidence", title: "쉬는 시간", question: e.question, claims: e.claims, sources: e.sources });
-    expect(md).toContain("## 자료 4.");
+    const md = activityMarkdown({ kind: "evidence", title: "이 사건의 이름은?", question: e.question, claims: e.claims, sources: e.sources });
+    expect(md).toContain("## 자료 5.");
     expect(md).toContain("□ 판단 보류");
   });
 });

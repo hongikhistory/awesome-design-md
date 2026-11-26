@@ -8,8 +8,8 @@ import { useApp } from "../state";
 import { inFrame, Notice, useToast } from "../ui/common";
 
 const SAMPLE: Record<ActivityKind, { title: string; text: string }> = {
-  quiz: { title: "비유 표현 확인 문제", text: SAMPLE_QUIZ },
-  evidence: { title: "쉬는 시간, 늘려야 할까?", text: SAMPLE_EVIDENCE },
+  quiz: { title: "동학 농민 운동 확인 문제", text: SAMPLE_QUIZ },
+  evidence: { title: "이 사건의 이름은?", text: SAMPLE_EVIDENCE },
   exit: { title: "오늘의 출구 카드", text: SAMPLE_EXIT },
 };
 
@@ -21,7 +21,7 @@ const HELP: Record<ActivityKind, string> = {
 
 const PURPOSE: Record<ActivityKind, string> = {
   quiz: "전개·정리 단계 형성평가. 바로 정답과 해설을 보여 주어 오개념을 그 자리에서 고칩니다.",
-  evidence: "탐구 차시. 자료의 입장을 따져 근거를 분류하고, 결론을 정한 뒤 반론에 답합니다(1차 작품 ‘이 사건의 이름은?’의 구조를 교과 공통으로 넓힘).",
+  evidence: "탐구 차시. 자료의 입장을 따져 근거를 분류하고, 결론을 정한 뒤 반론에 답합니다. 1차 작품 ‘이 사건의 이름은?’(동학 농민 운동)의 구조를 어느 교과에서나 쓰도록 넓혔습니다.",
   exit: "정리 단계. 배운 것을 한 줄로 쓰고 학습 목표별로 스스로 점검합니다.",
 };
 
@@ -32,7 +32,7 @@ export function Activities() {
   const [title, setTitle] = useState(SAMPLE.quiz.title);
   const [texts, setTexts] = useState<Record<ActivityKind, string>>({ quiz: SAMPLE_QUIZ, evidence: SAMPLE_EVIDENCE, exit: SAMPLE_EXIT });
   const [titles, setTitles] = useState<Record<ActivityKind, string>>({ quiz: SAMPLE.quiz.title, evidence: SAMPLE.evidence.title, exit: SAMPLE.exit.title });
-  const [lesson, setLesson] = useState({ subject: "국어", content: "비유의 뜻과 종류(직유, 은유, 의인)를 알고, 시에서 비유가 주는 효과를 말한다.", objectives: ["비유의 뜻을 알고 종류를 구별할 수 있다", "비유의 효과를 설명할 수 있다"] });
+  const [lesson, setLesson] = useState({ subject: "역사", content: "동학 농민 운동의 배경(삼정의 문란, 고부 군수의 수탈), 전개(고부 봉기 → 1차 봉기 → 전주 화약과 집강소 → 2차 봉기와 우금치 전투)와 의의를 배운다.", objectives: ["동학 농민 운동의 배경과 전개를 설명할 수 있다", "여러 기록을 비교해 사건의 성격을 판단할 수 있다"] });
   const [device, setDevice] = useState<"phone" | "tablet">("phone");
   const [busy, setBusy] = useState("");
   const toast = useToast();
@@ -129,7 +129,7 @@ export function Activities() {
               <textarea id="act-text" className="act-editor" rows={14} value={text} onChange={(e) => setTexts((t) => ({ ...t, [kind]: e.target.value }))} spellCheck={false} />
             </label>
             {parsed.errors.length > 0 && <Notice kind="warn" role="alert">{parsed.errors.slice(0, 3).join(" ")}</Notice>}
-            {kind === "evidence" && <Notice kind="plain">역사 사료나 통계를 넣을 때는 원문과 출처를 직접 확인한 것만 쓰세요. 예시 자료는 모두 지어낸 가상 자료입니다.</Notice>}
+            {kind === "evidence" && <Notice kind="plain">예시 사료는 교과서 수준의 사실을 교사가 요약한 것이며 인용문이 아닙니다. 수업 전에 원문과 출처를 대조해 바꿔 넣으세요.</Notice>}
             <div className="row">
               <button className="btn sm text" onClick={() => { setTexts((t) => ({ ...t, [kind]: SAMPLE[kind].text })); setTitles((t) => ({ ...t, [kind]: SAMPLE[kind].title })); }}>예시로 되돌리기</button>
             </div>

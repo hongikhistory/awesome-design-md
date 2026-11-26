@@ -33,7 +33,7 @@ export async function ensureSeed(): Promise<boolean> {
   await createRoom({ roomId: ROOM.class21, name: "학급 기록 · 2학년 1반(담임)", kind: "records", members: ["t1"], by: "t1" });
   await createRoom({
     roomId: ROOM.practicum,
-    name: "교육실습 · 김하늘 × 오세린",
+    name: "교육실습 · 곽민혁 × 오세린",
     kind: "practicum",
     members: ["t1", "s1"],
     by: "t1",
@@ -62,7 +62,7 @@ export async function ensureSeed(): Promise<boolean> {
   const slot = slotsFor("t6", 2, TIMETABLE)[0];
   if (slot) {
     const list = recommend(slot, { people: PEOPLE, timetable: TIMETABLE, history: COVER_HISTORY }, DEFAULT_WEIGHTS);
-    const best = list.find((c) => c.personId === "t1") ?? list[0]; // the demo tour expects 김하늘
+    const best = list.find((c) => c.personId === "t1") ?? list[0]; // the demo tour expects 곽민혁
     if (best)
       events.push([
         ROOM.workflow,
@@ -80,9 +80,9 @@ export async function ensureSeed(): Promise<boolean> {
           score: best.score,
           factors: best.factors,
           card: {
-            goal: "비유와 상징의 차이를 예시로 설명할 수 있다.",
-            progress: "교과서 84쪽 ‘시의 표현’ 1차시까지 진행",
-            activity: "활동지 2번(모둠별 비유 찾기) 20분 → 발표 2모둠",
+            goal: "임진왜란의 전개 과정을 지도에서 설명할 수 있다.",
+            progress: "교과서 ‘임진왜란과 병자호란’ 1차시까지 진행",
+            activity: "활동지 2번(지도에 전투 장소와 이동 경로 표시) 20분 → 발표 2모둠",
             materials: "활동지는 교무실 제 책상 오른쪽 서랍, 모둠 번호는 칠판 왼쪽",
             notes: "모둠 4는 발표를 부담스러워해요. 지목 대신 자원 발표로 진행해 주세요.",
           },
@@ -94,30 +94,30 @@ export async function ensureSeed(): Promise<boolean> {
   // Practicum: one observed lesson with notes, both rubric scores and feedback.
   const sid = "sess_1";
   const prac: [string, AppEvent, number][] = [
-    ["t1", { type: "prac.session", sessionId: sid, title: "2-1 국어 · 시의 비유 표현", date: new Date(now - DAY).toISOString().slice(0, 10), classId: "2-1", durationMin: 45, createdBy: "t1", plan: "도입(5) 생활 속 비유 → 전개(30) 시 낭독, 비유 찾기 모둠 활동 → 정리(10) 비유 만들기 출구 카드" }, at(-600)],
+    ["t1", { type: "prac.session", sessionId: sid, title: "2-1 역사 · 동학 농민 운동", date: new Date(now - DAY).toISOString().slice(0, 10), classId: "2-1", durationMin: 45, createdBy: "t1", plan: "도입(5) 같은 사건의 여러 이름 → 전개(30) 사료 읽기, 근거 분류 모둠 활동 → 정리(10) 이름 정하기 출구 카드" }, at(-600)],
     ["s1", { type: "prac.focus", sessionId: sid, tags: ["question", "engagement"], question: "학생 답을 받은 뒤 이어서 묻는 발문이 자연스러운지, 뒤쪽 모둠까지 참여가 고르게 되는지 봐 주세요." }, at(-599.5)],
-    ["t1", { type: "prac.note", noteId: "n1", sessionId: sid, t: 95, tag: "question", text: "‘마음이 호수다’ 예시로 시작. 학생 반응 좋음.", author: "t1" }, at(-599)],
+    ["t1", { type: "prac.note", noteId: "n1", sessionId: sid, t: 95, tag: "question", text: "‘같은 사건, 네 개의 이름’ 질문으로 시작. 학생 반응 좋음.", author: "t1" }, at(-599)],
     ["t1", { type: "prac.note", noteId: "n2", sessionId: sid, t: 410, tag: "question", text: "‘왜 그렇게 생각했니?’ 후속 발문 없이 다음 학생으로 넘어감. 대기 시간 2초.", author: "t1" }, at(-598)],
-    ["t1", { type: "prac.note", noteId: "n3", sessionId: sid, t: 780, tag: "board", text: "판서 구조(원관념 → 보조관념) 명확. 뒤쪽 학생도 잘 보임.", author: "t1" }, at(-597)],
+    ["t1", { type: "prac.note", noteId: "n3", sessionId: sid, t: 780, tag: "board", text: "판서 구조(사료 → 근거 → 이름) 명확. 뒤쪽 학생도 잘 보임.", author: "t1" }, at(-597)],
     ["t1", { type: "prac.note", noteId: "n4", sessionId: sid, t: 1320, tag: "engagement", text: "모둠 활동 중 순회가 앞쪽 모둠에 집중됨. 뒤 두 모둠 대화가 과제와 무관.", author: "t1" }, at(-596)],
     ["t1", { type: "prac.note", noteId: "n5", sessionId: sid, t: 2280, tag: "time", text: "정리 활동 시작이 7분 늦어 출구 카드 생략.", author: "t1" }, at(-595)],
     ["t1", { type: "prac.score", sessionId: sid, by: "mentor", scores: { design: 3, question: 2, material: 4, engagement: 2, time: 2 } }, at(-590)],
     ["s1", { type: "prac.score", sessionId: sid, by: "self", scores: { design: 3, question: 3, material: 3, engagement: 3, time: 2 } }, at(-500)],
-    ["s1", { type: "prac.reflect", sessionId: sid, text: "모둠 활동이 생각보다 길어져서 정리를 못 했다. 학생들이 비유를 잘 찾았다고 느꼈는데, 뒤쪽 모둠은 확인하지 못했다." }, at(-499)],
-    ["t1", { type: "prac.feedback", sessionId: sid, glow: "판서가 개념 구조를 그대로 보여 줘서 학생들이 원관념과 보조관념을 쉽게 구분했습니다.", grow: "학생 답에 ‘왜?’로 한 번 더 묻고 3초 이상 기다려 보세요. 순회 동선을 미리 정하면 뒤쪽 모둠도 챙길 수 있습니다.", next: "다음 수업에서 후속 발문 3회 이상, 정리 활동 10분 확보" }, at(-480)],
+    ["s1", { type: "prac.reflect", sessionId: sid, text: "모둠 활동이 생각보다 길어져서 정리를 못 했다. 학생들이 근거를 잘 찾았다고 느꼈는데, 뒤쪽 모둠은 확인하지 못했다." }, at(-499)],
+    ["t1", { type: "prac.feedback", sessionId: sid, glow: "판서가 사료와 근거, 이름의 관계를 그대로 보여 줘서 학생들이 근거를 쉽게 분류했습니다.", grow: "학생 답에 ‘왜?’로 한 번 더 묻고 3초 이상 기다려 보세요. 순회 동선을 미리 정하면 뒤쪽 모둠도 챙길 수 있습니다.", next: "다음 수업에서 후속 발문 3회 이상, 정리 활동 10분 확보" }, at(-480)],
   ];
 
   const sealed = [];
   for (const [room, by, ev, t] of events) sealed.push(await seal(room, by, ev, t));
   for (const [by, ev, t] of prac) sealed.push(await seal(ROOM.practicum, by, ev, t));
-  // Class records for 2-1 (담임 김하늘). Fictional students; one draft deliberately breaks the rules
+  // Class records for 2-1 (담임 곽민혁). Fictional students; one draft deliberately breaks the rules
   // so the checker has something to show.
   const roster = ["강민준", "김서연", "박지호", "이하은", "정우진", "최수아", "한도윤", "윤지민", "임예준", "오채원", "서지안", "신유나"].map((name, i) => ({ no: i + 1, name }));
   const d = (offset: number) => new Date(now - offset * DAY).toISOString().slice(0, 10);
   const rec: AppEvent[] = [
     { type: "rec.roster", classId: "2-1", students: roster },
-    { type: "rec.obs", id: "o1", no: 2, date: d(40), area: "subject", subject: "국어", text: "시의 비유 표현 수업에서 ‘마음이 호수다’의 원관념과 보조관념을 구분하고, 친구들이 찾은 비유를 표로 정리해 모둠 발표를 이끔." },
-    { type: "rec.obs", id: "o2", no: 2, date: d(21), area: "subject", subject: "국어", text: "설명문 쓰기에서 첫 초고의 문단 순서를 스스로 바꾸고, 고쳐 쓴 이유를 메모로 남김." },
+    { type: "rec.obs", id: "o1", no: 2, date: d(40), area: "subject", subject: "역사", text: "동학 농민 운동 사료 탐구에서 기록을 남긴 사람의 입장을 따져 사료를 분류하고, 모둠이 고른 근거를 표로 정리해 발표를 이끔." },
+    { type: "rec.obs", id: "o2", no: 2, date: d(21), area: "subject", subject: "역사", text: "임진왜란 단원에서 같은 전투를 다룬 두 기록의 차이를 찾아내고, 차이가 생긴 까닭을 기록자의 처지에서 설명함." },
     { type: "rec.obs", id: "o3", no: 2, date: d(12), area: "behavior", text: "학급 회의에서 의견이 갈리자 양쪽 의견을 정리해 칠판에 적고 표결 방법을 제안함." },
     { type: "rec.obs", id: "o4", no: 2, date: d(5), area: "club", text: "독서 동아리에서 한 달 동안 읽은 책의 인물 관계도를 만들어 부원들과 공유함." },
     { type: "rec.obs", id: "o5", no: 5, date: d(18), area: "behavior", text: "체육대회 준비 기간에 장비 정리를 맡아 매일 점심시간에 체육 창고를 정돈함." },
@@ -125,7 +125,7 @@ export async function ensureSeed(): Promise<boolean> {
     { type: "rec.counsel", id: "c1", no: 5, date: d(30), with: "학생", method: "대면", topics: ["교우"], content: "모둠 활동에서 의견을 말하기 어렵다고 함. 발표 전에 짝과 먼저 이야기해 보기로 함.", followUp: "다음 모둠 활동에서 짝 토의 시간을 2분 먼저 주기", next: d(-2) },
     { type: "rec.counsel", id: "c2", no: 5, date: d(14), with: "학부모", method: "전화", topics: ["생활", "가정"], content: "등교 시간이 늦어지는 문제로 통화함. 가정에서도 아침 준비 시간을 함께 점검하기로 함.", followUp: "2주간 지각 기록 확인 후 다시 연락" },
     { type: "rec.counsel", id: "c3", no: 9, date: d(7), with: "학생", method: "대면", topics: ["진로", "학업"], content: "과학 실험에 관심이 많아 관련 진로를 알고 싶어 함. 진로 활동 시간의 직업 조사와 연결하기로 함.", followUp: "진로 상담 교사에게 관련 자료 요청" },
-    { type: "rec.draft", no: 2, item: "subject", subject: "국어", year: 2026, text: "시의 비유 표현을 배우며 원관념과 보조관념을 구분하고 친구들이 찾은 비유를 표로 정리해 모둠 발표를 이끔. 수학 학원에서 배운 정리 방식을 활용했습니다. 설명문 쓰기에서 문단 순서를 스스로 고치고 그 이유를 설명함." },
+    { type: "rec.draft", no: 2, item: "subject", subject: "역사", year: 2026, text: "동학 농민 운동 사료 탐구에서 기록자의 입장을 따져 사료를 분류하고 모둠의 근거를 표로 정리해 발표를 이끔. 역사 학원에서 배운 연표 정리법을 활용했습니다. 같은 전투를 다룬 두 기록의 차이를 찾아 그 까닭을 설명함." },
   ];
   for (const [i, ev] of rec.entries()) sealed.push(await seal(ROOM.class21, "t1", ev, at(-900 + i)));
   relay.appendMany(sealed);

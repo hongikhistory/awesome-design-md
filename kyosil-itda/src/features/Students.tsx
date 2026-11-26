@@ -50,7 +50,7 @@ export function Students() {
         <div className="page-head"><div><div className="crumb">학생 · 학생 기록</div><h1>학생 상담·기록</h1></div></div>
         <Notice kind="plain">
           <b>{me.name} 님의 기기에는 열 수 있는 학급 기록이 없습니다.</b>
-          <p className="muted" style={{ marginTop: 4 }}>학급 기록은 담임 교사의 기기에서만 복호화됩니다. 같은 학교 교사도, 서버도 내용을 볼 수 없습니다. 시연에서는 2학년 1반 담임 <b>김하늘</b>으로 바꿔 보세요.</p>
+          <p className="muted" style={{ marginTop: 4 }}>학급 기록은 담임 교사의 기기에서만 복호화됩니다. 같은 학교 교사도, 서버도 내용을 볼 수 없습니다. 시연에서는 2학년 1반 담임 <b>곽민혁</b>으로 바꿔 보세요.</p>
         </Notice>
       </>
     );
@@ -164,7 +164,7 @@ function ClassRecords({ events }: { events: Decrypted[] }) {
 }
 
 function ObsTab({ student, obs, post }: { student: Student; obs: Obs[]; post: (e: RecordEvent) => Promise<void> }) {
-  const [f, setF] = useState({ date: today(), area: "subject" as RecordArea, subject: "국어", text: "" });
+  const [f, setF] = useState({ date: today(), area: "subject" as RecordArea, subject: "역사", text: "" });
   const warn = useMemo(() => checkRecord(f.text).filter((x) => x.level === "금지"), [f.text]);
   return (
     <div className="stack">
@@ -265,7 +265,7 @@ function CounselTab({ student, items, post }: { student: Student; items: Counsel
 function RecordTab({ student, obs, drafts, post, classmates }: { student: Student; obs: Obs[]; drafts: Draft[]; post: (e: RecordEvent) => Promise<void>; classmates: string[] }) {
   const first = drafts[0];
   const [item, setItem] = useState<RecordArea>(first?.item ?? "subject");
-  const [subject, setSubject] = useState(first?.subject ?? "국어");
+  const [subject, setSubject] = useState(first?.subject ?? "역사");
   const school = useSchool();
   const { me } = useApp();
   const homeroom = useMyProfile(me.id).homeroom;

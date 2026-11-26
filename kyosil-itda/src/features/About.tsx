@@ -33,7 +33,7 @@ export function About({ go }: { go: Go }) {
           <tbody>
             <tr><th scope="row">작품명</th><td>{BRAND.name} — {BRAND.tagline}</td></tr>
             <tr><th scope="row">대상</th><td>중·고등학교 교사(교과·담임), 시간표 담당, 교육실습생과 지도교사</td></tr>
-            <tr><th scope="row">시연 무대</th><td>가상 학교 <b>{DEMO_SCHOOL}</b> 2학년 1반 담임 김하늘(국어) 선생님, 시간표 담당 박민지 선생님, 교생 오세린 선생님. 사람·학생·시간표는 모두 지어낸 것이며 실제 학교와 관계없습니다.</td></tr>
+            <tr><th scope="row">시연 무대</th><td>가상 학교 <b>{DEMO_SCHOOL}</b> 2학년 1반 담임 곽민혁(역사) 선생님, 시간표 담당 박민지 선생님, 교생 오세린 선생님. 사람·학생·시간표는 모두 지어낸 것이며 실제 학교와 관계없습니다.</td></tr>
             <tr><th scope="row">핵심 기능</th><td>① 수업 슬라이드: 지도안 → 템플릿 5종의 HTML 발표 파일·PPTX, 성취기준·활동 타이머 <br />② 학생 활동 만들기: 확인 문제·근거 판단·출구 카드를 학생이 휴대폰으로 푸는 웹 활동으로(로그인·서버 없음), 활동지 HWPX <br />③ 모둠 편성·자리 배치: 역할 배정, 떨어뜨릴 짝, 교실 화면 크게 보기 <br />④ 문서 변환: HWP·HWPX·DOCX·XLSX·PDF ↔ Markdown, 브라우저 안에서만 처리 <br />⑤ 가정통신문: 공문서 표기 점검, 개인정보 동의서 틀, 학교 HWPX 양식 빈칸 채우기 <br />⑥ 학생 상담·기록: 누가기록·상담, 생기부 기재 점검(NEIS 바이트, 금지 표현), 암호 백업 <br />⑦ 결강 처리: 교체 우선 제안, 근거를 보여 주는 보결 추천, 인수인계서, 결재란 <br />⑧ 교육실습: 임상장학 순서의 관찰·평가 비교·피드백 협의, 참관록 <br />⑨ 대화방: 종단간 암호화 메시지, 함께 편집하는 체크리스트·투표</td></tr>
             <tr><th scope="row">바로 쓸 수 있는 것</th><td>①~⑥은 서버 없이 이 기기 안에서 동작해 지금 바로 쓸 수 있습니다. ⑦~⑨는 학교 중계 서버가 필요한 시연판입니다.</td></tr>
             <tr><th scope="row">근거 자료</th><td>2026 학교생활기록부 기재요령 발췌와 학생부종합지원포털, 「행정업무의 운영 및 혁신에 관한 규정」, 개인정보 보호법 제15·22·22조의2·23조, 국립국어원 공공언어 자료, 경기도교육청 생성형 AI 활용 가이드. 출처마다 확실성을 표시했습니다(저장소 docs/FIELD-RESEARCH.md).</td></tr>
@@ -105,7 +105,7 @@ export function About({ go }: { go: Go }) {
       </section>
 
       <section className="section" aria-labelledby="d-h">
-        <h2 id="d-h">4. 김하늘 선생님의 하루로 보는 흐름</h2>
+        <h2 id="d-h">4. 곽민혁 선생님의 하루로 보는 흐름</h2>
         <table className="sheet">
           <thead><tr><th scope="col">시각</th><th scope="col">상황</th><th scope="col">쓰는 화면</th></tr></thead>
           <tbody>

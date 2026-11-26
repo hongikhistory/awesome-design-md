@@ -32,7 +32,7 @@ describe("letters", () => {
     expect(koreanAmount(113560)).toBe("일십일만삼천오백육십");
   });
   it("privacy template carries the four 제15조 notice items and 14세 미만 note", () => {
-    const l = TEMPLATES.find((t) => t.id === "privacy")!.make({ school: "홍익중학교", date: "2026-03-02", dept: "교무부", teacher: "김하늘", phone: "02-1" });
+    const l = TEMPLATES.find((t) => t.id === "privacy")!.make({ school: "홍익중학교", date: "2026-03-02", dept: "교무부", teacher: "곽민혁", phone: "02-1" });
     const md = letterMarkdown(l);
     for (const k of ["수집·이용 목적", "수집 항목", "보유·이용 기간", "동의 거부 권리와 불이익", "[필수]", "[선택]", "제22조의2"]) expect(md).toContain(k);
   });

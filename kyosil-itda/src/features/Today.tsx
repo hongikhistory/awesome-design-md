@@ -109,11 +109,11 @@ function FragmentRow({ p, children }: { p: number; children: React.ReactNode }) 
 
 const TOUR: { as: string; page: Page; title: string; what: string }[] = [
   { as: "t3", page: "today", title: "박민지 · 시간표 담당", what: "결재 대기와 이번 주 시간표 변경을 확인합니다." },
-  { as: "t1", page: "cover", title: "김하늘 · 국어", what: "강지호 선생님의 보결 요청과 인수인계서를 읽고 동의합니다." },
+  { as: "t1", page: "cover", title: "곽민혁 · 역사", what: "강지호 선생님의 보결 요청과 인수인계서를 읽고 동의합니다." },
   { as: "t3", page: "cover", title: "박민지 · 시간표 담당", what: "결재란에 결재하면 두 선생님의 시간표가 바뀝니다." },
   { as: "t5", page: "cover", title: "정유나 · 사회", what: "내 결강을 등록하고, 교체 제안과 보결 후보 비교표를 봅니다." },
   { as: "s1", page: "practicum", title: "오세린 · 교생", what: "계획 협의에서 ‘관찰받고 싶은 초점’을 정합니다." },
-  { as: "t1", page: "practicum", title: "김하늘 · 지도교사", what: "초점에 맞춰 관찰 기록을 남기고, 교생의 자기평가와 비교합니다." },
+  { as: "t1", page: "practicum", title: "곽민혁 · 지도교사", what: "초점에 맞춰 관찰 기록을 남기고, 교생의 자기평가와 비교합니다." },
   { as: "t1", page: "docs", title: "문서 변환", what: "예시 지도안(DOCX)을 Markdown으로 바꾸고 HWPX로 다시 저장합니다." },
   { as: "t1", page: "slides", title: "수업 슬라이드", what: "지도안에서 슬라이드를 만들고 템플릿을 골라 HTML 발표 파일로 받습니다." },
   { as: "t1", page: "activities", title: "학생 활동 만들기", what: "확인 문제를 만들고 학생 화면(휴대폰)으로 미리 풀어 봅니다. 근거 판단 활동도 열어 봅니다." },

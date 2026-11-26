@@ -49,7 +49,7 @@ export const sampleLetter = (): LetterData => ({
     { label: "비용", value: "없음(교육청 지원)" },
   ],
   dept: "2학년부",
-  teacher: "김하늘",
+  teacher: "곽민혁",
   phone: "02-123-4567",
   reply: { enabled: true, deadline: "2026-12-03", question: "현장체험학습 참가 여부", options: ["참가", "불참(사유: )"] },
   seal: "slot",

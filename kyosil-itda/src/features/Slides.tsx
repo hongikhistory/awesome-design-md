@@ -9,15 +9,15 @@ import { deckHtml, paperlogyFontCss, slideInnerHtml, SLIDE_CSS } from "../core/s
 import { useApp } from "../state";
 import { inFrame, Notice, useToast } from "../ui/common";
 
-const SAMPLE = `# 시의 비유 표현 이해하기
-단원: 3. 시의 표현
-대상: 2학년 1반 · 국어
-교사: 김하늘
-학습 목표: 비유의 뜻을 안다 · 비유의 효과를 설명할 수 있다
-도입(5) 생활 속 비유 찾기 → 전개(30) 모둠별로 시에서 비유를 찾아 효과 말하기 → 정리(10) 비유 만들기 출구 카드
-발문: 마음이 호수라면 어떤 마음일까?
-준비물: 활동지, 모둠 보드, 색연필
-평가: 비유를 넣어 한 문장 쓰기`;
+const SAMPLE = `# 이 사건의 이름은? 동학 농민 운동
+단원: 동학 농민 운동
+대상: 2학년 1반 · 역사
+교사: 곽민혁
+학습 목표: 동학 농민 운동의 배경과 전개를 설명할 수 있다 · 여러 기록을 비교해 사건의 성격을 판단할 수 있다
+도입(5) 같은 사건의 여러 이름 살펴보기 → 전개(20) 사료 다섯 편을 읽고 근거 분류하기 → 전개(15) 다른 이름을 고른 친구와 모둠으로 근거 비교 → 정리(5) 이름 정하기 출구 카드
+발문: 같은 사건을 왜 사람마다 다르게 부를까?
+준비물: 사료 카드, 활동지, 모둠 보드
+평가: 근거를 들어 사건의 이름 정하기`;
 
 const lines = (xs: string[]) => xs.join("\n");
 const unlines = (s: string) => s.split("\n").map((x) => x.trim()).filter(Boolean);
