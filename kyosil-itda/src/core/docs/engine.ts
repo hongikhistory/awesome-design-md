@@ -1,3 +1,4 @@
+import { recordMade } from "../daily";
 // Document engine facade. Everything runs in this browser tab: files are never uploaded.
 import type * as KordocModule from "./kordoc-entry";
 
@@ -87,6 +88,7 @@ export function aiReady(markdown: string, meta: { name: string; format: DocForma
 }
 
 export function download(name: string, data: BlobPart, type = "application/octet-stream") {
+  recordMade(name);
   const url = URL.createObjectURL(new Blob([data], { type }));
   const a = Object.assign(document.createElement("a"), { href: url, download: name });
   document.body.appendChild(a);

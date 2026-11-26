@@ -1,4 +1,4 @@
-import { ArrowLeftRight, ClipboardPen, Contrast, FileStack, GraduationCap, House, KeyRound, Landmark, ListChecks, PartyPopper, Settings2, UsersRound, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
+import { ArrowLeftRight, ClipboardPen, Search, Contrast, FileStack, GraduationCap, House, KeyRound, Landmark, ListChecks, PartyPopper, Settings2, UsersRound, Info, LayoutGrid, MessagesSquare, Presentation, RotateCcw, ScrollText, ShieldCheck, SquareArrowOutUpRight, X } from "lucide-react";
 import { Component, lazy, Suspense, useEffect, useState, type ComponentType, type ReactNode } from "react";
 import { isOpen } from "./core/approval";
 import { PEOPLE } from "./core/school";
@@ -26,6 +26,8 @@ const Assets = lazy(() => import("./features/Assets").then((m) => ({ default: m.
 const ClassTools = lazy(() => import("./features/ClassTools").then((m) => ({ default: m.ClassTools })));
 const Students = lazy(() => import("./features/Students").then((m) => ({ default: m.Students })));
 import { Logo } from "./ui/Brand";
+import { Palette, type PaletteItem } from "./ui/Palette";
+import { recordDay, setUsageUser } from "./core/daily";
 import { Avatar, inFrame, Notice } from "./ui/common";
 
 export type Page = "today" | "docs" | "slides" | "activities" | "assets" | "classtools" | "groups" | "letters" | "students" | "rooms" | "cover" | "practicum" | "trust" | "settings" | "about";
@@ -48,6 +50,21 @@ const NAV: { id: Page; label: string; short: string; Icon: ComponentType<{ class
   { id: "trust", label: "보안 확인", short: "보안", Icon: ShieldCheck, group: "정보" },
   { id: "about", label: "작품 설명", short: "설명", Icon: Info, group: "정보" },
 ];
+/** extra words a teacher might type in quick find (Ctrl+K) */
+const KEYWORDS: Partial<Record<Page, string>> = {
+  slides: "ppt 발표 지도안 피피티 프레젠테이션 성취기준",
+  activities: "퀴즈 형성평가 문제 출구카드 근거 판단 사료 활동지",
+  assets: "박물관 유물 사진 지도 에뮤지엄 자료",
+  docs: "hwp hwpx 한글 docx 워드 엑셀 xlsx pdf 마크다운 변환 개인정보",
+  classtools: "룰렛 사다리 추첨 경품 뽑기 1인1역 역할 진진가 인물퀴즈 아이스브레이킹 자리",
+  groups: "모둠 자리 배치 좌석 짝",
+  students: "세특 생기부 상담 누가기록 행특 neis",
+  letters: "가정통신문 동의서 안내문 공문 체험학습",
+  cover: "보결 교체 결강 출장",
+  practicum: "교생 실습 관찰",
+  rooms: "메신저 대화",
+  settings: "프로필 사진 학교 설정 백업",
+};
 const TAB: Page[] = ["today", "slides", "activities", "classtools"];
 
 const pageFromHash = (): Page => {
@@ -114,6 +131,16 @@ export function App() {
   const [armReset, setArmReset] = useState(false);
   const [contrast, setContrast] = useState<Contrast>(initialContrast);
   const [sheet, setSheet] = useState(false);
+  const [find, setFind] = useState(false);
+  useEffect(() => { setUsageUser(me.id); recordDay(me.id); }, [me.id]);
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setFind((f) => !f); }
+    };
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  }, []);
+  const paletteItems: PaletteItem[] = NAV.map((n) => ({ id: n.id, label: n.label, group: n.group, keywords: KEYWORDS[n.id] ?? "", Icon: n.Icon }));
 
   useEffect(() => applyContrast(contrast), [contrast]);
   useEffect(() => {
@@ -185,6 +212,9 @@ export function App() {
             {(Object.keys(STUDIOS) as StudioId[]).map((k) => <option key={k} value={k}>{STUDIOS[k].name}</option>)}
           </select>
         </label>
+        <button className="find-btn" onClick={() => setFind(true)} aria-keyshortcuts="Control+K">
+          <Search className="ico sm" aria-hidden /><span>빠른 찾기</span><kbd>Ctrl K</kbd>
+        </button>
         <nav aria-label="화면">{nav()}</nav>
         <div className="side-foot">
           {switcher("persona-side")}
@@ -214,7 +244,10 @@ export function App() {
           <Logo />
           <b>{BRAND.name}</b>
         </div>
-        <div style={{ maxWidth: 230, minWidth: 0 }}>{switcher("persona-top", true)}</div>
+        <div className="row nowrap" style={{ gap: 6, minWidth: 0 }}>
+          <button className="btn sm" onClick={() => setFind(true)} aria-label="빠른 찾기"><Search className="ico sm" aria-hidden /></button>
+          <div style={{ maxWidth: 230, minWidth: 0 }}>{switcher("persona-top", true)}</div>
+        </div>
       </header>
 
       <main className="main" id="main">
@@ -273,6 +306,7 @@ export function App() {
           <span>전체</span>
         </button>
       </nav>
+      {find && <Palette items={paletteItems} onClose={() => setFind(false)} onPick={(id) => { setFind(false); go(id as Page); }} />}
       {sheet && (
         <div className="sheet-backdrop" onClick={() => setSheet(false)}>
           <div className="menu-sheet" role="dialog" aria-modal="true" aria-label="전체 메뉴" onClick={(e) => e.stopPropagation()}>

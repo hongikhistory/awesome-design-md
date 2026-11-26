@@ -1,4 +1,4 @@
-import { ChevronRight, FileStack, GraduationCap, Landmark, ListChecks, PartyPopper, Presentation, ScrollText, UsersRound } from "lucide-react";
+import { ChevronRight, Download, FileStack, GraduationCap, Landmark, ListChecks, PartyPopper, Presentation, ScrollText, UsersRound } from "lucide-react";
 import { useState } from "react";
 import type { Go, Page } from "../App";
 import type { CoverRequest } from "../core/approval";
@@ -8,6 +8,8 @@ import { useDisplayName, useStudioId } from "../core/profile";
 import { STUDIOS } from "../core/studio";
 import { DAYS, nameOf, PERIOD_TIMES, PERIODS, TIMETABLE } from "../core/school";
 import { useApp } from "../state";
+import { hm, install, useCanInstall, useUsage, weekSummary, type Slot } from "../core/daily";
+import { NextClass, Opener, ProgressPanel, Upcoming, WeekRecord } from "./TodayWidgets";
 import { inFrame, Notice } from "../ui/common";
 
 export const todayIndex = () => {
@@ -174,13 +176,16 @@ function Tour({ go }: { go: Go }) {
       /* ignore */
     }
   };
+  const [open, setOpen] = useState(() => { try { return localStorage.getItem("kyosil:tour:closed") !== "1"; } catch { return true; } });
+  const toggle = (o: boolean) => { setOpen(o); try { localStorage.setItem("kyosil:tour:closed", o ? "0" : "1"); } catch { /* ignore */ } };
   return (
-    <section className="panel" aria-labelledby="tour-h">
-      <div className="panel-head">
-        <h2 id="tour-h">시연 안내 · {TOUR.length}단계</h2>
-        <span className="meta">버튼을 누르면 그 사람으로 바뀌어 해당 화면이 열립니다</span>
-      </div>
+    <details className="panel tour-panel" open={open} onToggle={(e) => toggle((e.currentTarget as HTMLDetailsElement).open)}>
+      <summary className="panel-head">
+        <h2 id="tour-h">처음 오셨나요? 시연 안내 {done.length ? `${done.length}/${TOUR.length}` : `${TOUR.length}단계`}</h2>
+        <span className="meta">{open ? "접기" : "펼치기"}</span>
+      </summary>
       <div className="panel-body" style={{ paddingTop: 4, paddingBottom: 4 }}>
+        <p className="meta" style={{ padding: "6px 0" }}>버튼을 누르면 그 사람으로 바뀌어 해당 화면이 열립니다.</p>
         <ol className="tour">
           {TOUR.map((t, i) => (
             <li key={i} className={done.includes(i) ? "done" : ""}>
@@ -190,8 +195,20 @@ function Tour({ go }: { go: Go }) {
           ))}
         </ol>
       </div>
-    </section>
+    </details>
   );
+}
+
+/** Today's lessons after applied swaps and covers. */
+function todaySlots(owner: string, requests: CoverRequest[]): Slot[] {
+  const d = todayIndex();
+  const changes = changesFor(owner, requests);
+  return Array.from({ length: PERIODS }, (_, p) => {
+    const c = changes.get(`${d}-${p}`);
+    const l = TIMETABLE[owner]?.[d]?.[p];
+    if (c) return c.label === "—" || c.label === "결강" ? null : { p, classId: c.label, label: c.note, cover: true };
+    return l ? { p, classId: l.classId, label: l.subject, cover: false } : null;
+  }).filter(Boolean) as Slot[];
 }
 
 export function Today({ go, openMine }: { go: Go; openMine: number }) {
@@ -201,7 +218,10 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
   const approve = me.role === "coordinator" ? requests.filter((r) => r.status === "AWAITING_COORDINATOR") : [];
   const name = useDisplayName(me.id);
   const studio = STUDIOS[useStudioId(me.id)];
-  const classesToday = (TIMETABLE[owner]?.[todayIndex()] ?? []).filter(Boolean).length;
+  const slots = todaySlots(owner, requests);
+  const changedToday = [...changesFor(owner, requests).keys()].filter((k) => k.startsWith(`${todayIndex()}-`)).length;
+  const week = weekSummary(useUsage(me.id));
+  const canInstall = useCanInstall();
   const greet = () => { const h = new Date().getHours(); return h < 11 ? "좋은 아침입니다" : h < 17 ? "안녕하세요" : "오늘도 수고하셨습니다"; };
 
   return (
@@ -210,25 +230,36 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
         <div className="hero-text">
           <div className="row"><span className="studio-badge">{studio.name}</span><span className="crumb" style={{ margin: 0 }}>{weekDates()[todayIndex()]} {DAYS[todayIndex()]}요일 · {studio.tagline}</span></div>
           <h1 id="hero-h">{greet()}, {name} {me.role === "student-teacher" ? "교생" : "선생님"}</h1>
-          <p className="lead">
-            {me.role === "student-teacher" ? `지도교사 ${nameOf(owner)} 선생님의 시간표입니다.` : "교체·보결이 반영된 칸은 노란색으로 표시됩니다."}
-          </p>
+          <p className="lead">{me.role === "student-teacher" ? `지도교사 ${nameOf(owner)} 선생님 반 수업을 함께합니다.` : `오늘 수업 ${slots.length}개${changedToday ? `, 교체·보결 ${changedToday}건 반영` : ""}. 수업 준비부터 기록까지 여기서 이어집니다.`}</p>
           <ul className="hero-stats" aria-label="오늘 요약">
-            <li><b>{classesToday}</b><span>오늘 수업</span></li>
-            <li><b>{consent.length + approve.length}</b><span>처리할 결재</span></li>
-            <li><b>{openMine}</b><span>진행 중 요청</span></li>
+            <li><b>{slots.length}</b><span>오늘 수업</span></li>
+            <li><b>{consent.length + approve.length}</b><span>처리할 요청</span></li>
+            <li><b>{hm(week.minutes)}</b><span>이번 주 아낀 시간</span></li>
           </ul>
+          <div className="row" style={{ marginTop: 14, gap: 8 }}>
+            <Upcoming />
+            {canInstall && <button className="btn sm" onClick={() => void install()}><Download className="ico sm" aria-hidden /> 앱으로 설치</button>}
+          </div>
         </div>
         <HeroClassroom studio={studio.id} />
       </section>
 
+      <div className="grid two today-top">
+        <NextClass go={go} owner={owner} studio={studio.id} slots={slots} readOnly={me.role === "student-teacher"} />
+        <Opener go={go} studio={studio.id} />
+      </div>
+
       {me.role !== "student-teacher" && <Tools go={go} />}
 
       <div className="grid two" style={{ alignItems: "start" }}>
+        <div className="stack">
         <section className="panel" aria-labelledby="tt-h">
-          <div className="panel-head"><h2 id="tt-h">주간 시간표</h2><span className="meta">수업 45분 · 쉬는 시간 10분</span></div>
+          <div className="panel-head"><h2 id="tt-h">{me.role === "student-teacher" ? `${nameOf(owner)} 선생님 시간표` : "주간 시간표"}</h2>
+            <ul className="tt-legend" aria-label="시간표 범례"><li><span className="sw today" aria-hidden="true" />오늘</li><li><span className="sw change" aria-hidden="true" />교체·보결 반영</li></ul></div>
           <div className="panel-body"><WeekTable owner={owner} requests={requests} caption={`${nameOf(owner)} 주간 시간표`} /></div>
         </section>
+        <ProgressPanel owner={owner} studio={studio.id} readOnly={me.role === "student-teacher"} />
+        </div>
 
         <div className="stack">
           <section className="panel" aria-labelledby="todo-h">
@@ -250,6 +281,7 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
               {openMine > 0 && <p className="meta">내가 올린 요청 {openMine}건이 진행 중입니다.</p>}
             </div>
           </section>
+          <WeekRecord id={me.id} />
           <Tour go={go} />
           {inFrame && (
             <Notice kind="plain">
