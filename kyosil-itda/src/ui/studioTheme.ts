@@ -27,10 +27,29 @@ function pattern(id: StudioId, c: string): string {
   }
 }
 
+const hex = (h: string) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const toHex = (c: number[]) => "#" + c.map((v) => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, "0")).join("");
+/** a over b by t (0..1) */
+export const mix = (a: string, b: string, t: number) => { const x = hex(a), y = hex(b); return toHex(x.map((v, i) => v * t + y[i] * (1 - t))); };
+
+/**
+ * Studio colours for a dark screen (the phone or computer set to dark mode). The accent stays the studio's own
+ * colour; text in the accent becomes the light tint, tinted panels become a deep shade. The in-app 고대비 switch
+ * (data-contrast="high") is excluded on purpose: it keeps the fixed KRDS high-contrast palette.
+ */
+export function darkStudioVars(s: (typeof STUDIOS)[StudioId]) {
+  return { primary: s.colors.primary, hover: s.colors.hover, pressed: s.colors.pressed, text: s.colors.line, bg: mix(s.colors.primary, "#000000", 0.2), line: mix(s.colors.primary, "#000000", 0.6) };
+}
+
 export function studioCss() {
-  return Object.values(STUDIOS)
+  const light = Object.values(STUDIOS)
     .map((s) => `:root[data-studio="${s.id}"]{--primary:${s.colors.primary};--primary-hover:${s.colors.hover};--primary-pressed:${s.colors.pressed};--primary-text:${s.colors.text};--primary-bg:${s.colors.bg};--primary-line:${s.colors.line};--studio-pattern:${pattern(s.id, s.colors.line)}}`)
     .join("\n");
+  const darkVars = (s: (typeof STUDIOS)[StudioId]) => { const d = darkStudioVars(s); return `--primary:${d.primary};--primary-hover:${d.hover};--primary-pressed:${d.pressed};--primary-text:${d.text};--primary-bg:${d.bg};--primary-line:${d.line};--on-primary:#ffffff`; };
+  // more specific than the dark rules in styles.css, but never applied under the 고대비 switch
+  const darkOs = Object.values(STUDIOS).map((s) => `:root[data-studio="${s.id}"]:not([data-theme="light"]):not([data-contrast="normal"]):not([data-contrast="high"]){${darkVars(s)}}`).join("\n");
+  const darkHost = Object.values(STUDIOS).map((s) => `:root[data-studio="${s.id}"][data-theme="dark"]:not([data-contrast="normal"]):not([data-contrast="high"]){${darkVars(s)}}`).join("\n");
+  return `${light}\n@media (prefers-color-scheme: dark){\n${darkOs}\n}\n${darkHost}`;
 }
 
 export function installStudioCss() {

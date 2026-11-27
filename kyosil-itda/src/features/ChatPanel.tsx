@@ -78,35 +78,35 @@ export function ChatPanel({ go, open, setOpen }: { go: Go; open: boolean; setOpe
   return (
     <>
       {(
-        <div className="chat" role="dialog" aria-modal="false" aria-labelledby="chat-h" hidden={!open}>
-          <div className="chat-head">
+        <div className="ieum" role="dialog" aria-modal="false" aria-labelledby="ieum-h" hidden={!open}>
+          <div className="ieum-head">
             <Mascot mood={mood} size={48} />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <h2 id="chat-h">이음이</h2>
+              <h2 id="ieum-h">이음이</h2>
               <p className="meta">{STUDIOS[studio].subject} 도우미 · 이 기기 안에서만 동작해요</p>
             </div>
             <button className="btn sm text" onClick={() => setOpen(false)} aria-label="이음이 닫기"><X className="ico sm" aria-hidden /></button>
           </div>
-          <div className="chat-list" ref={list} aria-live="polite">
+          <div className="ieum-list" ref={list} aria-live="polite">
             {msgs.map((m, i) => (
-              <div key={i} className={`chat-msg ${m.who}`}>
+              <div key={i} className={`ieum-msg ${m.who}`}>
                 <p>{m.text}</p>
                 {m.actions && m.actions.length > 0 && (
-                  <div className="chat-actions">
+                  <div className="ieum-actions">
                     {m.actions.map((a, j) => <button key={j} className={`chip-btn ${a.kind === "pack" || a.kind === "timer" ? "primary" : ""}`} onClick={() => act(a)}>{a.label}</button>)}
                   </div>
                 )}
               </div>
             ))}
             {timer && (
-              <div className="chat-timer" role="timer" aria-label={`남은 시간 ${Math.floor(left / 60)}분 ${left % 60}초`}>
+              <div className="ieum-timer" role="timer" aria-label={`남은 시간 ${Math.floor(left / 60)}분 ${left % 60}초`}>
                 <b>{String(Math.floor(left / 60)).padStart(2, "0")}:{String(left % 60).padStart(2, "0")}</b>
-                <span className="chat-timer-bar"><i style={{ width: `${(left / timer.total) * 100}%` }} /></span>
+                <span className="ieum-timer-bar"><i style={{ width: `${(left / timer.total) * 100}%` }} /></span>
                 <button className="btn sm text" onClick={() => setTimer(null)}>멈추기</button>
               </div>
             )}
           </div>
-          <form className="chat-input" onSubmit={(e) => { e.preventDefault(); if (text.trim()) { ask(text.trim()); setText(""); } }}>
+          <form className="ieum-input" onSubmit={(e) => { e.preventDefault(); if (text.trim()) { ask(text.trim()); setText(""); } }}>
             <input ref={input} value={text} onChange={(e) => setText(e.target.value)} placeholder={`예: ${SUGGESTIONS[0]}`} aria-label="이음이에게 말하기" maxLength={300} />
             <button className="btn primary sm" type="submit" aria-label="보내기"><Send className="ico sm" aria-hidden /></button>
           </form>

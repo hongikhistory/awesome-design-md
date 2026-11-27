@@ -12,9 +12,9 @@ export function ChatBot({ go }: { go: Go }) {
   return (
     <>
       {loaded && <Suspense fallback={null}><ChatPanel go={go} open={open} setOpen={setOpen} /></Suspense>}
-      <button className={`chat-fab ${open ? "on" : ""}`} onClick={() => { setLoaded(true); setOpen(!open); }} aria-expanded={open} aria-label={open ? "이음이 닫기" : "도우미 이음이 열기"}>
+      <button className={`ieum-fab ${open ? "on" : ""}`} onClick={() => { setLoaded(true); setOpen(!open); }} aria-expanded={open} aria-label={open ? "이음이 닫기" : "도우미 이음이 열기"}>
         <Mascot mood={open ? "happy" : "hi"} size={64} />
-        {!open && <span className="chat-fab-tip">무엇을 도와드릴까요?</span>}
+        {!open && <span className="ieum-fab-tip">무엇을 도와드릴까요?</span>}
       </button>
     </>
   );

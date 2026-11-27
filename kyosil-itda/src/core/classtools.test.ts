@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { assignRoles, DEFAULT_ROLES, fairInt, fairShuffle, makeLadder, parsePeople, rotateRoles, SAMPLE_TWO_TRUTHS, SAMPLE_WHO, segmentAt, trace, wheelAngle } from "./classtools";
 import { contrast, searchUrl, STUDIOS, studioForSubject } from "./studio";
+import { darkStudioVars, studioCss } from "../ui/studioTheme";
 
 const names = Array.from({ length: 25 }, (_, i) => `학생${i + 1}`);
 
@@ -69,6 +70,19 @@ describe("과목별 스튜디오", () => {
       expect(contrast(s.colors.text, "#FFFFFF"), `${s.id} text`).toBeGreaterThanOrEqual(4.5);
       expect(contrast(s.colors.text, s.colors.bg), `${s.id} text on tint`).toBeGreaterThanOrEqual(4.5);
     }
+  });
+  it("dark-mode studio colours also meet WCAG AA, and the 고대비 switch keeps its fixed palette", () => {
+    for (const s of Object.values(STUDIOS)) {
+      const d = darkStudioVars(s);
+      expect(contrast("#FFFFFF", d.primary), `${s.id} dark primary`).toBeGreaterThanOrEqual(4.5);
+      expect(contrast("#FFFFFF", d.hover), `${s.id} dark hover`).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(d.text, "#000000"), `${s.id} dark text on page`).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(d.text, d.bg), `${s.id} dark text on tint`).toBeGreaterThanOrEqual(4.5);
+      expect(contrast(d.text, "#131416"), `${s.id} dark text on panel`).toBeGreaterThanOrEqual(4.5);
+    }
+    const css = studioCss();
+    expect(css).toContain("prefers-color-scheme: dark");
+    expect(css.match(/:not\(\[data-contrast="high"\]\)/g)?.length).toBe(Object.keys(STUDIOS).length * 2);
   });
   it("maps subjects and builds search links only where the format is known", () => {
     expect(studioForSubject("역사")).toBe("history");
