@@ -1087,3 +1087,12 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius
 }
 /* each practicum step is one big tap target: circle and label together */
 .steps li button { display: block; width: 100%; margin-top: -34px; padding: 34px 2px 6px; position: relative; z-index: 2; background: none; border: 0; font: inherit; color: inherit; cursor: pointer; min-height: 44px; }
+/* 가정통신문: the preview column must not grow past its half of the screen */
+.letter-layout > * { min-width: 0; }
+.letter-layout .stack { grid-template-columns: minmax(0, 1fr); }
+.paper { min-width: 0; overflow-wrap: anywhere; }
+/* 이음이: the speech bubble greets for a few seconds, then gets out of the way (back on hover) */
+@keyframes ieum-tip-out { to { opacity: 0; visibility: hidden; } }
+.ieum-fab-tip { animation: enter .4s .6s var(--ease-out) both, ieum-tip-out .4s 7s forwards; }
+.ieum-fab:hover .ieum-fab-tip, .ieum-fab:focus-visible .ieum-fab-tip { animation: none; opacity: 1; visibility: visible; }
+@media (min-width: 881px) { .ieum-fab .mascot { width: 56px; height: 56px; } }
