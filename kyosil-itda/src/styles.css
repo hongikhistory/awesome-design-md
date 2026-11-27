@@ -1069,3 +1069,13 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 1px 6px; border-radius
 .pk-q { display: flex; gap: 8px; align-items: flex-start; font-weight: 600; color: var(--text-strong); }
 .topbar .brand svg, .topbar .brand img { flex: none; }
 .chat[hidden] { display: none; }
+
+/* studio picker on phones: the hero badge is a select, and the 전체 sheet has one too */
+.studio-badge.picker { position: relative; gap: 4px; padding: 0 8px 0 0; cursor: pointer; }
+.studio-badge.picker select { appearance: none; -webkit-appearance: none; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 800; padding: 4px 4px 4px 12px; min-height: 30px; cursor: pointer; }
+.studio-badge.picker select option { color: #1E1B18; background: #fff; }
+.studio-badge.picker:focus-within { outline: 2px solid var(--primary); outline-offset: 2px; }
+.studio-badge.picker .ico { pointer-events: none; }
+.sheet-studio { margin: 10px 0 12px; }
+.sheet-studio select { flex: 1; min-width: 0; }
+.sheet-backdrop { z-index: 40; }

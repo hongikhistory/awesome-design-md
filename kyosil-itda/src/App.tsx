@@ -303,6 +303,13 @@ export function App() {
         <div className="sheet-backdrop" onClick={() => setSheet(false)}>
           <div className="menu-sheet" role="dialog" aria-modal="true" aria-label="전체 메뉴" onClick={(e) => e.stopPropagation()}>
             <div className="row between"><b>전체 메뉴</b><button className="btn sm text" onClick={() => setSheet(false)} aria-label="닫기"><X className="ico sm" aria-hidden /></button></div>
+            <label className="studio-chip sheet-studio">
+              <span className="meta" style={{ whiteSpace: "nowrap" }}>과목 스튜디오</span>
+              <span className="studio-dot" aria-hidden="true" />
+              <select value={studio} onChange={(e) => saveMe(me.id, { ...mine, studio: e.target.value as StudioId })} aria-label="과목 스튜디오">
+                {(Object.keys(STUDIOS) as StudioId[]).map((k) => <option key={k} value={k}>{STUDIOS[k].name}</option>)}
+              </select>
+            </label>
             <div className="menu-grid">{NAV.map((n) => navBtn(n, true))}</div>
           </div>
         </div>

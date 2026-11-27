@@ -1,11 +1,11 @@
-import { ChevronRight, Download, Wand2, FileStack, GraduationCap, Landmark, ListChecks, PartyPopper, Presentation, UsersRound } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, Wand2, FileStack, GraduationCap, Landmark, ListChecks, PartyPopper, Presentation, UsersRound } from "lucide-react";
 import { useState } from "react";
 import type { Go, Page } from "../App";
 import type { CoverRequest } from "../core/approval";
 import { ROOM } from "../core/seed";
 import { HeroClassroom } from "../ui/Illustrations";
-import { useDisplayName, useStudioId } from "../core/profile";
-import { STUDIOS } from "../core/studio";
+import { getMe, saveMe, useDisplayName, useStudioId } from "../core/profile";
+import { STUDIOS, type StudioId } from "../core/studio";
 import { DAYS, nameOf, PERIOD_TIMES, PERIODS, TIMETABLE } from "../core/school";
 import { useApp } from "../state";
 import { hm, install, useCanInstall, useUsage, weekSummary, type Slot } from "../core/daily";
@@ -229,7 +229,13 @@ export function Today({ go, openMine }: { go: Go; openMine: number }) {
     <>
       <section className="hero" aria-labelledby="hero-h">
         <div className="hero-text">
-          <div className="row"><span className="studio-badge">{studio.name}</span><span className="crumb" style={{ margin: 0 }}>{weekDates()[todayIndex()]} {DAYS[todayIndex()]}요일 · {studio.tagline}</span></div>
+          <div className="row"><label className="studio-badge picker" title="과목 스튜디오 바꾸기">
+            <span className="sr">과목 스튜디오</span>
+            <select value={studio.id} onChange={(e) => saveMe(me.id, { ...getMe(me.id), studio: e.target.value as StudioId })} aria-label="과목 스튜디오 바꾸기">
+              {(Object.keys(STUDIOS) as StudioId[]).map((k) => <option key={k} value={k}>{STUDIOS[k].name}</option>)}
+            </select>
+            <ChevronDown className="ico sm" aria-hidden />
+          </label><span className="crumb" style={{ margin: 0 }}>{weekDates()[todayIndex()]} {DAYS[todayIndex()]}요일 · {studio.tagline}</span></div>
           <h1 id="hero-h">{greet()}, {name} {me.role === "student-teacher" ? "교생" : "선생님"}</h1>
           <p className="lead">{me.role === "student-teacher" ? `지도교사 ${nameOf(owner)} 선생님 반 수업을 함께합니다.` : `오늘 수업 ${slots.length}개${changedToday ? `, 교체·보결 ${changedToday}건 반영` : ""}. 수업 준비부터 기록까지 여기서 이어집니다.`}</p>
           <ul className="hero-stats" aria-label="오늘 요약">
