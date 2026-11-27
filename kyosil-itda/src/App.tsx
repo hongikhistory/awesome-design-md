@@ -159,7 +159,7 @@ export function App() {
         <select id={id} value={me.id} onChange={(e) => setMe(e.target.value)} aria-label={compact ? "접속한 사람 (시연용)" : undefined}>
           {PEOPLE.map((p) => (
             <option key={p.id} value={p.id}>
-              {getMe(p.id).displayName || p.name} · {p.role === "teacher" ? `${p.subject} 교사` : p.role === "coordinator" ? `${p.subject}·시간표` : "교생"}
+              {getMe(p.id).displayName || p.name} · {p.role === "teacher" ? `${p.subject} 교사` : p.role === "coordinator" ? `${p.subject} 교사·시간표 담당` : "교생"}
             </option>
           ))}
         </select>
