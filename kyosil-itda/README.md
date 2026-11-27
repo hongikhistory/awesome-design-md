@@ -1,6 +1,6 @@
 # 널리잇다 · 선생님의 하루를 잇다
 
-**시연 주소:** https://neolli-itda.vercel.app (로그인 없이 열림, 첫 화면에서 ‘시연으로 둘러보기’)
+**시연 주소:** https://neolli-itda.vercel.app (로그인 없이 열림, 첫 화면에서 ‘시연으로 둘러보기’) · **시연 영상:** https://neolli-itda.vercel.app/demo.mp4 (2분 10초)
 
 ![널리잇다 표지](docs/thumbnail.png)
 

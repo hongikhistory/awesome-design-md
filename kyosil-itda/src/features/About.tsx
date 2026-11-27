@@ -15,6 +15,7 @@ export function About({ go }: { go: Go }) {
         </div>
         <div className="row">
           <button className="btn primary" onClick={() => go("today", "t1")}>시연 시작</button>
+          <a className="btn" href="./demo.mp4" target="_blank" rel="noopener">시연 영상 (2분)</a>
         </div>
       </div>
 

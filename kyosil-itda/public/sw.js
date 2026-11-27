@@ -24,6 +24,7 @@ self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== self.location.origin) return;
+  if (/\.(mp4|webm)$/.test(url.pathname)) return; // the demo video streams with range requests; leave it to the network
   const put = (res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; };
   if (req.mode === "navigate" || url.pathname.endsWith(".html") || url.pathname.endsWith("/")) {
     e.respondWith(fetch(req).then(put).catch(async () => (await caches.match(req, { ignoreVary: true })) || caches.match("./index.html", { ignoreVary: true })));
